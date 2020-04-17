@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:convert' as JSON;
+import 'package:covid/App_localizations.dart';
 import 'package:covid/HomePage.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/Models/util/DialogBox.dart';
@@ -102,8 +103,8 @@ class _OtpPageState extends State<OtpPage> {
         FocusScope.of(context).unfocus();
       await validateotp(mobilenumbercontroller.text);
       if(statusCode==200){
-        Navigator.pop(context);
-        Navigator.push(
+        // Navigator.pop(context);
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => HomePage(
@@ -191,7 +192,7 @@ class _OtpPageState extends State<OtpPage> {
               size: 22.0,
               // color: Colors.blue,
             ),
-            labelText: 'Enter OTP'),
+            labelText: AppLocalizations.of(context).translate('enter_otp')),
         validator: (value) {
           //  if (value.isEmpty) {
           //   return 'Mobile Number is Required';
@@ -214,9 +215,7 @@ class _OtpPageState extends State<OtpPage> {
     return SafeArea(
       child: new Column(
         children: <Widget>[
-          FlutterLogo(
-            size: 90,
-          ),
+          Image.asset('assets/image1.png',height: 120,width: 120,),
           SizedBox(
             height: 20,
           ),
@@ -235,7 +234,7 @@ class _OtpPageState extends State<OtpPage> {
       //Login
       return [
         new RaisedButton(
-            child: new Text("Login", style: new TextStyle(fontSize: 20.0)),
+            child: new Text(AppLocalizations.of(context).translate('otp_button'), style: new TextStyle(fontSize: 20.0)),
             textColor: Colors.white,
             // color: Colors.blueAccent,
             onPressed: _isButtonTapped ? () {} : validateAndSubmit,

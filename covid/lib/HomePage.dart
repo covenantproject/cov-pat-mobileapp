@@ -7,10 +7,12 @@ import 'dart:io';
 import 'dart:convert' as JSON;
 import 'package:background_fetch/background_fetch.dart';
 import 'package:covid/BottomNavigationBarItems/DashBoard.dart';
+import 'package:covid/BottomNavigationBarItems/HistoryPage.dart';
 import 'package:covid/BottomNavigationBarItems/RaiseHands.dart';
 import 'package:covid/BottomNavigationBarItems/event_list.dart';
 import 'package:covid/BottomNavigationBarItems/Profile.dart';
 import 'package:covid/Models/HomeDetails.dart';
+import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/BottomNavigationBarItems/UpdateHealthInfo.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +57,7 @@ class _HomePageState extends State<HomePage>
   var _config;
   int _loiteringDelay = 10000;
   int _currentIndex = 0;
+  TextStyleFormate styletext = TextStyleFormate();
   TabController _tabController;
   List<_NavigationIconView> _navigationViews;
   List<Event> events = new List<Event>();
@@ -71,12 +74,17 @@ class _HomePageState extends State<HomePage>
   double currentlong;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  void getCurrentLocation() async {
+  Future getCurrentLocation() async {
+    Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
     setState(() {
-      currentlat = prefs.getDouble('lat');
-      currentlong = prefs.getDouble('long');
+      prefs.setDouble('lat', position.latitude);
+      prefs.setDouble('long', position.longitude);
+      position = res;
+      currentlat = position.latitude;
+      currentlong = position.longitude;
     });
+    _addgeofence();
   }
 
   /// Receive events from BackgroundGeolocation in Headless state.
@@ -241,7 +249,7 @@ class _HomePageState extends State<HomePage>
             stopOnTerminate: false,
             enableHeadless: true));
       }
-      updatelocation(1, currentlat,currentlong,"ON_HEART_BEAT_10mins");
+      updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
       BackgroundFetch.finish(taskId);
     });
 
@@ -275,7 +283,7 @@ class _HomePageState extends State<HomePage>
 
   void _onMotionChange(bg.Location location) {
     print('[${bg.Event.MOTIONCHANGE}] - $location');
-    updatelocation(1, currentlat, currentlong,"ON_LOCATION_CHANGE");
+    updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
     setState(() {
       events.insert(
           0,
@@ -318,7 +326,7 @@ class _HomePageState extends State<HomePage>
 
   void _onHeartbeat(bg.HeartbeatEvent event) {
     print('[${bg.Event.HEARTBEAT}] - $event');
-    updatelocation(1,currentlat,currentlong,'ON_IDLE');
+    updatelocation(1, currentlat, currentlong, 'ON_IDLE');
     setState(() {
       events.insert(0, Event(bg.Event.HEARTBEAT, event, event.toString()));
     });
@@ -326,7 +334,8 @@ class _HomePageState extends State<HomePage>
 
   void _onGeofence(bg.GeofenceEvent event) async {
     print('[${bg.Event.GEOFENCE}] - $event');
-    updatelocation(1, currentlat, currentlong,"ON_GEOFENCECROSS");
+    updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
+    showNotification();
     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
       // Execute an HTTP request to test an async operation completes.
       String url = "${ENV.TRACKER_HOST}/api/devices";
@@ -439,7 +448,8 @@ class _HomePageState extends State<HomePage>
     _tabController.addListener(_handleTabChange);
     _widgetOptions = <Widget>[
       DashBoard(),
-      SharedEvents(events: events, child: EventList()),
+      // SharedEvents(events: events, child: EventList()),
+      HistoryPage(),
       RaiseHands(),
       UpdateHealthInfo(),
       Profile()
@@ -449,7 +459,6 @@ class _HomePageState extends State<HomePage>
     _odometer = '0';
 
     initPlatformState();
-    //_addgeofence();
   }
 
   Future onSelectNotification(String payload) {
@@ -470,11 +479,13 @@ class _HomePageState extends State<HomePage>
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
     await flutterLocalNotificationsPlugin.show(0, 'Update health status',
-        'Update your health status at everyday 8 AM', platform,
-        payload: 'You need to update your health status');
+        'Update your health status at everyday 8 AM and 10 PM', platform,
+        payload:
+            'You need to update your health status everyday at 8 AM and 10 PM');
   }
 
   Future<String> getJsondata() async {
+    _config = _configure.serverURL();
     String homeurl = _config.postman + "/homedetails?userId=21";
     var homedetailsresponse;
     try {
@@ -531,8 +542,6 @@ class _HomePageState extends State<HomePage>
     final SharedPreferences prefs = await _prefs;
     prefs.setInt("tabIndex", _tabController.index);
   }
-
-  
 
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
@@ -645,8 +654,34 @@ class _HomePageState extends State<HomePage>
         ],
       ),
       body: Center(
-        child: _widgetOptions.elementAt(_currentIndex),
-        //_buildTransitionsStack(),
+        child: homeDetails == null
+            ? Center(
+                child: Container(
+                    padding: EdgeInsets.all(0),
+                    child: Container(
+                        child: const CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ))),
+              )
+            : RefreshIndicator(
+                onRefresh: getJsondata,
+                child: homeDetails == null
+                    ? ListView(
+                        children: <Widget>[
+                          Container(
+                            // color: Colors.red,
+                            height: MediaQuery.of(context).size.height / 1.4,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child:
+                                  Text('Loading', style: styletext.emptylist()),
+                            ),
+                          ),
+                        ],
+                      )
+                    : _widgetOptions.elementAt(_currentIndex),
+                //_buildTransitionsStack(),
+              ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels:

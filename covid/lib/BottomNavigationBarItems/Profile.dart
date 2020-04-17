@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:covid/Models/ProfileModel.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +22,7 @@ class _ProfileState extends State<Profile>
   bool _isAdmin;
   bool _isManager;
   bool _passwordObscureText = true;
-  String _idProof;
+  String _idProof='Aadhaar';
   TextStyleFormate styletext = TextStyleFormate();
   //status dropdown data
   String _networkStatus2;
@@ -48,11 +49,22 @@ class _ProfileState extends State<Profile>
   String _admintoken = ' ';
   String _identitytoken = ' ';
   bool _isButtonTapped;
+  TextEditingController namecontroller=TextEditingController();
+  TextEditingController dobcontroller=TextEditingController();
+  TextEditingController gendercontroller=TextEditingController();
+  TextEditingController proofidnocontroller=TextEditingController();
+  TextEditingController addresscontroller=TextEditingController();
+  String name;
+  String dob;
+  String gender;
+  String proofidno;
+  String address;
   ProfileModel profileModel;
 //init
   @override
   void initState() {
     super.initState();
+     getJsondata();
     autoValidatorFirstName = false;
     autoValidatorLastName = false;
     autoValidatorPassword = false;
@@ -61,26 +73,32 @@ class _ProfileState extends State<Profile>
     autoValidatorEmail = false;
     _isButtonTapped = false;
     _loadUserInfo();
-    getJsondata();
+   
     // _department = ' ';
   }
 Future<String> getJsondata() async { 
   _config = _configure.serverURL();
-    String profileurl = _config.sit +
-        "/profile?userId=2";
+    String profileurl = _config.postman +
+        "/profile?userId=12";
     var profileresponse;
     try {
       profileresponse =
           await http.get(Uri.encodeFull(profileurl), headers: {
         "Accept": "*/*",
         //'Authorization': 'Bearer ',
-        //'x-api-key':_config.apikey
+        'x-api-key':_config.apikey
       });
     } catch (ex) {
       print('error $ex');
     }
     setState(() {
       profileModel = profileModelFromJson(profileresponse.body);
+      namecontroller.text=profileModel.firstName;
+      dobcontroller.text=DateFormat.yMMMd().format(profileModel.dob);
+      proofidnocontroller.text=profileModel.idProofNo;
+      addresscontroller.text=profileModel.address;
+      gendercontroller.text=profileModel.gender;
+      proofidnocontroller.text='77362 77327 32983';
     });
     return "Success";
   }
@@ -235,7 +253,38 @@ Future<String> getJsondata() async {
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
         },
-        child: ListView(
+        child:profileModel == null
+                                  ? Center(
+                                      child: Container(
+                                          padding: EdgeInsets.all(0),
+                                          child: Container(
+                                              child:
+                                                  const CircularProgressIndicator(
+                                            strokeWidth: 3,
+                                          ))),
+                      
+                                    )
+                                  : RefreshIndicator(
+                                      onRefresh: getJsondata,
+                                      child: profileModel ==null
+                                          ? ListView(
+                                              children: <Widget>[
+                                                Container(
+                                                  // color: Colors.red,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      1.4,
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                        'Loading',
+                                                        style: styletext
+                                                            .emptylist()),
+                                                  ),
+                                                ),
+                                              ],
+                                            ): ListView(
           children: <Widget>[
             new Form(
               key: formKey,
@@ -244,9 +293,11 @@ Future<String> getJsondata() async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    TextFormField(
-                      initialValue: '${profileModel.preferredName}'??' ',
+                    TextField(
+                      controller:namecontroller ,
+                     // initialValue: '$name'??'-',
                       readOnly: true,
+                    
                       inputFormatters: [
                         WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
                       ],
@@ -265,15 +316,15 @@ Future<String> getJsondata() async {
 
                           filled: true,
                           fillColor: Colors.grey[200]),
-                      validator: (value) {
-                        return value.isEmpty ? 'Full Name is Required' : null;
-                      },
-                      onSaved: (value) {
-                        setState(() {
-                          this._firstname = value;
-                        });
-                        return _firstname = value;
-                      },
+                      // validator: (value) {
+                      //   return value.isEmpty ? 'Full Name is Required' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._firstname = value;
+                      //   });
+                      //   return _firstname = value;
+                      // },
                     ),
                     SizedBox(
                       height: 40,
@@ -281,38 +332,40 @@ Future<String> getJsondata() async {
                     // Text(
                     //   'DOB',
                     // ),
-                    TextFormField(
-                      initialValue: '${profileModel.dob}'??' ',
+                    TextField(
+                     // initialValue: '$dob',
+                     controller: dobcontroller,
                       readOnly: true,
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                      autovalidate: autoValidatorLastName,
-                      onTap: () async {
+                      // autovalidate: autoValidatorLastName,
+                      // onTap: () async {
                        
-                      },
+                      // },
                       decoration: new InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[200],
                         icon: Icon(Icons.calendar_today),
                         hintText: 'DOB (DD/MM/YYYY)',
                       ),
-                      validator: (value) {
-                        return value.isEmpty ? 'Last Name is Required' : null;
-                      },
-                      onSaved: (value) {
-                        setState(() {
-                          this._lastName = value;
-                        });
-                        return _lastName = value;
-                      },
+                      // validator: (value) {
+                      //   return value.isEmpty ? 'Last Name is Required' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._lastName = value;
+                      //   });
+                      //   return _lastName = value;
+                      // },
                     ),
                     SizedBox(
                       height: 40,
                     ),
 
-                   TextFormField(
-                      initialValue: '${profileModel.gender}'??'',
+                   TextField(
+                     // initialValue: '$gender'??'-',
+                     controller: gendercontroller,
                       readOnly: true,
                       inputFormatters: [
                         WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
@@ -332,15 +385,15 @@ Future<String> getJsondata() async {
 
                           filled: true,
                           fillColor: Colors.grey[200]),
-                      validator: (value) {
-                        return value.isEmpty ? 'Full Name is Required' : null;
-                      },
-                      onSaved: (value) {
-                        setState(() {
-                          this._firstname = value;
-                        });
-                        return _firstname = value;
-                      },
+                      // validator: (value) {
+                      //   return value.isEmpty ? 'Full Name is Required' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._firstname = value;
+                      //   });
+                      //   return _firstname = value;
+                      // },
                     ),
                     SizedBox(
                       height: 35,
@@ -360,23 +413,8 @@ Future<String> getJsondata() async {
                                 'Select Identification Proof',
                               ),
                               isDense: true,
-                              
-                              
-                              // validator: (String value) {
-                              //   if (value?.isEmpty ?? true) {
-                              //     return 'Select Identification Proof';
-                              //   }
-                              // },
-                              //icon: Icon(Icons.arrow_drop_down),
-                              //isExpanded: true,
                               iconSize: 24,
                               elevation: 16,
-                              // style: TextStyle(
-                              //     color: Colors.black, fontWeight: FontWeight.w600),
-                              // // underline: Container(
-                              //   height: 1,
-                              //   color: Colors.grey.shade400,
-                              // ),
                               onChanged: (String newValue) {
                                 FocusScope.of(context)
                                     .requestFocus(new FocusNode());
@@ -408,13 +446,14 @@ Future<String> getJsondata() async {
                     SizedBox(
                       height: 40,
                     ),
-                    TextFormField(
-                       initialValue: '77362 77327 32983',
+                    TextField(
+                      controller: proofidnocontroller,
+                      // initialValue: '77362 77327 32983',
                       readOnly: true,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
                       //obscureText: true,
-                      autovalidate: autoValidatorPassword,
+                     // autovalidate: autoValidatorPassword,
                      // obscureText: _passwordObscureText,
                       onTap: () {
                         setState(() {
@@ -428,13 +467,13 @@ Future<String> getJsondata() async {
                         hintText: 'Proof Id (Optional)',
                       ),
 
-                      validator: (newpassword) {},
-                      onSaved: (value) {
-                        setState(() {
-                          this._password = value;
-                        });
-                        return _password = value;
-                      },
+                      // validator: (newpassword) {},
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._password = value;
+                      //   });
+                      //   return _password = value;
+                      // },
                     ),
 
                     SizedBox(
@@ -459,13 +498,14 @@ Future<String> getJsondata() async {
                     // Text(
                     //   'Address',
                     // ),
-                    TextFormField(
-                       initialValue: '${profileModel.address}'??' ',
+                    TextField(
+                       //initialValue: '$address'??'-',
+                       controller: addresscontroller,
                       readOnly: true,
                       maxLines: 3,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                      autovalidate: autoValidatorEmail,
+                     // autovalidate: autoValidatorEmail,
                       onTap: () {
                         setState(() {
                           autoValidatorEmail = true;
@@ -480,15 +520,15 @@ Future<String> getJsondata() async {
                         ),
                         hintText: 'Address (Optional)',
                       ),
-                      validator: (value) {
-                        // return value.isEmpty ? 'Email is required!' : null;
-                      },
-                      onSaved: (value) {
-                        setState(() {
-                          this._email = value;
-                        });
-                        return _email = value;
-                      },
+                      // validator: (value) {
+                      //   // return value.isEmpty ? 'Email is required!' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._email = value;
+                      //   });
+                      //   return _email = value;
+                      // },
                     ),
                     SizedBox(
                       height: 25,
@@ -529,7 +569,7 @@ Future<String> getJsondata() async {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget enableCheck() {

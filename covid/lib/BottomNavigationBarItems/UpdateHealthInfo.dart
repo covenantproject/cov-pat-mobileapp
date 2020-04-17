@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
+import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,11 +20,14 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     with TickerProviderStateMixin {
   TextStyleFormate styletext = TextStyleFormate();
   GoogleMapController _googleMapController;
-  bool isSwitched = true;
+  bool isSwitchedcough = true;
+  bool isSwitchedfever = true;
+  bool isSwitchedbreathing = true;
    int id ;
    var _config;
    Configure _configure = new Configure();
    String radioItem = '';
+   DialogBox dialogBox=DialogBox();
  List<RadioList> fList = [
     RadioList(
       index: 1,
@@ -55,10 +59,10 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "mobileno": "",
-    "hascough": "false",
-    "hasfever": "false",
+    "hascough": isSwitchedcough,
+    "hasfever": isSwitchedfever,
     "haschills": "false",
-    "hasbreathingissue": "false",
+    "hasbreathingissue": isSwitchedbreathing,
     "currenthealthstatus": "",
     "temperature": "",
     "heartrate": "",
@@ -103,7 +107,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                       title: Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
-                          'How are you ?',
+                          AppLocalizations.of(context).translate('qus1'),
                           style: styletext.cardfont(),
                         ),
                       ),
@@ -112,11 +116,12 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             const EdgeInsets.only(top: 5, right: 0, bottom: 10),
                         child: Column(
                           children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  'Do you have cough ?',
+                                  AppLocalizations.of(context).translate('cough'),
                                   style: styletext.placeholderStyle(),
                                 ),
                                 SizedBox(
@@ -130,11 +135,11 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                                         style: styletext.labelfont(),
                                       ),
                                       Switch(
-                                        value: isSwitched,
+                                        value: isSwitchedcough,
                                         onChanged: (value) {
                                           setState(() {
-                                            isSwitched = value;
-                                            print(isSwitched);
+                                            isSwitchedcough = value;
+                                            print(isSwitchedcough);
                                           });
                                         },
                                         activeTrackColor: Colors.grey[400],
@@ -147,11 +152,12 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                                 ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                             // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  'Do you have fever ?',
+                                  AppLocalizations.of(context).translate('fever'),
                                   style: styletext.placeholderStyle(),
                                 ),
                                 SizedBox(
@@ -165,11 +171,11 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                                       style: styletext.labelfont(),
                                     ),
                                     Switch(
-                                      value: isSwitched,
+                                      value: isSwitchedfever,
                                       onChanged: (value) {
                                         setState(() {
-                                          isSwitched = value;
-                                          print(isSwitched);
+                                          isSwitchedfever = value;
+                                          print(isSwitchedfever);
                                         });
                                       },
                                       activeTrackColor: Colors.grey[400],
@@ -216,11 +222,12 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             //     ),
                             //   ],
                             // ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  'Do you have breathing difficulty ?',
+                                  AppLocalizations.of(context).translate('breath'),
                                   style: styletext.placeholderStyle(),
                                 ),
                                 SizedBox(
@@ -234,11 +241,11 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                                         style: styletext.labelfont(),
                                       ),
                                       Switch(
-                                        value: isSwitched,
+                                        value: isSwitchedbreathing,
                                         onChanged: (value) {
                                           setState(() {
-                                            isSwitched = value;
-                                            print(isSwitched);
+                                            isSwitchedbreathing = value;
+                                            print(isSwitchedbreathing);
                                           });
                                         },
                                         activeTrackColor: Colors.grey[400],
@@ -267,7 +274,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                       title: Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
-                          'How do you feel ?',
+                          AppLocalizations.of(context).translate('qus2'),
                           style: styletext.cardfont(),
                         ),
                       ),
@@ -304,7 +311,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                       title: Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
-                          'Some more info:',
+                          AppLocalizations.of(context).translate('qus3'),
                           style: styletext.cardfont(),
                         ),
                       ),
@@ -319,7 +326,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             TextField(
                               decoration: InputDecoration(
                                   icon: Icon(Icons.ac_unit),
-                                  hintText: 'Temperature',
+                                  hintText: AppLocalizations.of(context).translate('temp'),
                                   filled: true,
                                   fillColor: Colors.grey[200]),
                             ),
@@ -329,7 +336,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             TextField(
                               decoration: InputDecoration(
                                   icon: Icon(Icons.loyalty),
-                                  hintText: 'heart rate/pulse rate',
+                                  hintText: AppLocalizations.of(context).translate('heart-rate'),
                                   filled: true,
                                   fillColor: Colors.grey[200]),
                             ),
@@ -339,7 +346,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             TextField(
                               decoration: InputDecoration(
                                   icon: Icon(Icons.record_voice_over),
-                                  hintText: 'Respiratory rate',
+                                  hintText: AppLocalizations.of(context).translate('respiratory'),
                                   filled: true,
                                   fillColor: Colors.grey[200]),
                             ),
@@ -349,7 +356,7 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
                             TextField(
                               decoration: InputDecoration(
                                   icon: Icon(Icons.whatshot),
-                                  hintText: 'SPO2',
+                                  hintText: AppLocalizations.of(context).translate('spo2'),
                                   filled: true,
                                   fillColor: Colors.grey[200]),
                             ),
@@ -364,14 +371,15 @@ var apiUrl = Uri.parse(_config.postman + '/updatehealthinfo');
               Center(
                   child: RaisedButton(
                       elevation: 5.0,
-                      child: Text('Update',
+                      child: Text(AppLocalizations.of(context).translate('update_button'),
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 17)),
                       textColor: Colors.white,
                       //color: Colors.blue,
-                      onPressed: () {
+                      onPressed: () async{
                         FocusScope.of(context).unfocus();
-                        submit();
+                       await submit();
+                       dialogBox.information(context, 'Update health info','Update successfull');
                       },
                       shape: RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(80.0))))

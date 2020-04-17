@@ -52,5 +52,6 @@
     "quarantine-officer": "Contact your quarantine officer",
     "medical-officer": "Contact your medical officer",
     "food": "Request food/water/medicines",
-    "your hand": "Raise Your Hand"    
+    "your hand": "Raise Your Hand",
+    "comments":"Comments" 
   }

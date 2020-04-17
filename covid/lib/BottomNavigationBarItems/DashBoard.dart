@@ -1,3 +1,4 @@
+import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/HomeDetails.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
@@ -6,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key key}) : super(key: key);
@@ -23,6 +25,10 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   var _config;
   Configure _configure = new Configure();
   HomeDetails homeDetails=HomeDetails();
+  String healthofficer;
+  String healthupdate;
+  String emergencycontactno;
+  String officerno;
   Set<Marker> _createMarker() {
     return <Marker>[
       Marker(
@@ -59,14 +65,14 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
 
   @override
   void initState() {
-   // getJsondata();
+    getJsondata();
     getCurrentLocation();
     Future.delayed(const Duration(seconds: 2), () {});
     super.initState();
   }
 Future<String> getJsondata() async { 
   _config = _configure.serverURL();
-    String homeurl = _config.sit +
+    String homeurl = _config.postman +
         "/homedetails?userId=21";
     var homedetailsresponse;
     try {
@@ -81,7 +87,10 @@ Future<String> getJsondata() async {
     }
     setState(() {
       homeDetails = homeDetailsFromJson(homedetailsresponse.body);
-    
+      healthofficer=homeDetails.healthofficername;
+      officerno=homeDetails.healthofficerno;
+      healthupdate=DateFormat.yMMMd().format(homeDetails.lasthealthupdate);
+      emergencycontactno=homeDetails.emergencyno;
     });
     return "Success";
   }
@@ -105,16 +114,16 @@ Future<String> getJsondata() async {
                     title: Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                        'Your health officer',
+                       AppLocalizations.of(context).translate('health_officer'),
                         style: styletext.placeholderStyle(),
                       ),
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 5, right: 0),
-                      child: Text(
-                        '${homeDetails.healthofficername}\n${homeDetails.healthofficerno}'??' ',
+                      child:healthofficer!=null&&officerno!=null? Text(
+                        '$healthofficer\n$officerno'??'-',
                         style: styletext.placeholderStyle(),
-                      ),
+                      ):Text('-'),
                     ),
                   ),
                   ButtonBar(
@@ -122,7 +131,7 @@ Future<String> getJsondata() async {
                     children: <Widget>[
                       FlatButton(
                         child: Text(
-                          'CONTACT',
+                          AppLocalizations.of(context).translate('contact'),
                           style: styletext.labelfont(),
                         ),
                         onPressed: () {/* ... */},
@@ -144,15 +153,15 @@ Future<String> getJsondata() async {
                           EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
                       leading: Icon(Icons.album),
                       title: Text(
-                        'Your last health update',
+                         AppLocalizations.of(context).translate('last_health'),
                         style: styletext.placeholderStyle(),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 5, bottom: 0),
-                        child: Text(
-                          ''??' ',
+                        child:healthupdate!=null? Text(
+                          '$healthupdate'??'-',
                           style: styletext.placeholderStyle(),
-                        ),
+                        ):Text('-'),
                       ),
                     ),
                     ButtonBar(
@@ -161,7 +170,7 @@ Future<String> getJsondata() async {
                       children: <Widget>[
                         FlatButton(
                           child:
-                              Text('UPDATE NOW', style: styletext.labelfont()),
+                              Text(AppLocalizations.of(context).translate('now-update'), style: styletext.labelfont()),
                           onPressed: () {/* ... */},
                         ),
                       ],
@@ -174,12 +183,12 @@ Future<String> getJsondata() async {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const ListTile(
+                   ListTile(
                     leading: Icon(Icons.album),
                     title: Text('Your emergency contact number'),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 5),
-                      child: Text(""),
+                      child:emergencycontactno!=null? new Text('$emergencycontactno'):new Text('-'),
                     ),
                   ),
                 ],
@@ -195,7 +204,7 @@ Future<String> getJsondata() async {
                     title: Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: Text(
-                        'Your current location',
+                        AppLocalizations.of(context).translate('location'),
                         style: styletext.placeholderStyle(),
                       ),
                     ),
@@ -208,7 +217,7 @@ Future<String> getJsondata() async {
                   ButtonBar(
                     children: <Widget>[
                       FlatButton(
-                        child: Text('CHANGE LOCATION',
+                        child: Text(AppLocalizations.of(context).translate('location_button'),
                             style: styletext.labelfont()),
                         onPressed: () {
                           getCurrentLocation();

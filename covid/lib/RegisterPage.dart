@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:covid/App_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -210,7 +211,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Icons.arrow_back,
               color: Colors.white,
             )),
-        title: new Text("Self Registration"),
+        title: new Text(AppLocalizations.of(context).translate('self_register')),
         //centerTitle: true,
       ),
       body: GestureDetector(
@@ -241,7 +242,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       decoration: new InputDecoration(
                           icon: Icon(Icons.account_circle),
-                          hintText: 'Full Name',
+                          hintText: AppLocalizations.of(context).translate('username'),
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
@@ -278,7 +279,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         filled: true,
                         fillColor: Colors.grey[200],
                         icon: Icon(Icons.calendar_today),
-                        hintText: 'DOB (DD/MM/YYYY)',
+                        hintText: AppLocalizations.of(context).translate('user_dob'),
                       ),
                       validator: (value) {
                         return value.isEmpty ? 'Last Name is Required' : null;
@@ -310,19 +311,19 @@ class _RegisterPageState extends State<RegisterPage> {
                               groupValue: 1,
                               onChanged: (value) {},
                             ),
-                            new Text('Male'),
+                            new Text(AppLocalizations.of(context).translate('male')),
                             new Radio(
                               value: 1,
                               groupValue: 2,
                               onChanged: (value) {},
                             ),
-                            new Text('Female'),
+                            new Text(AppLocalizations.of(context).translate('female')),
                             new Radio(
                               value: 2,
                               groupValue: 3,
                               onChanged: (value) {},
                             ),
-                            new Text('Other'),
+                            new Text(AppLocalizations.of(context).translate('other')),
                           ],
                         ),
                       ),
@@ -340,7 +341,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               value: _idProof,
                                 decoration: InputDecoration(filled: true,fillColor: Colors.grey[200]),
                               hint: Text(
-                                'Select Identification Proof',
+                                AppLocalizations.of(context).translate('IdName'),
                               ),
                               isDense: true,
                               
@@ -405,7 +406,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         icon: Icon(Icons.assignment_ind),
                         filled: true,
                         fillColor: Colors.grey[200],
-                        hintText: 'Proof Id (Optional)',
+                        hintText:  AppLocalizations.of(context).translate('IdNo'),
                       ),
 
                       validator: (newpassword) {},
@@ -456,7 +457,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           padding: const EdgeInsets.only(bottom: 35),
                           child: Icon(Icons.home),
                         ),
-                        hintText: 'Address (Optional)',
+                        hintText:  AppLocalizations.of(context).translate('user_address'),
                       ),
                       validator: (value) {
                         // return value.isEmpty ? 'Email is required!' : null;
@@ -477,7 +478,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: <Widget>[
                         RaisedButton(
                             elevation: 5.0,
-                            child: Text('Cancel',
+                            child: Text(AppLocalizations.of(context).translate('cancel_button'),
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 17)),
                             textColor: Colors.white,
@@ -490,7 +491,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         RaisedButton(
                             elevation: 5.0,
-                            child: Text('Register',
+                            child: Text(AppLocalizations.of(context).translate('register_button'),
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 17)),
                             textColor: Colors.white,

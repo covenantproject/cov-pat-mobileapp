@@ -1,4 +1,5 @@
 import 'package:background_fetch/background_fetch.dart';
+import 'package:covid/App_localizations.dart';
 import 'package:covid/HomePage.dart';
 import 'package:covid/Landing.dart';
 import 'package:covid/Login.dart';
@@ -6,6 +7,8 @@ import 'package:covid/Models/config/env.dart';
 import 'package:covid/Models/config/transistor_auth.dart';
 import 'package:covid/OtpPage.dart';
 import 'package:covid/RegisterPage.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
@@ -165,6 +168,31 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Covenant',
+       supportedLocales: [
+        Locale('en', 'US'),
+        Locale('ta', 'IN'),
+      ],
+       localizationsDelegates: [
+        // THIS CLASS WILL BE ADDED LATER
+        // A class which loads the translations from JSON files
+        AppLocalizations.delegate,
+        // Built-in localization of basic text for Material widgets
+        GlobalMaterialLocalizations.delegate,
+        // Built-in localization for text direction LTR/RTL
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        // Check if the current device locale is supported
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale.languageCode &&
+              supportedLocale.countryCode == locale.countryCode) {
+            return supportedLocale;
+          }
+        }
+        // If the locale of the device is not supported, use the first one
+        // from the list (English, in this case).
+        return supportedLocales.first;
+      },
       // initialRoute: '/',
       routes: {
         // '/': (context) => Landing(),

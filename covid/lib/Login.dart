@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
+import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:covid/OtpPage.dart';
@@ -107,8 +108,8 @@ class _LoginPageState extends State<LoginPage> {
         await login(mobilenumbercontroller.text);
         if (statusCode == 200) {
           prefs.setString('isloggedin', "true");
-          Navigator.pop(context);
-          Navigator.push(
+         // Navigator.pop(context);
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => OtpPage(),
@@ -198,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
               size: 22.0,
               // color: Colors.blue,
             ),
-            labelText: 'Phone Number'),
+            labelText:  AppLocalizations.of(context).translate('login_number')),
         validator: (value) {
           //  if (value.isEmpty) {
           //   return 'Mobile Number is Required';
@@ -221,9 +222,7 @@ class _LoginPageState extends State<LoginPage> {
     return SafeArea(
       child: new Column(
         children: <Widget>[
-          FlutterLogo(
-            size: 90,
-          ),
+          Image.asset('assets/image1.png',height: 120,width: 120,),
           SizedBox(
             height: 20,
           ),
@@ -242,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
       //Login
       return [
         new RaisedButton(
-            child: new Text("Next", style: new TextStyle(fontSize: 20.0)),
+            child: new Text(AppLocalizations.of(context).translate('login_button'), style: new TextStyle(fontSize: 20.0)),
             textColor: Colors.white,
             // color: Colors.blueAccent,
             onPressed: _isButtonTapped ? () {} : validateAndSubmit,
