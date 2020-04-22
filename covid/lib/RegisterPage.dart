@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/App_localizations.dart';
+import 'package:covid/Login.dart';
+import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:intl/intl.dart';
 import 'dart:convert' as JSON;
-
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -29,13 +31,14 @@ class _RegisterPageState extends State<RegisterPage> {
   //status dropdown data
   String _networkStatus2;
   File sampleImage;
-  String _firstname;
-  String _lastName;
+  String _name;
+  String _dob;
+  String _gender;
   String _username;
-  String _password;
+  String _idproofno;
   String _department;
   String _roleDescription;
-  String _email;
+  String _address;
   bool autoValidatorFirstName;
   bool autoValidatorLastName;
   bool autoValidatorPassword;
@@ -44,17 +47,24 @@ class _RegisterPageState extends State<RegisterPage> {
   bool autoValidatorEmail;
   bool _ismanager = false;
   bool _isadmin = false;
-
+  Configure _configure = new Configure();
+   TextEditingController dobcontroller;
   String url;
   var _config;
   final formKey = new GlobalKey<FormState>();
   String _admintoken = ' ';
   String _identitytoken = ' ';
   bool _isButtonTapped;
+  DialogBox dialogBox =DialogBox();
+  String mobileno;
+  int statusCode;
+  int _radioValue = 0;
+  DateTime date;
 //init
   @override
   void initState() {
     super.initState();
+    dobcontroller=TextEditingController();
     autoValidatorFirstName = false;
     autoValidatorLastName = false;
     autoValidatorPassword = false;
@@ -66,21 +76,32 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // _department = ' ';
   }
-
   _loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // SharedPreferences prefs2 = await SharedPreferences.getInstance();
-    _isAdmin = (prefs.getBool('Admin') ?? false);
-    _isManager = (prefs.getBool('Manager') ?? false);
-    _admintoken = (prefs.getString('admintoken') ?? "");
-    _username = (prefs.getString('useremail') ?? "");
-    _identitytoken = (prefs.getString('identitytoken') ?? "");
     setState(() {
-      _admintoken = prefs.getString('admintoken');
-      _username = prefs.getString('useremail');
-      _identitytoken = (prefs.getString('identitytoken') ?? "");
-      _isAdmin = prefs.getBool('Admin');
-      _isManager = prefs.getBool('Manager');
+      mobileno=  prefs.getString('mobileno');
+    });
+  
+   
+  }
+
+   String _genderResult ='';
+  
+  void _handleRadioValueChange(int value) {
+    setState(() {
+      _radioValue = value;
+  
+      switch (_radioValue) {
+        case 0:
+          _genderResult ='Male';
+          break;
+        case 1:
+          _genderResult = 'Female';
+          break;
+        case 2:
+          _genderResult = 'Other';
+          break;
+      }
     });
   }
 
@@ -152,8 +173,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ));
                 formKey.currentState.reset();
               },
             ),
@@ -183,9 +207,67 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void uploadCheck() async {
-    Navigator.pushNamedAndRemoveUntil(
-        context, '/home', ModalRoute.withName('/home'));
+ void validateandsubmit() async {
+    if (validateAndSave()) {
+      FocusScope.of(context).unfocus();
+      await register();
+      if(statusCode==200){
+        dialogBox.information(context, 'Self registration', 'Registration successfull');
+        Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ));
+      }else{
+         dialogBox.information(context, 'Self registration', 'An error occured');
+      }
+
+    }
+  }
+
+  register() async {
+    _config = _configure.serverURL();
+    var apiUrl = Uri.parse(_config.postman + '/register');
+
+    String formattedDate = DateFormat("2002-02-27'T'14:00:00-0500").format(date);
+    // '/api/check?userName=$_username&checkName=$checkname&category=$category&description=$description&frequency=$frequency');
+    var client = HttpClient(); // `new` keyword optional
+    // 1. Create request
+    try {
+      HttpClientRequest request = await client.postUrl(apiUrl);
+      // request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('content-type', 'application/json; charset=utf-8');
+      var payload = {
+        "title": "Mr",
+        "firstName": "$_name",
+        "middleName": "middlename",
+        "lastName": "$_name",
+        "preferredName": "$_name",
+        "shortName": "$_name",
+        "suffix": "$_name",
+        "dob": "$formattedDate",
+        "address": "$_address",
+        "gender": "$_genderResult",
+        "mobileNo": "$mobileno",
+        "photoId": "1"
+      };
+      request.write(JSON.jsonEncode(payload));
+      print(JSON.jsonEncode(payload));
+      // 3. Send the request
+      HttpClientResponse response = await request.close();
+      // 4. Handle the response
+      var resStream = response.transform(Utf8Decoder());
+       setState(() {
+        statusCode = response.statusCode;
+         // loginjson=JSON.jsonDecode(data);
+         
+      });
+      await for (var data in resStream) {
+        print('Received data: $data');
+      }
+    } catch (ex) {
+      print('error $ex');
+    }
   }
 
   String dropdownValue = ' ';
@@ -204,14 +286,19 @@ class _RegisterPageState extends State<RegisterPage> {
         leading: IconButton(
             iconSize: 24.0,
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginPage(),
+              ));
             },
             color: Colors.blue,
             icon: Icon(
               Icons.arrow_back,
               color: Colors.white,
             )),
-        title: new Text(AppLocalizations.of(context).translate('self_register')),
+        title:
+            new Text(AppLocalizations.of(context).translate('self_register')),
         //centerTitle: true,
       ),
       body: GestureDetector(
@@ -228,9 +315,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     TextFormField(
-                      inputFormatters: [
-                        WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
-                      ],
+                      // inputFormatters: [
+                      //   WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      // ],
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
@@ -242,7 +329,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       decoration: new InputDecoration(
                           icon: Icon(Icons.account_circle),
-                          hintText: AppLocalizations.of(context).translate('username'),
+                          hintText: AppLocalizations.of(context)
+                              .translate('username'),
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
@@ -250,9 +338,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       onSaved: (value) {
                         setState(() {
-                          this._firstname = value;
+                          this._name = value;
                         });
-                        return _firstname = value;
+                        return _name = value;
                       },
                     ),
                     SizedBox(
@@ -262,33 +350,45 @@ class _RegisterPageState extends State<RegisterPage> {
                     //   'DOB',
                     // ),
                     TextFormField(
+                      controller: dobcontroller,
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
                       autovalidate: autoValidatorLastName,
                       onTap: () async {
-                        DateTime date = DateTime(1900);
+                        date = DateTime(1900);
                         FocusScope.of(context).requestFocus(new FocusNode());
                         date = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100));
+                             dobcontroller.text =
+                             "${DateFormat("yyyy-MM-dd").format(date)}"
+                                                          .toString();
                       },
                       decoration: new InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[200],
                         icon: Icon(Icons.calendar_today),
-                        hintText: AppLocalizations.of(context).translate('user_dob'),
+                        hintText:
+                            AppLocalizations.of(context).translate('user_dob'),
                       ),
                       validator: (value) {
-                        return value.isEmpty ? 'Last Name is Required' : null;
+                        return value.isEmpty ? 'Dob is Required' : null;
+                      },
+                      onChanged: (value){
+                        setState(() {
+                          this._dob = value;
+                          dobcontroller.text=value;
+                        });
                       },
                       onSaved: (value) {
                         setState(() {
-                          this._lastName = value;
+                          this._dob = value;
+                           dobcontroller.text=value;
                         });
-                        return _lastName = value;
+                        return _dob = value;
                       },
                     ),
                     SizedBox(
@@ -300,30 +400,34 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Container(
                         child: new Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
-                         // mainAxisAlignment: MainAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                           Icon(
+                            Icon(
                               Icons.supervisor_account,
                               color: Colors.grey,
                             ),
                             new Radio(
                               value: 0,
-                              groupValue: 1,
-                              onChanged: (value) {},
+                              groupValue: _radioValue,
+                              onChanged:_handleRadioValueChange,
+                              
                             ),
-                            new Text(AppLocalizations.of(context).translate('male')),
+                            new Text(
+                                AppLocalizations.of(context).translate('male')),
                             new Radio(
                               value: 1,
-                              groupValue: 2,
-                              onChanged: (value) {},
+                              groupValue:_radioValue,
+                              onChanged:_handleRadioValueChange,
                             ),
-                            new Text(AppLocalizations.of(context).translate('female')),
+                            new Text(AppLocalizations.of(context)
+                                .translate('female')),
                             new Radio(
                               value: 2,
-                              groupValue: 3,
-                              onChanged: (value) {},
+                              groupValue: _radioValue,
+                              onChanged:_handleRadioValueChange
                             ),
-                            new Text(AppLocalizations.of(context).translate('other')),
+                            new Text(AppLocalizations.of(context)
+                                .translate('other')),
                           ],
                         ),
                       ),
@@ -335,21 +439,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(left:35),
-                          child: Container(width: 340,
+                          padding: const EdgeInsets.only(left: 35),
+                          child: Container(
+                            width: 340,
                             child: DropdownButtonFormField<String>(
                               value: _idProof,
-                                decoration: InputDecoration(filled: true,fillColor: Colors.grey[200]),
+                              decoration: InputDecoration(
+                                  filled: true, fillColor: Colors.grey[200]),
                               hint: Text(
-                                AppLocalizations.of(context).translate('IdName'),
+                                AppLocalizations.of(context)
+                                    .translate('IdName'),
                               ),
                               isDense: true,
-                              
-                              // validator: (String value) {
-                              //   if (value?.isEmpty ?? true) {
-                              //     return 'Select Identification Proof';
-                              //   }
-                              // },
+
+                              validator: (String value) {
+                                if (value?.isEmpty ?? true) {
+                                  return 'Select Identification Proof';
+                                }
+                              },
                               //icon: Icon(Icons.arrow_drop_down),
                               //isExpanded: true,
                               iconSize: 24,
@@ -367,8 +474,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                   this._idProof = newValue;
                                 });
                               },
-                              items: ['Aadhaar', 'Driving License', 'PAN Card']
-                                  .map<DropdownMenuItem<String>>((String value) {
+                              items: [
+                                'Aadhaar',
+                                'Driving License',
+                                'PAN Card'
+                              ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
@@ -380,12 +490,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       Container(
                           child: Padding(
-                            padding: const EdgeInsets.only(top:10),
-                            child: Icon(
-                        Icons.perm_identity,
-                        color: Colors.grey,
-                      ),
-                          )),
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Icon(
+                          Icons.perm_identity,
+                          color: Colors.grey,
+                        ),
+                      )),
                     ]),
 
                     SizedBox(
@@ -396,7 +506,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ToolbarOptions(copy: true, cut: true, paste: true),
                       //obscureText: true,
                       autovalidate: autoValidatorPassword,
-                      obscureText: _passwordObscureText,
+                     // obscureText: _passwordObscureText,
                       onTap: () {
                         setState(() {
                           autoValidatorPassword = true;
@@ -406,15 +516,20 @@ class _RegisterPageState extends State<RegisterPage> {
                         icon: Icon(Icons.assignment_ind),
                         filled: true,
                         fillColor: Colors.grey[200],
-                        hintText:  AppLocalizations.of(context).translate('IdNo'),
+                        hintText:
+                            AppLocalizations.of(context).translate('idNo'),
                       ),
 
-                      validator: (newpassword) {},
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Proof id is required';
+                        }
+                      },
                       onSaved: (value) {
                         setState(() {
-                          this._password = value;
+                          this._idproofno = value;
                         });
-                        return _password = value;
+                        return _idproofno = value;
                       },
                     ),
 
@@ -457,16 +572,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           padding: const EdgeInsets.only(bottom: 35),
                           child: Icon(Icons.home),
                         ),
-                        hintText:  AppLocalizations.of(context).translate('user_address'),
+                        hintText: AppLocalizations.of(context)
+                            .translate('user_address'),
                       ),
                       validator: (value) {
-                        // return value.isEmpty ? 'Email is required!' : null;
+                        return value.isEmpty ? 'Address is required!' : null;
                       },
                       onSaved: (value) {
                         setState(() {
-                          this._email = value;
+                          this._address = value;
                         });
-                        return _email = value;
+                        return _address = value;
                       },
                     ),
                     SizedBox(
@@ -478,7 +594,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: <Widget>[
                         RaisedButton(
                             elevation: 5.0,
-                            child: Text(AppLocalizations.of(context).translate('cancel_button'),
+                            child: Text(
+                                AppLocalizations.of(context)
+                                    .translate('cancel_button'),
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 17)),
                             textColor: Colors.white,
@@ -491,12 +609,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         RaisedButton(
                             elevation: 5.0,
-                            child: Text(AppLocalizations.of(context).translate('register_button'),
+                            child: Text(
+                                AppLocalizations.of(context)
+                                    .translate('register_button'),
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 17)),
                             textColor: Colors.white,
                             //color: Colors.blue,
-                            onPressed: _isButtonTapped ? null : uploadCheck,
+                            onPressed: _isButtonTapped ? null :validateandsubmit,
                             shape: RoundedRectangleBorder(
                                 borderRadius: new BorderRadius.circular(80.0))),
                       ],
@@ -533,7 +653,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Text('Add a new Check' ?? ''),
             textColor: Colors.white,
             color: Colors.blue,
-            onPressed: uploadCheck,
+            onPressed: register,
           )
         ],
       ),

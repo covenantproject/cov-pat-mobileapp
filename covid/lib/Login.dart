@@ -27,12 +27,14 @@ class _LoginPageState extends State<LoginPage> {
   String _password = "";
   String _button = "login";
   String _username = '';
-  int statusCode = 0;
+  int statusCode=0;
   bool isLoading = false;
   int code;
+  String isregisteredno;
   bool ismanager;
   bool isAdmin;
   var _config;
+  var loginjson;
   String _apitoken;
   bool loading = false;
   bool _isButtonTapped;
@@ -44,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _isButtonTapped = false;
+     isLoading = false;
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       //DeviceOrientation.portraitDown,
@@ -71,13 +74,13 @@ class _LoginPageState extends State<LoginPage> {
 
     Future login(mobilenumber) async {
     _config = _configure.serverURL();
-    var apiUrl = Uri.parse(_config.postman + '/otp?mobileno=$mobilenumber');
+    var apiUrl = Uri.parse(_config.postman + '/otp?mobileNo=$mobilenumber');
     var client = HttpClient();
     // `new` keyword optional
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      request.headers.set('x-api-key', _config.apikey);
+     // request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -87,11 +90,20 @@ class _LoginPageState extends State<LoginPage> {
       // 4. Handle the response
       var resStream = response.transform(Utf8Decoder());
       await for (var data in resStream) {
+       
         print('Received data: $data');
-      }
-      setState(() {
+        setState(() {
         statusCode = response.statusCode;
+        if(statusCode==500){
+          loginjson=JSON.jsonDecode(data);
+        isregisteredno= loginjson['message'];
+        }
+        if(statusCode==200){
+          isregisteredno= data;
+        }
       });
+      }
+      
     } catch (ex) {
       print('error $ex');
     }
@@ -100,30 +112,49 @@ class _LoginPageState extends State<LoginPage> {
 //Submit
   void validateAndSubmit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    isLoading = true;
+    
     if (validateAndSave()) {
+      isLoading = true;
       setState(() => _isButtonTapped = !_isButtonTapped);
       if (_formType == FormType.login) {
         FocusScope.of(context).unfocus();
         await login(mobilenumbercontroller.text);
-        if (statusCode == 200) {
+        if (statusCode ==200&&isregisteredno=='SUCCESS') {
           prefs.setString('isloggedin', "true");
+          prefs.setString('mobileno', mobilenumbercontroller.text);
          // Navigator.pop(context);
+          dialogBox.information(context, "Login", "Otp sent");
+          setState(() {
+            isLoading=false;
+          });
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => OtpPage(),
               ));
-        } else {
-          dialogBox.information(context, "Login", "Not a registred mobile number");
+        } else if(statusCode==500&&isregisteredno=='REC_NOT_FOUND'){
+           prefs.setString('mobileno', mobilenumbercontroller.text);
+           dialogBox.information(context, "Login", "Not a registred mobile number");
           Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => RegisterPage(),
               ));
+          // dialogBox.information(context, "Login", "An error occured");
+         setState(() {
+           isLoading=false;
+         });
+        }else if(statusCode==500){
+          dialogBox.information(context, "Login", "An error occured");
+           setState(() {
+           isLoading=false;
+         });
         }
       }
     }
+    setState(() {
+      _isButtonTapped=false;
+    });
   }
 
   //Login
@@ -201,12 +232,16 @@ class _LoginPageState extends State<LoginPage> {
             ),
             labelText:  AppLocalizations.of(context).translate('login_number')),
         validator: (value) {
-          //  if (value.isEmpty) {
-          //   return 'Mobile Number is Required';
-          // }
-          // return 'Invalid Mobile Number';
+           if (value.isEmpty) {
+            return 'Mobile Number is Required';
+          }
+          else if(value.length<10){
+             return 'Invalid Mobile Number';
 
-          // return value.isEmpty ? 'Email is required!' : null;
+          }
+          //else return'';
+         
+         // return value.isEmpty ? 'Email is required!' : null;
         },
         onSaved: (value) {
           return _email = value;
@@ -240,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_formType == FormType.login) {
       //Login
       return [
-        new RaisedButton(
+       isLoading==true?CircularProgressIndicator(): new RaisedButton(
             child: new Text(AppLocalizations.of(context).translate('login_button'), style: new TextStyle(fontSize: 20.0)),
             textColor: Colors.white,
             // color: Colors.blueAccent,

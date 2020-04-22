@@ -67,7 +67,7 @@ class _HistoryState extends State<HistoryPage> with TickerProviderStateMixin {
   }
 Future<String> getJsondata() async { 
   _config = _configure.serverURL();
-    String historyurl = _config.postman +
+    String historyurl = _config.sit +
         "/history?userId=1";
     var historyresponse;
     try {

@@ -35,9 +35,10 @@ enum BottomNavigationDemoType {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key key, @required this.type}) : super(key: key);
+  const HomePage({Key key, @required this.type, this.navigationIndex}) : super(key: key);
 
   final BottomNavigationDemoType type;
+  final int navigationIndex;
 
   @override
   State createState() => _HomePageState();
@@ -441,17 +442,20 @@ class _HomePageState extends State<HomePage>
         onSelectNotification: onSelectNotification);
     getJsondata();
     _identifier = DateTime.now().toString();
-    getCurrentLocation();
+    Future.delayed(const Duration(seconds: 10), () {
+     getCurrentLocation();
+    });
+    
     WidgetsBinding.instance.addObserver(this);
     _autoRegister();
     _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
     _tabController.addListener(_handleTabChange);
     _widgetOptions = <Widget>[
       DashBoard(),
-      // SharedEvents(events: events, child: EventList()),
-      HistoryPage(),
-      RaiseHands(),
       UpdateHealthInfo(),
+      // SharedEvents(events: events, child: EventList()),
+      RaiseHands(),
+      //HistoryPage(),
       Profile()
     ];
     _isMoving = false;
@@ -497,7 +501,7 @@ class _HomePageState extends State<HomePage>
       print('error $ex');
     }
     setState(() {
-      homeDetails = homeDetailsFromJson(homedetailsresponse.body);
+       //homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
     });
     return "Success";
   }
@@ -565,8 +569,8 @@ class _HomePageState extends State<HomePage>
           vsync: this,
         ),
         _NavigationIconView(
-          icon: const Icon(Icons.calendar_today),
-          title: 'History',
+          icon: const Icon(Icons.alarm_on),
+          title: 'Update health',
           vsync: this,
         ),
         _NavigationIconView(
@@ -574,11 +578,11 @@ class _HomePageState extends State<HomePage>
           title: 'Raise Hand',
           vsync: this,
         ),
-        _NavigationIconView(
-          icon: const Icon(Icons.alarm_on),
-          title: 'Update Health',
-          vsync: this,
-        ),
+        // _NavigationIconView(
+        //   icon: const Icon(Icons.calendar_today),
+        //   title: 'History',
+        //   vsync: this,
+        // ),
         _NavigationIconView(
           icon: const Icon(Icons.account_box),
           title: 'Profile',
@@ -636,7 +640,14 @@ class _HomePageState extends State<HomePage>
       _currentIndex =
           _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
     }
-
+  //  if(widget.navigationIndex==1){
+     
+  //   // _navigationViews[_currentIndex].controller.reverse();
+  //   //         _currentIndex = 1;
+  //   //         _navigationViews[_currentIndex].controller.forward();
+  //   //         _currentIndex =
+  //   //       _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
+  //  }
     return Scaffold(
       appBar: AppBar(
         // bottom:TabBar(
@@ -648,40 +659,43 @@ class _HomePageState extends State<HomePage>
         //       ]
         //   ),
         automaticallyImplyLeading: false,
-        title: Text(_title(context)),
+       // title: Text(_title(context)),
+       title: Text(_navigationViews[_currentIndex].title),
         actions: <Widget>[
           Switch(value: _enabled, onChanged: _onClickEnable),
         ],
       ),
       body: Center(
-        child: homeDetails == null
-            ? Center(
-                child: Container(
-                    padding: EdgeInsets.all(0),
-                    child: Container(
-                        child: const CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ))),
-              )
-            : RefreshIndicator(
-                onRefresh: getJsondata,
-                child: homeDetails == null
-                    ? ListView(
-                        children: <Widget>[
-                          Container(
-                            // color: Colors.red,
-                            height: MediaQuery.of(context).size.height / 1.4,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child:
-                                  Text('Loading', style: styletext.emptylist()),
-                            ),
-                          ),
-                        ],
-                      )
-                    : _widgetOptions.elementAt(_currentIndex),
+        child: 
+            // ? Center(
+            //     child: Container(
+            //         padding: EdgeInsets.all(0),
+            //         child: Container(
+            //             child: const CircularProgressIndicator(
+            //           strokeWidth: 3,
+            //         ))),
+            //   )
+            // : RefreshIndicator(
+            //     onRefresh: getJsondata,
+            //     child: homeDetails == null
+            //         ? ListView(
+            //             children: <Widget>[
+            //               Container(
+            //                 // color: Colors.red,
+            //                 height: MediaQuery.of(context).size.height / 1.4,
+            //                 child: Align(
+            //                   alignment: Alignment.center,
+            //                   child:
+            //                       Text('Loading', style: styletext.emptylist()),
+            //                 ),
+            //               ),
+            //             ],
+            //           )
+            //         :
+                    
+                     _widgetOptions.elementAt(_currentIndex),
                 //_buildTransitionsStack(),
-              ),
+             
       ),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels:

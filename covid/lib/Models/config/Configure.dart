@@ -6,10 +6,11 @@ class Configure
 Config serverURL()
 {
 Config config = new Config();
-config.postman="https://ac8e41d9-d2d4-47e5-97cf-56161cace55d.mock.pstmn.io";
+config.postman="http://3.7.102.213:8080/covid_service/api";
+//config.postman="https://ac8e41d9-d2d4-47e5-97cf-56161cace55d.mock.pstmn.io";
 config.apikey="PMAK-5e9471d055ec010029cb2bcb-5d3268cd0aa8776612763a6f321c7dff51";
-config.api="http://3.11.140.220:8086";
-config.sit="http://blockchain.eastus.cloudapp.azure.com:8080/covid_service/covid";
+config.api="http://blockchain.eastus.cloudapp.azure.com:8080/covid_service/api";
+config.sit="https://ac8e41d9-d2d4-47e5-97cf-56161cace55d.mock.pstmn.io";
 return config;
 }
 // Future<void> setup() async {

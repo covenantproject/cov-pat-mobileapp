@@ -1,24 +1,42 @@
 // To parse this JSON data, do
 //
-//     final homeDetails = homeDetailsFromJson(jsonString);
+//     final homedetailsModel = homedetailsModelFromJson(jsonString);
 
 import 'dart:convert';
 
-HomeDetails homeDetailsFromJson(String str) => HomeDetails.fromJson(json.decode(str));
+HomedetailsModel homedetailsModelFromJson(String str) => HomedetailsModel.fromJson(json.decode(str));
 
-String homeDetailsToJson(HomeDetails data) => json.encode(data.toJson());
+String homedetailsModelToJson(HomedetailsModel data) => json.encode(data.toJson());
+
+class HomedetailsModel {
+    String status;
+    HomeDetails homeDetails;
+
+    HomedetailsModel({
+        this.status,
+        this.homeDetails,
+    });
+
+    factory HomedetailsModel.fromJson(Map<String, dynamic> json) => HomedetailsModel(
+        status: json["status"],
+        homeDetails: HomeDetails.fromJson(json["homeDetails"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "status": status,
+        "homeDetails": homeDetails.toJson(),
+    };
+}
 
 class HomeDetails {
-    int userid;
-    String healthofficername;
-    String healthofficerno;
-    String emergencyno;
-    DateTime lasthealthupdate;
-    String currentlatitude;
-    String currentlongitutude;
+    dynamic healthofficername;
+    dynamic healthofficerno;
+    dynamic emergencyno;
+    dynamic lasthealthupdate;
+    int currentlatitude;
+    int currentlongitutude;
 
     HomeDetails({
-        this.userid,
         this.healthofficername,
         this.healthofficerno,
         this.emergencyno,
@@ -28,21 +46,19 @@ class HomeDetails {
     });
 
     factory HomeDetails.fromJson(Map<String, dynamic> json) => HomeDetails(
-        userid: json["userid"],
         healthofficername: json["healthofficername"],
         healthofficerno: json["healthofficerno"],
         emergencyno: json["emergencyno"],
-        lasthealthupdate: DateTime.parse(json["lasthealthupdate"]),
+        lasthealthupdate: json["lasthealthupdate"],
         currentlatitude: json["currentlatitude"],
         currentlongitutude: json["currentlongitutude"],
     );
 
     Map<String, dynamic> toJson() => {
-        "userid": userid,
         "healthofficername": healthofficername,
         "healthofficerno": healthofficerno,
         "emergencyno": emergencyno,
-        "lasthealthupdate": lasthealthupdate.toIso8601String(),
+        "lasthealthupdate": lasthealthupdate,
         "currentlatitude": currentlatitude,
         "currentlongitutude": currentlongitutude,
     };

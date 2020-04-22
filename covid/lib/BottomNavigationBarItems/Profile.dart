@@ -49,6 +49,7 @@ class _ProfileState extends State<Profile>
   String _admintoken = ' ';
   String _identitytoken = ' ';
   bool _isButtonTapped;
+  int userId;
   TextEditingController namecontroller=TextEditingController();
   TextEditingController dobcontroller=TextEditingController();
   TextEditingController gendercontroller=TextEditingController();
@@ -77,16 +78,18 @@ class _ProfileState extends State<Profile>
     // _department = ' ';
   }
 Future<String> getJsondata() async { 
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId=prefs.getInt('userId');
   _config = _configure.serverURL();
     String profileurl = _config.postman +
-        "/profile?userId=12";
+        "/profile?userId=$userId";
     var profileresponse;
     try {
       profileresponse =
           await http.get(Uri.encodeFull(profileurl), headers: {
         "Accept": "*/*",
         //'Authorization': 'Bearer ',
-        'x-api-key':_config.apikey
+        //'x-api-key':_config.apikey
       });
     } catch (ex) {
       print('error $ex');

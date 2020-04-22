@@ -33,7 +33,9 @@ class _OtpPageState extends State<OtpPage> {
   bool isAdmin;
   var _config;
   String _apitoken;
+  int userId;
   bool loading = false;
+  String mobileno;
   bool _isButtonTapped;
   bool _passwordObscureText = true;
   Configure _configure = new Configure();
@@ -46,8 +48,12 @@ class _OtpPageState extends State<OtpPage> {
       DeviceOrientation.portraitUp,
       //DeviceOrientation.portraitDown,
     ]);
+    _loadUserInfo();
   }
-
+  _loadUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    mobileno=prefs.getString('mobileno');
+  }
   //Functions
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController mobilenumbercontroller = new TextEditingController();
@@ -67,10 +73,10 @@ class _OtpPageState extends State<OtpPage> {
     }
   }
 
-  Future validateotp(mobilenumber) async {
+  Future validateotp(otpcode) async {
     _config = _configure.serverURL();
     var apiUrl =
-        Uri.parse(_config.postman + '/validateotp?otpcode=$mobilenumber');
+        Uri.parse(_config.postman + '/validateOtp?mobileNo=$mobileno&otpCode=$otpcode');
     var client = HttpClient(); // `new` keyword optional
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
@@ -87,6 +93,9 @@ class _OtpPageState extends State<OtpPage> {
         statusCode = response.statusCode;
       });
       await for (var data in resStream) {
+        setState(() {
+          userId=int.parse(data);
+        });
         print('Received data: $data');
       }
     } catch (ex) {
@@ -96,6 +105,7 @@ class _OtpPageState extends State<OtpPage> {
 
 //Submit
   void validateAndSubmit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     isLoading = true;
     if (validateAndSave()) {
       setState(() => _isButtonTapped = !_isButtonTapped);
@@ -103,6 +113,7 @@ class _OtpPageState extends State<OtpPage> {
         FocusScope.of(context).unfocus();
       await validateotp(mobilenumbercontroller.text);
       if(statusCode==200){
+        prefs.setInt('userId', userId);
         // Navigator.pop(context);
         Navigator.pushReplacement(
             context,
@@ -112,7 +123,7 @@ class _OtpPageState extends State<OtpPage> {
               ),
             ));
       }else{
-        dialogBox.information(context, 'Validate otp', 'invalid Otp');
+        dialogBox.information(context, 'Validate otp', 'invalid otp number');
       }
        
       }

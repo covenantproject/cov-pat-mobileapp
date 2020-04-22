@@ -31,7 +31,7 @@
     "today":"Today",
     "em_contact": "Your emergency contact number",
     "location": "Your current location",
-    "location_button":"CHANGE LOCATION",
+    "location_button":"SET QUARANTINE LOCATION",
     "health-info":"Health Info Updated",
     "cough":"Do you have cough?",
     "fever": "Do you have fever?",
@@ -45,7 +45,7 @@
     "worse": "Getting worse",
     "re-same": "Remaining same",
     "temp": "Temperature",
-    "heart-rate": "heart rate/pulse rate",
+    "heart-rate": "Heart rate/Pulse rate",
     "respiratory": "Respiratory rate",
     "spo2": "SPO2",
     "update_button": "Update",
@@ -53,5 +53,6 @@
     "medical-officer": "Contact your medical officer",
     "food": "Request food/water/medicines",
     "your hand": "Raise Your Hand",
-    "comments":"Comments" 
+    "comments":"Comments",
+    "submit":"Submit"
   }

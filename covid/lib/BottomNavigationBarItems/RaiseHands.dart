@@ -7,6 +7,7 @@ import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RaiseHands extends StatefulWidget {
@@ -21,10 +22,13 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
   GoogleMapController _googleMapController;
   bool isSwitched = true;
   var _config;
+  final formKey = new GlobalKey<FormState>();
   int id;
+  int userId;
   Configure _configure = new Configure();
   String radioItem = '';
-  DialogBox dialogBox=DialogBox();
+  DialogBox dialogBox = DialogBox();
+  String _comments;
   List<RadioList> fList = [
     RadioList(
       index: 1,
@@ -44,7 +48,23 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
     super.initState();
   }
 
+  bool validateAndSave() {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void validateandsubmit() async {
+    if (validateAndSave()) {}
+  }
+
   submit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
     _config = _configure.serverURL();
     var apiUrl = Uri.parse(_config.postman + '/raiseyourhand');
     // '/api/check?userName=$_username&checkName=$checkname&category=$category&description=$description&frequency=$frequency');
@@ -52,13 +72,13 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      request.headers.set('x-api-key', _config.apikey);
+      // request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
-        "userid": 12,
-        "requesttype": "",
+        "userid": userId,
+        "requesttype": radioItem,
         "requeststatus": "",
-        "comments": ""
+        "comments": _comments
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
@@ -120,8 +140,11 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                                             ? Text(AppLocalizations.of(context)
                                                 .translate('medical-officer'))
                                             : (data.name ==
-                                                'Request food / water / medicines')?Text(AppLocalizations.of(context)
-                                                .translate('food')):null,
+                                                    'Request food / water / medicines')
+                                                ? Text(
+                                                    AppLocalizations.of(context)
+                                                        .translate('food'))
+                                                : null,
                                     groupValue: id,
                                     value: data.index,
                                     onChanged: (val) {
@@ -144,37 +167,45 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
-                          ListTile(
-                            dense: true,
-                            title: Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              // child: Text(
-                              //   'Some more info:',
-                              //   style: styletext.cardfont(),
-                              // ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 0, right: 0, bottom: 10),
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    maxLines: 3,
-                                    decoration: InputDecoration(
-                                        icon: Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 35),
-                                          child: Icon(Icons.comment),
-                                        ),
-                                        hintText: AppLocalizations.of(context)
-                                            .translate('comments'),
-                                        filled: true,
-                                        fillColor: Colors.grey[200]),
-                                  ),
-                                ],
+                          Form(
+                            key: formKey,
+                            child: ListTile(
+                              dense: true,
+                              title: Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                // child: Text(
+                                //   'Some more info:',
+                                //   style: styletext.cardfont(),
+                                // ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 0, right: 0, bottom: 10),
+                                child: Column(
+                                  children: <Widget>[
+                                    TextFormField(
+                                      maxLines: 3,
+                                      decoration: InputDecoration(
+                                          icon: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 35),
+                                            child: Icon(Icons.comment),
+                                          ),
+                                          hintText: AppLocalizations.of(context)
+                                              .translate('comments'),
+                                          filled: true,
+                                          fillColor: Colors.grey[200]),
+                                      onSaved: (String value) {
+                                        setState(() {
+                                          this._comments = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     )
@@ -186,16 +217,22 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                   child: id != null
                       ? RaisedButton(
                           elevation: 5.0,
-                          child: Text('Submit',
+                          child: Text(
+                              AppLocalizations.of(context).translate('submit'),
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 17)),
                           textColor: Colors.white,
                           //color: Colors.blue,
-                          onPressed: () async{
+                          onPressed: () async {
                             FocusScope.of(context).unfocus();
-                           await submit();
-                           dialogBox.information(context, 'Raise your hand','Raise hand Submitted');
-
+                            if (validateAndSave()) {
+                              await submit();
+                            }
+                            dialogBox.information(context, 'Raise your hand',
+                                'Raise hand Submitted');
+                            setState(() {
+                              id = null;
+                            });
                           },
                           shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(80.0)))
