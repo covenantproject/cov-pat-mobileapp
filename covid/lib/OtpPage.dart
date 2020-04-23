@@ -122,8 +122,14 @@ class _OtpPageState extends State<OtpPage> {
                 type: BottomNavigationDemoType.withLabels,
               ),
             ));
+            setState(() {
+              _isButtonTapped=false;
+            });
       }else{
         dialogBox.information(context, 'Validate otp', 'invalid otp number');
+        setState(() {
+          _isButtonTapped=false;
+        });
       }
        
       }

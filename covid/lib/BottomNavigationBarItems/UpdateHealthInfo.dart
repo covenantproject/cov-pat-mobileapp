@@ -24,17 +24,26 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
   bool isSwitchedcough = true;
   bool isSwitchedfever = true;
   bool isSwitchedbreathing = true;
-  int id;
+  int id = 1;
   var _config;
   TextEditingController tempController;
   TextEditingController heartrateController;
   TextEditingController respiratoryrateController;
   TextEditingController spo2Controller;
   Configure _configure = new Configure();
-  String radioItem = '';
+  String radioItem = 'Getting better';
   final formKey = new GlobalKey<FormState>();
   DialogBox dialogBox = DialogBox();
   int userId;
+  bool autoValidatorTemp;
+  bool autoValidatorHeartrate;
+  bool autoValidatorRespiratory;
+  bool autoValidatorSpo2;
+  String temp;
+  String heartrate;
+  String respiratoryrate;
+  String spo2;
+
   List<RadioList> fList = [
     RadioList(
       index: 1,
@@ -52,6 +61,20 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
   @override
   void initState() {
     super.initState();
+    autoValidatorTemp = false;
+    autoValidatorHeartrate = false;
+    autoValidatorRespiratory = false;
+    autoValidatorSpo2 = false;
+  }
+
+  bool validateAndSave() {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   submit() async {
@@ -72,10 +95,10 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
         "feverpresent": isSwitchedfever,
         "breathingdifficultypresent": isSwitchedbreathing,
         "progressstatus": "test",
-        "temperature": 56,
-        "heartrate": 34,
-        "respiratoryrate": 45,
-        "spo2": 54
+        "temperature": temp,
+        "heartrate": heartrate,
+        "respiratoryrate": respiratoryrate,
+        "spo2": spo2
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
@@ -97,6 +120,10 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
+        autoValidatorHeartrate = false;
+        autoValidatorRespiratory = false;
+        autoValidatorSpo2 = false;
+        autoValidatorSpo2 = false;
       },
       child: SingleChildScrollView(
         child: Center(
@@ -302,6 +329,7 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                       "${data.name}",
                                       style: styletext.placeholderStyle(),
                                     ),
+                                    //selected: true,
                                     groupValue: id,
                                     value: data.index,
                                     onChanged: (val) {
@@ -344,48 +372,116 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                               ),
                               TextFormField(
                                 controller: tempController,
+                                keyboardType: TextInputType.number,
+                                onSaved: (value) {
+                                  setState(() {
+                                    temp = value;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    autoValidatorTemp = true;
+                                  });
+                                },
+                               // autovalidate: autoValidatorTemp,
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.ac_unit),
                                     hintText: AppLocalizations.of(context)
                                         .translate('temp'),
                                     filled: true,
                                     fillColor: Colors.grey[200]),
+                                validator: (value) {
+                                  return value.isEmpty
+                                      ? 'Temperature is required!'
+                                      : null;
+                                },
                               ),
                               SizedBox(
                                 height: 27,
                               ),
                               TextFormField(
                                 controller: heartrateController,
+                                keyboardType: TextInputType.number,
+                                onSaved: (value) {
+                                  setState(() {
+                                    heartrate = value;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    autoValidatorHeartrate = true;
+                                  });
+                                },
+                               // autovalidate: autoValidatorHeartrate,
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.loyalty),
                                     hintText: AppLocalizations.of(context)
                                         .translate('heart-rate'),
                                     filled: true,
                                     fillColor: Colors.grey[200]),
+                                validator: (value) {
+                                  return value.isEmpty
+                                      ? 'Heart rate is required!'
+                                      : null;
+                                },
                               ),
                               SizedBox(
                                 height: 27,
                               ),
                               TextFormField(
                                 controller: respiratoryrateController,
+                                keyboardType: TextInputType.number,
+                                onSaved: (value) {
+                                  setState(() {
+                                    respiratoryrate = value;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    autoValidatorRespiratory = true;
+                                  });
+                                },
+                               // autovalidate: autoValidatorRespiratory,
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.record_voice_over),
                                     hintText: AppLocalizations.of(context)
                                         .translate('respiratory'),
                                     filled: true,
                                     fillColor: Colors.grey[200]),
+                                validator: (value) {
+                                  return value.isEmpty
+                                      ? 'Respiratory rate is required!'
+                                      : null;
+                                },
                               ),
                               SizedBox(
                                 height: 27,
                               ),
                               TextFormField(
                                 controller: spo2Controller,
+                                keyboardType: TextInputType.number,
+                               // autovalidate: autoValidatorSpo2,
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.whatshot),
                                     hintText: AppLocalizations.of(context)
                                         .translate('spo2'),
                                     filled: true,
                                     fillColor: Colors.grey[200]),
+                                onSaved: (value) {
+                                  setState(() {
+                                    spo2 = value;
+                                  });
+                                },
+                                onTap: () {
+                                  setState(() {
+                                    autoValidatorSpo2 = true;
+                                  });
+                                },
+                                validator: (value) {
+                                  return value.isEmpty
+                                      ? 'Spo2 is required!'
+                                      : null;
+                                },
                               ),
                             ],
                           ),
@@ -410,13 +506,27 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                       //color: Colors.blue,
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        await submit();
-                        dialogBox.information(context, 'Update health info',
-                            'Update successfull');
-                        isSwitchedcough = true;
-                        isSwitchedfever = true;
-                        isSwitchedbreathing = true;
-                        formKey.currentState.reset();
+                        // if (validateAndSave()) {
+                        //   if (radioItem == null) {
+                        //     dialogBox.information(context, 'Update health info',
+                        //         'Please select how do you feel');
+                        //   } else {
+
+                            await submit();
+                            dialogBox.information(context, 'Update health info',
+                                'Update successfull');
+                            isSwitchedcough = true;
+                            isSwitchedfever = true;
+                            isSwitchedbreathing = true;
+                            // autoValidatorHeartrate = false;
+                            // autoValidatorRespiratory = false;
+                            // autoValidatorSpo2 = false;
+                            // autoValidatorTemp = false;
+                            id=1;
+                            FocusScope.of(context).unfocus();
+                            formKey.currentState.reset();
+                        //   }
+                        // }
                       },
                       shape: RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(80.0))))

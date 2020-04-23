@@ -335,8 +335,17 @@ class _HomePageState extends State<HomePage>
 
   void _onGeofence(bg.GeofenceEvent event) async {
     print('[${bg.Event.GEOFENCE}] - $event');
+    if(event.action=='EXIT'){
+       ongeofencecross(event);
+    } else if(event.action=='EXIT'){
+      ongeofencecross(event);
+    }
+    else{
+      ongeofencecross(event);
+    }
     updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
-    showNotification();
+    
+    
     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
       // Execute an HTTP request to test an async operation completes.
       String url = "${ENV.TRACKER_HOST}/api/devices";
@@ -440,7 +449,7 @@ class _HomePageState extends State<HomePage>
     var initSetttings = new InitializationSettings(android, iOS);
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: onSelectNotification);
-    getJsondata();
+    //getJsondata();
     _identifier = DateTime.now().toString();
     Future.delayed(const Duration(seconds: 10), () {
      getCurrentLocation();
@@ -487,24 +496,35 @@ class _HomePageState extends State<HomePage>
         payload:
             'You need to update your health status everyday at 8 AM and 10 PM');
   }
-
-  Future<String> getJsondata() async {
-    _config = _configure.serverURL();
-    String homeurl = _config.postman + "/homedetails?userId=21";
-    var homedetailsresponse;
-    try {
-      homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
-        "Accept": "applicaton/json",
-        'Authorization': 'Bearer ',
-      });
-    } catch (ex) {
-      print('error $ex');
-    }
-    setState(() {
-       //homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
-    });
-    return "Success";
+  ongeofencecross(event) async {
+    var android = new AndroidNotificationDetails(
+        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
+        priority: Priority.High, importance: Importance.Max);
+    var iOS = new IOSNotificationDetails();
+    var platform = new NotificationDetails(android, iOS);
+    await flutterLocalNotificationsPlugin.show(0, 'Geofence',
+        'You crossed the geofence', platform,
+        payload:
+            'Alert! $event event on geofence');
   }
+
+  // Future<String> getJsondata() async {
+  //   _config = _configure.serverURL();
+  //   String homeurl = _config.postman + "/homedetails?userId=";
+  //   var homedetailsresponse;
+  //   try {
+  //     homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
+  //       "Accept": "applicaton/json",
+  //       'Authorization': 'Bearer ',
+  //     });
+  //   } catch (ex) {
+  //     print('error $ex');
+  //   }
+  //   setState(() {
+  //      //homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
+  //   });
+  //   return "Success";
+  // }
 
   void _addgeofence() {
     bg.BackgroundGeolocation.addGeofence(bg.Geofence(
@@ -570,7 +590,7 @@ class _HomePageState extends State<HomePage>
         ),
         _NavigationIconView(
           icon: const Icon(Icons.alarm_on),
-          title: 'Update health',
+          title: 'Update Health',
           vsync: this,
         ),
         _NavigationIconView(

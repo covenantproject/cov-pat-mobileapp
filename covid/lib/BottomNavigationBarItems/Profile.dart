@@ -54,6 +54,7 @@ class _ProfileState extends State<Profile>
   TextEditingController dobcontroller=TextEditingController();
   TextEditingController gendercontroller=TextEditingController();
   TextEditingController proofidnocontroller=TextEditingController();
+  TextEditingController proofnocontroller=TextEditingController();
   TextEditingController addresscontroller=TextEditingController();
   String name;
   String dob;
@@ -102,6 +103,7 @@ Future<String> getJsondata() async {
       addresscontroller.text=profileModel.address;
       gendercontroller.text=profileModel.gender;
       proofidnocontroller.text='77362 77327 32983';
+      proofnocontroller.text='Aadhaar';
     });
     return "Success";
   }
@@ -401,50 +403,65 @@ Future<String> getJsondata() async {
                     SizedBox(
                       height: 35,
                     ),
-                    Stack(children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left:35),
-                          child: Container(width: 340,
-                            child: DropdownButtonFormField<String>(
-                              value: _idProof,
-                              icon:
-                              Icon(Icons.done),
-                                decoration: InputDecoration(filled: true,fillColor: Colors.grey[200]),
-                              hint: Text(
-                                'Select Identification Proof',
-                              ),
-                              isDense: true,
-                              iconSize: 24,
-                              elevation: 16,
-                              onChanged: (String newValue) {
-                                FocusScope.of(context)
-                                    .requestFocus(new FocusNode());
-                                setState(() {
-                                  this._idProof = newValue;
-                                });
-                              },
-                              items: ['Aadhaar', 'Driving License', 'PAN Card']
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top:10),
-                            child: Icon(
-                        Icons.perm_identity,
-                        color: Colors.grey,
-                      ),
-                          )),
-                    ]),
+                    Container(
+                      child: TextField(
+                    controller: proofnocontroller,
+                    // initialValue: '77362 77327 32983',
+                    readOnly: true,
+                    toolbarOptions:
+                    ToolbarOptions(copy: true, cut: true, paste: true),
+                    //obscureText: true,
+                     // autovalidate: autoValidatorPassword,
+                     // obscureText: _passwordObscureText,
+                    onTap: () {
+                    setState(() {
+                    autoValidatorPassword = true;
+                    });
+                    },
+                    decoration: new InputDecoration(
+                    icon: Icon(Icons.perm_identity),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintText: 'Proof',
+                    ),
+
+                    // validator: (newpassword) {},
+                    // onSaved: (value) {
+                    //   setState(() {
+                    //     this._password = value;
+                    //   });
+                    //   return _password = value;
+                    // },
+                    ),
+                      
+                      //  DropdownButtonFormField<String>(
+                      //   value: _idProof,
+                        
+                      //   icon:
+                      //   Icon(Icons.done),
+                      //     decoration: InputDecoration(filled: true,fillColor: Colors.grey[200]),
+                      //   hint: Text(
+                      //     'Select Identification Proof',
+                      //   ),
+                      //   isDense: true,
+                      //   iconSize: 24,
+                      //   elevation: 16,
+                      //   onChanged: (String newValue) {
+                      //     FocusScope.of(context)
+                      //         .requestFocus(new FocusNode());
+                      //     setState(() {
+                      //       this._idProof = newValue;
+                      //     });
+                      //   },
+                      //   items: ['Aadhaar', 'Driving License', 'PAN Card']
+                      //       .map<DropdownMenuItem<String>>((String value) {
+                      //     return DropdownMenuItem<String>(
+                      //       value: value,
+                      //       child: Text(value),
+                      //     );
+                      //   }).toList(),
+                      // ),
+                    ),
 
                     SizedBox(
                       height: 40,

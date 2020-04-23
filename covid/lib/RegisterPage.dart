@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/App_localizations.dart';
 import 'package:covid/Login.dart';
+import 'package:covid/OtpPage.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -85,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
    
   }
 
-   String _genderResult ='';
+   String _genderResult ='Male';
   
   void _handleRadioValueChange(int value) {
     setState(() {
@@ -206,17 +207,56 @@ class _RegisterPageState extends State<RegisterPage> {
       return false;
     }
   }
+   Future sendOtp() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+   var mobilenumber= prefs.getString('mobileno');
+    _config = _configure.serverURL();
+    var apiUrl = Uri.parse(_config.postman + '/otp?mobileNo=$mobilenumber');
+    var client = HttpClient();
+    // `new` keyword optional
+    // 1. Create request
+    try {
+      HttpClientRequest request = await client.postUrl(apiUrl);
+     // request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('content-type', 'application/json; charset=utf-8');
+      var payload = {};
+      request.write(JSON.jsonEncode(payload));
+      print(JSON.jsonEncode(payload));
+      // 3. Send the request
+      HttpClientResponse response = await request.close();
+      // 4. Handle the response
+      var resStream = response.transform(Utf8Decoder());
+      await for (var data in resStream) {
+       
+        print('Received data: $data');
+        setState(() {
+       // statusCode = response.statusCode;
+        if(statusCode==500){
+        //   loginjson=JSON.jsonDecode(data);
+        // isregisteredno= loginjson['message'];
+        }
+        if(statusCode==200){
+         // isregisteredno= data;
+        }
+      });
+      }
+      
+    } catch (ex) {
+      print('error $ex');
+    }
+  }
 
  void validateandsubmit() async {
     if (validateAndSave()) {
       FocusScope.of(context).unfocus();
       await register();
       if(statusCode==200){
-        dialogBox.information(context, 'Self registration', 'Registration successfull');
+        await sendOtp();
+       // dialogBox.information(context, 'Self registration', 'Registration successfull');
         Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => LoginPage(),
+                builder: (context) => OtpPage(),
               ));
       }else{
          dialogBox.information(context, 'Self registration', 'An error occured');
@@ -229,7 +269,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _config = _configure.serverURL();
     var apiUrl = Uri.parse(_config.postman + '/register');
 
-    String formattedDate = DateFormat("2002-02-27'T'14:00:00-0500").format(date);
+    String formattedDate = DateFormat("yyyy-MM-dd").format(date);
     // '/api/check?userName=$_username&checkName=$checkname&category=$category&description=$description&frequency=$frequency');
     var client = HttpClient(); // `new` keyword optional
     // 1. Create request
@@ -283,20 +323,20 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       appBar: new AppBar(
-        leading: IconButton(
-            iconSize: 24.0,
-            onPressed: () {
-              Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginPage(),
-              ));
-            },
-            color: Colors.blue,
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            )),
+        // leading: IconButton(
+        //     iconSize: 24.0,
+        //     onPressed: () {
+        //       Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => LoginPage(),
+        //       ));
+        //     },
+        //     color: Colors.blue,
+        //     icon: Icon(
+        //       Icons.arrow_back,
+        //       color: Colors.white,
+        //     )),
         title:
             new Text(AppLocalizations.of(context).translate('self_register')),
         //centerTitle: true,
@@ -362,7 +402,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(1900),
-                            lastDate: DateTime(2100));
+                            lastDate: DateTime.now());
                              dobcontroller.text =
                              "${DateFormat("yyyy-MM-dd").format(date)}"
                                                           .toString();
@@ -592,21 +632,21 @@ class _RegisterPageState extends State<RegisterPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
-                            elevation: 5.0,
-                            child: Text(
-                                AppLocalizations.of(context)
-                                    .translate('cancel_button'),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 17)),
-                            textColor: Colors.white,
-                            // color: Colors.blue,
-                            onPressed: _showPopUp1,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(80.0))),
-                        SizedBox(
-                          width: 50,
-                        ),
+                        // RaisedButton(
+                        //     elevation: 5.0,
+                        //     child: Text(
+                        //         AppLocalizations.of(context)
+                        //             .translate('cancel_button'),
+                        //         style: TextStyle(
+                        //             fontWeight: FontWeight.bold, fontSize: 17)),
+                        //     textColor: Colors.white,
+                        //     // color: Colors.blue,
+                        //     onPressed: _showPopUp1,
+                        //     shape: RoundedRectangleBorder(
+                        //         borderRadius: new BorderRadius.circular(80.0))),
+                        // SizedBox(
+                        //   width: 50,
+                        // ),
                         RaisedButton(
                             elevation: 5.0,
                             child: Text(

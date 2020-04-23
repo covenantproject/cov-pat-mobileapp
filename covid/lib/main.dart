@@ -47,6 +47,12 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.GEOFENCE:
       bg.GeofenceEvent geofenceEvent = headlessEvent.event;
+     if(geofenceEvent.action=='ENTER'){
+       
+     }
+     else if(geofenceEvent.action=='EXIT'){
+
+     }
       print(geofenceEvent);
       break;
     case bg.Event.GEOFENCESCHANGE:

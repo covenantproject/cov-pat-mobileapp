@@ -89,7 +89,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   @override
   void initState() {
     getJsondata();
-    
+
     getCurrentLocation();
     super.initState();
   }
@@ -107,7 +107,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     } catch (ex) {
       print('error $ex');
     }
-    setState(() {
+    if(homedetailsresponse.statusCode==200){
+      setState(() {
       homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
       healthofficer = homeDetails.homeDetails.healthofficername;
       officerno = homeDetails.homeDetails.healthofficerno;
@@ -115,6 +116,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
           DateFormat.yMMMd().format(homeDetails.homeDetails.lasthealthupdate);
       emergencycontactno = homeDetails.homeDetails.emergencyno;
     });
+    }
     return "Success";
   }
 
@@ -183,20 +185,20 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                           : Text('-'),
                                     ),
                                   ),
-                                  ButtonBar(
-                                    buttonPadding:
-                                        EdgeInsets.only(top: 0, right: 8),
-                                    children: <Widget>[
-                                      FlatButton(
-                                        child: Text(
-                                          AppLocalizations.of(context)
-                                              .translate('contact'),
-                                          style: styletext.labelfont(),
-                                        ),
-                                        onPressed: () {/* ... */},
-                                      ),
-                                    ],
-                                  ),
+                                  // ButtonBar(
+                                  //   buttonPadding:
+                                  //       EdgeInsets.only(top: 0, right: 8),
+                                  //   children: <Widget>[
+                                  //     FlatButton(
+                                  //       child: Text(
+                                  //         AppLocalizations.of(context)
+                                  //             .translate('contact'),
+                                  //         style: styletext.labelfont(),
+                                  //       ),
+                                  //       onPressed: () {/* ... */},
+                                  //     ),
+                                  //   ],
+                                  // ),
                                 ],
                               ),
                             ),
@@ -228,32 +230,32 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                             : Text('-'),
                                       ),
                                     ),
-                                    ButtonBar(
-                                      buttonPadding: EdgeInsets.only(
-                                          top: 0, right: 8, bottom: 0),
-                                      children: <Widget>[
-                                        FlatButton(
-                                          child: Text(
-                                              AppLocalizations.of(context)
-                                                  .translate('now-update'),
-                                              style: styletext.labelfont()),
-                                          onPressed: () {
-                                            Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      HomePage(
-                                                    type:
-                                                        BottomNavigationDemoType
-                                                            .withLabels,
-                                                    navigationIndex: 1,
-                                                  ),
-                                                ));
-                                            /* ... */
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                    // ButtonBar(
+                                    //   buttonPadding: EdgeInsets.only(
+                                    //       top: 0, right: 8, bottom: 0),
+                                    //   children: <Widget>[
+                                    //     FlatButton(
+                                    //       child: Text(
+                                    //           AppLocalizations.of(context)
+                                    //               .translate('now-update'),
+                                    //           style: styletext.labelfont()),
+                                    //       onPressed: () {
+                                    //         Navigator.pushReplacement(
+                                    //             context,
+                                    //             MaterialPageRoute(
+                                    //               builder: (context) =>
+                                    //                   HomePage(
+                                    //                 type:
+                                    //                     BottomNavigationDemoType
+                                    //                         .withLabels,
+                                    //                 navigationIndex: 1,
+                                    //               ),
+                                    //             ));
+                                    //         /* ... */
+                                    //       },
+                                    //     ),
+                                    //   ],
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -273,20 +275,20 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                           : new Text('-'),
                                     ),
                                   ),
-                                  ButtonBar(
-                                    buttonPadding:
-                                        EdgeInsets.only(top: 0, right: 8),
-                                    children: <Widget>[
-                                      FlatButton(
-                                        child: Text(
-                                          AppLocalizations.of(context)
-                                              .translate('contact'),
-                                          style: styletext.labelfont(),
-                                        ),
-                                        onPressed: () {/* ... */},
-                                      ),
-                                    ],
-                                  ),
+                                  // ButtonBar(
+                                  //   buttonPadding:
+                                  //       EdgeInsets.only(top: 0, right: 8),
+                                  //   children: <Widget>[
+                                  //     FlatButton(
+                                  //       child: Text(
+                                  //         AppLocalizations.of(context)
+                                  //             .translate('contact'),
+                                  //         style: styletext.labelfont(),
+                                  //       ),
+                                  //       onPressed: () {/* ... */},
+                                  //     ),
+                                  //   ],
+                                  // ),
                                 ],
                               ),
                             ),
@@ -313,26 +315,26 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         //Image.network("https://s3.ap-southeast-1.amazonaws.com/cdn.deccanchronicle.com/sites/default/files/anna_salai_chennai_google_map.jpg"),
                                     ),
                                   ),
-                                  ButtonBar(
-                                    children: <Widget>[
-                                      FlatButton(
-                                       // disabledTextColor: Colors.grey,
-                                        //color: Colors.grey,
-                                       // textColor: Colors.grey,
-                                        child: Text(
-                                          AppLocalizations.of(context)
-                                              .translate('location_button'),
-                                          //style: styletext.labelfont()
-                                          style: styletext.labelfont(),
-                                        ),
-                                        onPressed: (){},
-                                        // () {
-                                        //   getCurrentLocation();
-                                        //   /* ... */
-                                        // },
-                                      ),
-                                    ],
-                                  ),
+                                  // ButtonBar(
+                                  //   children: <Widget>[
+                                  //     FlatButton(
+                                  //      // disabledTextColor: Colors.grey,
+                                  //       //color: Colors.grey,
+                                  //      // textColor: Colors.grey,
+                                  //       child: Text(
+                                  //         AppLocalizations.of(context)
+                                  //             .translate('location_button'),
+                                  //         //style: styletext.labelfont()
+                                  //         style: styletext.labelfont(),
+                                  //       ),
+                                  //       onPressed: (){},
+                                  //       // () {
+                                  //       //   getCurrentLocation();
+                                  //       //   /* ... */
+                                  //       // },
+                                  //     ),
+                                  //   ],
+                                  // ),
                                 ],
                               ),
                             )

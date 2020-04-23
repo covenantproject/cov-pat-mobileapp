@@ -25,6 +25,7 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
   final formKey = new GlobalKey<FormState>();
   int id;
   int userId;
+  bool autoValidatorComments;
   Configure _configure = new Configure();
   String radioItem = '';
   DialogBox dialogBox = DialogBox();
@@ -46,6 +47,7 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    autoValidatorComments = false;
   }
 
   bool validateAndSave() {
@@ -185,6 +187,17 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                                   children: <Widget>[
                                     TextFormField(
                                       maxLines: 3,
+                                     // autovalidate: autoValidatorComments,
+                                      onTap: () {
+                                        setState(() {
+                                          autoValidatorComments = true;
+                                        });
+                                      },
+                                      validator: (value) {
+                                        return value.isEmpty
+                                            ? 'Comments is required!'
+                                            : null;
+                                      },
                                       decoration: InputDecoration(
                                           icon: Padding(
                                             padding: const EdgeInsets.only(
@@ -225,14 +238,17 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                           //color: Colors.blue,
                           onPressed: () async {
                             FocusScope.of(context).unfocus();
-                            if (validateAndSave()) {
+                          
+                              
                               await submit();
-                            }
-                            dialogBox.information(context, 'Raise your hand',
+                               dialogBox.information(context, 'Raise your hand',
                                 'Raise hand Submitted');
+                                formKey.currentState.reset();
                             setState(() {
                               id = null;
                             });
+                           
+                           
                           },
                           shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(80.0)))

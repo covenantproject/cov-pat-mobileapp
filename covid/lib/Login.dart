@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
           prefs.setString('isloggedin', "true");
           prefs.setString('mobileno', mobilenumbercontroller.text);
          // Navigator.pop(context);
-          dialogBox.information(context, "Login", "Otp sent");
+          //dialogBox.information(context, "Login", "Otp sent");
           setState(() {
             isLoading=false;
           });
@@ -134,8 +134,8 @@ class _LoginPageState extends State<LoginPage> {
               ));
         } else if(statusCode==500&&isregisteredno=='REC_NOT_FOUND'){
            prefs.setString('mobileno', mobilenumbercontroller.text);
-           dialogBox.information(context, "Login", "Not a registred mobile number");
-          Navigator.push(
+           //dialogBox.information(context, "Login", "Not a registred mobile number");
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => RegisterPage(),
