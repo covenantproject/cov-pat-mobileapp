@@ -77,10 +77,10 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
       // request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
-        "userid": userId,
-        "requesttype": radioItem,
-        "requeststatus": "",
-        "comments": _comments
+        "userId": userId,
+        "requesTtype": "$radioItem",
+        "requestStatus": "$radioItem",
+        "comments": "$_comments"
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));

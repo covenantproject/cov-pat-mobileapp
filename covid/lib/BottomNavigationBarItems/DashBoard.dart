@@ -2,6 +2,7 @@ import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/HomeDetails.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
+import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,6 +22,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   TextStyleFormate styletext = TextStyleFormate();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   GoogleMapController _googleMapController;
+  DialogBox dialogBox = DialogBox();
   Position position = Position();
   Widget _map;
   var _config;
@@ -315,26 +317,28 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         //Image.network("https://s3.ap-southeast-1.amazonaws.com/cdn.deccanchronicle.com/sites/default/files/anna_salai_chennai_google_map.jpg"),
                                     ),
                                   ),
-                                  // ButtonBar(
-                                  //   children: <Widget>[
-                                  //     FlatButton(
-                                  //      // disabledTextColor: Colors.grey,
-                                  //       //color: Colors.grey,
-                                  //      // textColor: Colors.grey,
-                                  //       child: Text(
-                                  //         AppLocalizations.of(context)
-                                  //             .translate('location_button'),
-                                  //         //style: styletext.labelfont()
-                                  //         style: styletext.labelfont(),
-                                  //       ),
-                                  //       onPressed: (){},
-                                  //       // () {
-                                  //       //   getCurrentLocation();
-                                  //       //   /* ... */
-                                  //       // },
-                                  //     ),
-                                  //   ],
-                                  // ),
+                                  ButtonBar(
+                                    children: <Widget>[
+                                      FlatButton(
+                                       // disabledTextColor: Colors.grey,
+                                        //color: Colors.grey,
+                                       // textColor: Colors.grey,
+                                        child: Text(
+                                          AppLocalizations.of(context)
+                                              .translate('location_button'),
+                                          //style: styletext.labelfont()
+                                          style: styletext.labelfont(),
+                                        ),
+                                        onPressed: (){
+                                          dialogBox.information(context, "Set quarantine location", "Quarantine location updated successfully");
+                                        },
+                                        // () {
+                                        //   getCurrentLocation();
+                                        //   /* ... */
+                                        // },
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             )
