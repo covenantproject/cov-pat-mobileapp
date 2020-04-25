@@ -114,6 +114,7 @@ class _OtpPageState extends State<OtpPage> {
       await validateotp(mobilenumbercontroller.text);
       if(statusCode==200){
         prefs.setInt('userId', userId);
+        prefs.setString('isloggedin', "true");
         // Navigator.pop(context);
         Navigator.pushReplacement(
             context,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
+import 'package:intl/intl.dart';
 import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
@@ -20,6 +21,7 @@ class RaiseHands extends StatefulWidget {
 class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
   TextStyleFormate styletext = TextStyleFormate();
   GoogleMapController _googleMapController;
+  TextEditingController commentController;
   bool isSwitched = true;
   var _config;
   final formKey = new GlobalKey<FormState>();
@@ -47,6 +49,7 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    commentController=TextEditingController();
     autoValidatorComments = false;
   }
 
@@ -78,9 +81,10 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "userId": userId,
-        "requesTtype": "$radioItem",
+        "requestType": "$radioItem",
         "requestStatus": "$radioItem",
-        "comments": "$_comments"
+        "requestDateTime":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}",
+        "requestComments": commentController.text
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
@@ -186,6 +190,7 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                                 child: Column(
                                   children: <Widget>[
                                     TextFormField(
+                                      controller:commentController ,
                                       maxLines: 3,
                                      // autovalidate: autoValidatorComments,
                                       onTap: () {

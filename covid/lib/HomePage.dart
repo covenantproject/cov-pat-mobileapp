@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage>
   LatLng center;
   String _identifier;
   double _radius = 15.0;
+  int userId;
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
   bool _notifyOnDwell = false;
@@ -186,19 +187,21 @@ class _HomePageState extends State<HomePage>
   Future updatelocation(
       int patientid, double lat, double long, String code) async {
     _config = _configure.serverURL();
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
     var apiUrl = Uri.parse(_config.postman + '/locationHistory');
     var client = HttpClient();
     // `new` keyword optional
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      request.headers.set('x-api-key', _config.apikey);
+      //request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
-        "patientId": patientid,
-        "latitude": lat,
-        "longitude": long,
-        "code": code
+        "userId": userId,
+        "latitude": "$lat",
+        "longitude": "$long",
+        "code": "$code"
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));

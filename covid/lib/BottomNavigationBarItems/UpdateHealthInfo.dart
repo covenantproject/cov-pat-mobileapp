@@ -26,10 +26,10 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
   bool isSwitchedbreathing = true;
   int id = 1;
   var _config;
-  TextEditingController tempController;
-  TextEditingController heartrateController;
-  TextEditingController respiratoryrateController;
-  TextEditingController spo2Controller;
+  final TextEditingController tempController=TextEditingController();
+  final TextEditingController heartrateController=TextEditingController();
+  final TextEditingController respiratoryrateController=TextEditingController();
+  final TextEditingController spo2Controller=TextEditingController();
   Configure _configure = new Configure();
   String radioItem = 'Getting better';
   final formKey = new GlobalKey<FormState>();
@@ -65,6 +65,7 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     autoValidatorHeartrate = false;
     autoValidatorRespiratory = false;
     autoValidatorSpo2 = false;
+   
   }
 
   bool validateAndSave() {
@@ -91,14 +92,14 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "userid": userId,
-        "coughpresent": isSwitchedcough,
-        "feverpresent": isSwitchedfever,
-        "breathingdifficultypresent": isSwitchedbreathing,
-        "progressstatus": "test",
-        "temperature": temp,
-        "heartrate": heartrate,
-        "respiratoryrate": respiratoryrate,
-        "spo2": spo2
+        "coughpresent": isSwitchedcough==true?false:true,
+        "feverpresent": isSwitchedfever==true?false:true,
+        "breathingdifficultypresent": isSwitchedbreathing==true?false:true,
+        "progressstatus": "$radioItem",
+        "temperature": tempController.text,
+        "heartrate": heartrateController.text,
+        "respiratoryrate": respiratoryrateController.text,
+        "spo2": spo2Controller.text
       };
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
@@ -506,15 +507,18 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                       //color: Colors.blue,
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        // if (validateAndSave()) {
-                        //   if (radioItem == null) {
-                        //     dialogBox.information(context, 'Update health info',
-                        //         'Please select how do you feel');
-                        //   } else {
-
+                             
                             await submit();
+                            formKey.currentState.reset();
                             dialogBox.information(context, 'Update health info',
                                 'Update successfull');
+                                setState(() {
+                                   tempController.text='';
+                              heartrateController.text='';
+                              respiratoryrateController.text='';
+                              spo2Controller.text='';
+                                });
+                             
                             isSwitchedcough = true;
                             isSwitchedfever = true;
                             isSwitchedbreathing = true;
@@ -523,8 +527,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                             // autoValidatorSpo2 = false;
                             // autoValidatorTemp = false;
                             id=1;
-                            FocusScope.of(context).unfocus();
-                            formKey.currentState.reset();
+                           
+
                         //   }
                         // }
                       },

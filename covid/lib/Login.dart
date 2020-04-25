@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
         FocusScope.of(context).unfocus();
         await login(mobilenumbercontroller.text);
         if (statusCode ==200&&isregisteredno=='SUCCESS') {
-          prefs.setString('isloggedin', "true");
+         // prefs.setString('isloggedin', "true");
           prefs.setString('mobileno', mobilenumbercontroller.text);
          // Navigator.pop(context);
           //dialogBox.information(context, "Login", "Otp sent");

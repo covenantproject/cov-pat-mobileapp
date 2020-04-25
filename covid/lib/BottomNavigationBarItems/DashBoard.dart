@@ -2,6 +2,7 @@ import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/HomeDetails.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
+import 'package:covid/Models/config/env.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,6 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:covid/HomePage.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:convert' as JSON;
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key key}) : super(key: key);
@@ -22,11 +26,11 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   TextStyleFormate styletext = TextStyleFormate();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   GoogleMapController _googleMapController;
-  DialogBox dialogBox = DialogBox();
   Position position = Position();
   Widget _map;
   var _config;
   int userId;
+   DialogBox dialogBox = DialogBox();
   Configure _configure = new Configure();
   HomedetailsModel homeDetails = HomedetailsModel();
   String healthofficer;
@@ -95,7 +99,43 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     getCurrentLocation();
     super.initState();
   }
+  updateGeofence()async{
+ SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    _config = _configure.serverURL();
+    var apiUrl = Uri.parse(_config.postman + '/updategeofence');
+    // '/api/check?userName=$_username&checkName=$checkname&category=$category&description=$description&frequency=$frequency');
+    var client = HttpClient(); // `new` keyword optional
+    // 1. Create request
+    try {
+      HttpClientRequest request = await client.postUrl(apiUrl);
+      // request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('content-type', 'application/json; charset=utf-8');
+      var payload = {
+       
+    "patientId":userId,
+    "latitude":lat,
+    "longitude":long,
+    "radius":ENV.RADIUS_GEOFENCE,
+    "startDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}",
+    "endDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}"
 
+      };
+      request.write(JSON.jsonEncode(payload));
+      print(JSON.jsonEncode(payload));
+      // 3. Send the request
+      HttpClientResponse response = await request.close();
+      // 4. Handle the response
+      var resStream = response.transform(Utf8Decoder());
+
+      await for (var data in resStream) {
+        print('Received data: $data');
+      }
+    } catch (ex) {
+      print('error $ex');
+    }
+
+  }
   Future<String> getJsondata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
@@ -104,7 +144,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     var homedetailsresponse;
     try {
       homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
-        "Accept": "applicaton/json",
+        "Accept": "*/*",
       });
     } catch (ex) {
       print('error $ex');
@@ -112,11 +152,12 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     if(homedetailsresponse.statusCode==200){
       setState(() {
       homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
-      healthofficer = homeDetails.homeDetails.healthofficername;
-      officerno = homeDetails.homeDetails.healthofficerno;
+      healthofficer = homeDetails.homeDetails.firstname;
+      officerno = homeDetails.homeDetails.emergencycontact1;
       healthupdate =
-          DateFormat.yMMMd().format(homeDetails.homeDetails.lasthealthupdate);
-      emergencycontactno = homeDetails.homeDetails.emergencyno;
+     homeDetails.homeDetails.requestdatetime!=null?DateFormat('yyyy-MM-dd h:mm a').format(DateTime.parse(homeDetails.homeDetails.requestdatetime)):null;
+     
+      emergencycontactno = homeDetails.homeDetails.emergencycontact1;
     });
     }
     return "Success";
@@ -176,11 +217,9 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                     subtitle: Padding(
                                       padding: const EdgeInsets.only(
                                           top: 5, right: 0),
-                                      child: healthofficer != null &&
-                                              officerno != null
+                                      child: healthofficer != null 
                                           ? Text(
-                                              '$healthofficer\n$officerno' ??
-                                                  '-',
+                                              '$healthofficer\n$officerno',
                                               style:
                                                   styletext.placeholderStyle(),
                                             )
@@ -225,7 +264,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                             top: 5, bottom: 0),
                                         child: healthupdate != null
                                             ? Text(
-                                                '$healthupdate' ?? '-',
+                                                '$healthupdate',
                                                 style: styletext
                                                     .placeholderStyle(),
                                               )
@@ -329,8 +368,9 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                           //style: styletext.labelfont()
                                           style: styletext.labelfont(),
                                         ),
-                                        onPressed: (){
-                                          dialogBox.information(context, "Set quarantine location", "Quarantine location updated successfully");
+                                        onPressed: ()async{
+                                        await  updateGeofence();
+                                        dialogBox.information(context, 'Set quarantine location', "Successfully updated location");
                                         },
                                         // () {
                                         //   getCurrentLocation();

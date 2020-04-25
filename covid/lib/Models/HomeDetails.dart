@@ -29,37 +29,41 @@ class HomedetailsModel {
 }
 
 class HomeDetails {
-    dynamic healthofficername;
-    dynamic healthofficerno;
-    dynamic emergencyno;
-    dynamic lasthealthupdate;
-    int currentlatitude;
-    int currentlongitutude;
+    int patientid;
+    String firstname;
+    String lastname;
+    double latitude;
+    double longitude;
+    String emergencycontact1;
+    dynamic requestdatetime;
 
     HomeDetails({
-        this.healthofficername,
-        this.healthofficerno,
-        this.emergencyno,
-        this.lasthealthupdate,
-        this.currentlatitude,
-        this.currentlongitutude,
+        this.patientid,
+        this.firstname,
+        this.lastname,
+        this.latitude,
+        this.longitude,
+        this.emergencycontact1,
+        this.requestdatetime,
     });
 
     factory HomeDetails.fromJson(Map<String, dynamic> json) => HomeDetails(
-        healthofficername: json["healthofficername"],
-        healthofficerno: json["healthofficerno"],
-        emergencyno: json["emergencyno"],
-        lasthealthupdate: json["lasthealthupdate"],
-        currentlatitude: json["currentlatitude"],
-        currentlongitutude: json["currentlongitutude"],
+        patientid: json["patientid"],
+        firstname: json["firstname"],
+        lastname: json["lastname"],
+        latitude: json["latitude"],
+        longitude: json["longitude"],
+        emergencycontact1: json["emergencycontact1"],
+        requestdatetime: json["requestdatetime"],
     );
 
     Map<String, dynamic> toJson() => {
-        "healthofficername": healthofficername,
-        "healthofficerno": healthofficerno,
-        "emergencyno": emergencyno,
-        "lasthealthupdate": lasthealthupdate,
-        "currentlatitude": currentlatitude,
-        "currentlongitutude": currentlongitutude,
+        "patientid": patientid,
+        "firstname": firstname,
+        "lastname": lastname,
+        "latitude": latitude,
+        "longitude": longitude,
+        "emergencycontact1": emergencycontact1,
+        "requestdatetime": requestdatetime,
     };
 }
