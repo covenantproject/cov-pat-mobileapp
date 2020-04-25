@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage>
         WidgetsBindingObserver {
   LatLng center;
   String _identifier;
-  double _radius = 50.0;
+  double _radius = 15.0;
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
   bool _notifyOnDwell = false;
