@@ -223,7 +223,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                               style:
                                                   styletext.placeholderStyle(),
                                             )
-                                          : Text('-'),
+                                          : Text('Not assigned',style: styletext
+                                                    .placeholderStyle()),
                                     ),
                                   ),
                                   // ButtonBar(
@@ -268,7 +269,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                                 style: styletext
                                                     .placeholderStyle(),
                                               )
-                                            : Text('-'),
+                                            : Text('No last update',style: styletext
+                                                    .placeholderStyle()),
                                       ),
                                     ),
                                     // ButtonBar(
@@ -313,7 +315,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                       padding: const EdgeInsets.only(top: 5),
                                       child: emergencycontactno != null
                                           ? new Text('$emergencycontactno')
-                                          : new Text('-'),
+                                          : new Text('-',style: styletext
+                                                    .placeholderStyle()),
                                     ),
                                   ),
                                   // ButtonBar(

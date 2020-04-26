@@ -224,7 +224,7 @@ class _HomePageState extends State<HomePage>
   void _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 15,
+            minimumFetchInterval: 5,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
