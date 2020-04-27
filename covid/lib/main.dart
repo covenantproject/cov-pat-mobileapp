@@ -101,7 +101,7 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
  void _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 5,
+            minimumFetchInterval: 10,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
@@ -135,13 +135,13 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
     });
 
     // Test scheduling a custom-task.
-    BackgroundFetch.scheduleTask(TaskConfig(
-        taskId: "com.transistorsoft.customtask",
-        delay: 10000,
-        periodic: false,
-        forceAlarmManager: true,
-        stopOnTerminate: false,
-        enableHeadless: true));
+    // BackgroundFetch.scheduleTask(TaskConfig(
+    //     taskId: "com.transistorsoft.customtask",
+    //     delay: 10000,
+    //     periodic: false,
+    //     forceAlarmManager: true,
+    //     stopOnTerminate: false,
+    //     enableHeadless: true));
   }
 
   Future updatelocation(

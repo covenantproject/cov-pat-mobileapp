@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage>
   int userId;
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
-  bool _notifyOnDwell = false;
+  bool _notifyOnDwell = true;
   var _config;
   int _loiteringDelay = 10000;
   int _currentIndex = 0;
@@ -91,7 +91,8 @@ class _HomePageState extends State<HomePage>
 
   /// Receive events from BackgroundGeolocation in Headless state.
   void _onClickEnable(enabled) async {
-    showNotification();
+   // showNotification();
+  // runApp(MyApp());
     bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("BUTTON_CLICK"));
     if (enabled) {
       dynamic callback = (bg.State state) {
@@ -104,6 +105,7 @@ class _HomePageState extends State<HomePage>
       bg.State state = await bg.BackgroundGeolocation.state;
       if (state.trackingMode == 1) {
         bg.BackgroundGeolocation.start().then(callback);
+        updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_START");
       } else {
         bg.BackgroundGeolocation.startGeofences().then(callback);
       }
@@ -224,7 +226,7 @@ class _HomePageState extends State<HomePage>
   void _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 5,
+            minimumFetchInterval: 10,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
@@ -287,7 +289,7 @@ class _HomePageState extends State<HomePage>
 
   void _onMotionChange(bg.Location location) {
     print('[${bg.Event.MOTIONCHANGE}] - $location');
-    updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
+    //updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
     setState(() {
       events.insert(
           0,
@@ -339,14 +341,16 @@ class _HomePageState extends State<HomePage>
   void _onGeofence(bg.GeofenceEvent event) async {
     print('[${bg.Event.GEOFENCE}] - $event');
     if(event.action=='EXIT'){
-       ongeofencecross(event);
-    } else if(event.action=='EXIT'){
-      ongeofencecross(event);
+       ongeofencecross(event.action);
+       updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS $event");
+    } else if(event.action=='ENTER'){
+      ongeofencecross(event.action);
+      updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS $event");
     }
     else{
-      ongeofencecross(event);
+      ongeofencecross(event.action);
     }
-    updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
+    //updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
     
     
     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
@@ -429,23 +433,35 @@ class _HomePageState extends State<HomePage>
         bg.Config(transistorAuthorizationToken: token));
   }
 
-  void initPlatformState() async {
-    SharedPreferences prefs = await _prefs;
-    String orgname = prefs.getString("orgname");
-    String username = prefs.getString("username");
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   print("[home_view didChangeAppLifecycleState] : $state");
+  //   if (state == AppLifecycleState.paused) {
 
-    // Sanity check orgname & username:  if invalid, go back to HomeApp to re-register device.
-    if (orgname == null || username == null) {
-      return runApp(MyApp());
-    }
+  //   } else if (state == AppLifecycleState.resumed) {
+
+  //   }
+  // }
+
+  void initPlatformState() async {
+    // SharedPreferences prefs = await _prefs;
+    // String orgname = prefs.getString("orgname");
+    // String username = prefs.getString("username");
+
+    // // Sanity check orgname & username:  if invalid, go back to HomeApp to re-register device.
+    // if (orgname == null || username == null) {
+    //   return runApp(MyApp());
+    // }
 
     _configureBackgroundGeolocation('qantler', 'username');
-    _configureBackgroundFetch();
+    //_configureBackgroundFetch();
   }
 
   @override
   void initState() {
     super.initState();
+   // runApp(HomePage(type: BottomNavigationDemoType.withLabels));
+    _enabled = false;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = new IOSInitializationSettings();
@@ -471,10 +487,14 @@ class _HomePageState extends State<HomePage>
       Profile()
     ];
     _isMoving = false;
-    _enabled = true;
     _odometer = '0';
-
     initPlatformState();
+   
+    Future.delayed(const Duration(seconds: 15), () {
+       _enabled = true;
+       _onClickEnable(true);
+    });
+   
   }
 
   Future onSelectNotification(String payload) {
@@ -506,7 +526,7 @@ class _HomePageState extends State<HomePage>
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
     await flutterLocalNotificationsPlugin.show(0, 'Geofence',
-        'You crossed the geofence', platform,
+        'Alert! $event event on geofence', platform,
         payload:
             'Alert! $event event on geofence');
   }
@@ -649,7 +669,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
-    if (today.hour == 8 || today.hour == 22) {
+    if (today.hour == 8 &&today.second==0|| today.hour == 22&&today.second==0) {
       showNotification();
     }
     final colorScheme = Theme.of(context).colorScheme;

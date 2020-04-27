@@ -2,6 +2,7 @@ import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/HomeDetails.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/config/Configure.dart';
+import 'package:covid/Models/GetGeoLocationModel.dart';
 import 'package:covid/Models/config/env.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
@@ -37,14 +38,17 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   String healthupdate;
   String emergencycontactno;
   String officerno;
-  
+  bool issetlocationenabled;
+  GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
+  static double lastgeolat;
+ static double lastegeolong;
   static double lat;
   static double long;
   Set<Marker> _createMarker() {
     return <Marker>[
       Marker(
           markerId: MarkerId('Home'),
-          position: LatLng(position.latitude, position.longitude),
+          position: LatLng(lastgeolat==null?position.latitude:lastgeolat,lastegeolong==null? position.longitude:lastegeolong),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: "Home"))
     ].toSet();
@@ -55,10 +59,9 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     SharedPreferences prefs = await _prefs;
     
     setState(() {
-       position = res;
-       prefs.setDouble('lat', position.latitude);
+      position = res;
+      prefs.setDouble('lat', position.latitude);
       prefs.setDouble('long', position.longitude);
-     
       lat = prefs.getDouble('lat');
       long = prefs.getDouble('long');
       _map = mapWidget();
@@ -68,14 +71,13 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   Set<Circle> circles = Set.from([
     Circle(
       circleId: CircleId('${DateTime.now()}'),
-      center: new LatLng(lat??100, long??100),
-      radius: 50,
-
+      center:  LatLng(lastgeolat??100, lastegeolong??100),
+      radius: 15,
       fillColor: Colors.redAccent.withOpacity(0.4),
       visible: true,
       //strokeColor: Colors.red,
       strokeWidth: 1
-    )
+    ),
   ]);
   
 
@@ -84,7 +86,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       markers: _createMarker(),
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
-          target: LatLng(position.latitude, position.longitude), zoom: 17.0),
+          target: LatLng(lastgeolat==null?position.latitude:lastgeolat,lastegeolong==null? position.longitude:lastegeolong), zoom: 19.0),
       onMapCreated: (GoogleMapController controller) {
         _googleMapController = controller;
       },
@@ -116,6 +118,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     "patientId":userId,
     "latitude":lat,
     "longitude":long,
+    "geoFenceSet": true,
     "radius":ENV.RADIUS_GEOFENCE,
     "startDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}",
     "endDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}"
@@ -141,9 +144,14 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     userId = prefs.getInt('userId');
     _config = _configure.serverURL();
     String homeurl = _config.postman + "/homedetails?userId=$userId";
+    String getgeolocationurl = _config.postman + "/getgeofence?patientId=$userId";
     var homedetailsresponse;
+    var getgeolocationresponse;
     try {
       homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
+        "Accept": "*/*",
+      });
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
         "Accept": "*/*",
       });
     } catch (ex) {
@@ -152,11 +160,20 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     if(homedetailsresponse.statusCode==200){
       setState(() {
       homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
+      geoFenceLocationModel=getGeoLocationModelFromJson(getgeolocationresponse.body);
+      try{
+      issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
+      lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+      lastegeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
+      }catch(ex){
+       lastgeolat=position.latitude;
+      lastegeolong=position.longitude;
+      }
+      
       healthofficer = homeDetails.homeDetails.firstname;
       officerno = homeDetails.homeDetails.emergencycontact1;
       healthupdate =
-     homeDetails.homeDetails.requestdatetime!=null?DateFormat('yyyy-MM-dd h:mm a').format(DateTime.parse(homeDetails.homeDetails.requestdatetime)):null;
-     
+     homeDetails.homeDetails.requestdatetime!=null?DateFormat('yyyy-MM-dd h:mm a').format(DateTime.parse(homeDetails.homeDetails.requestdatetime).toLocal()):null;
       emergencycontactno = homeDetails.homeDetails.emergencycontact1;
     });
     }
@@ -203,7 +220,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                     dense: true,
                                     leading: Padding(
                                       padding:
-                                          const EdgeInsets.only(bottom: 30),
+                                          const EdgeInsets.only(bottom: 0),
                                       child: Icon(Icons.album),
                                     ),
                                     title: Padding(
@@ -361,7 +378,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                   ),
                                   ButtonBar(
                                     children: <Widget>[
-                                      FlatButton(
+                                   issetlocationenabled==false?FlatButton(
                                        // disabledTextColor: Colors.grey,
                                         //color: Colors.grey,
                                        // textColor: Colors.grey,
@@ -374,11 +391,25 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         onPressed: ()async{
                                         await  updateGeofence();
                                         dialogBox.information(context, 'Set quarantine location', "Successfully updated location");
+                                        getJsondata();
                                         },
                                         // () {
                                         //   getCurrentLocation();
                                         //   /* ... */
                                         // },
+                                      ):FlatButton(
+                                         disabledTextColor: Colors.grey,
+                                       // color: Colors.grey,
+                                       textColor: Colors.grey,
+                                       onPressed: (){},
+                                       child: Text(
+                                          AppLocalizations.of(context)
+                                              .translate('location_button'),
+                                              style: TextStyle(fontSize: 17),
+                                          //style: styletext.labelfont()
+                                         // style: styletext.labelfont(),
+                                          
+                                        ),
                                       ),
                                     ],
                                   ),

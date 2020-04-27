@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:convert' as JSON;
 import 'package:covid/App_localizations.dart';
 import 'package:covid/HomePage.dart';
+import 'package:covid/main.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/Models/util/DialogBox.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +117,7 @@ class _OtpPageState extends State<OtpPage> {
         prefs.setInt('userId', userId);
         prefs.setString('isloggedin', "true");
         // Navigator.pop(context);
+       // runApp(MyApp());
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
