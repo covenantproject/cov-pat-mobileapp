@@ -29,34 +29,56 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isManager;
   bool _passwordObscureText = true;
   String _idProof;
+  String _addresstype;
   //status dropdown data
   String _networkStatus2;
   File sampleImage;
   String _name;
+  String _surname;
   String _dob;
   String _gender;
   String _username;
   String _idproofno;
+  String _countrystate;
   String _department;
   String _roleDescription;
   String _address;
+  String _address2;
+  String _address3;
+  String _citytownvillage;
+  String _district;
+  String _pincode;
+  String _state;
+   bool autoValidatorTitle;
   bool autoValidatorFirstName;
+  bool autoValidatorSurname;
   bool autoValidatorLastName;
   bool autoValidatorPassword;
+  bool autoValidatorCountryState;
   bool autoValidatorDepartment;
+  bool autoValidatorDob;
   bool autoValidatorRole;
+  bool autoValidatorprooftype;
+  bool autoValidatoraddresstype;
   bool autoValidatorEmail;
+  bool autoValidatorEmail2;
+  bool autoValidatorEmail3;
+  bool autoValidatorcity;
+  bool autoValidatorDistrict;
+  bool autoValidatorPincode;
+  bool autoValidatorState;
   bool _ismanager = false;
   bool _isadmin = false;
   Configure _configure = new Configure();
-   TextEditingController dobcontroller;
+  TextEditingController dobcontroller;
   String url;
+  String _title;
   var _config;
   final formKey = new GlobalKey<FormState>();
   String _admintoken = ' ';
   String _identitytoken = ' ';
   bool _isButtonTapped;
-  DialogBox dialogBox =DialogBox();
+  DialogBox dialogBox = DialogBox();
   String mobileno;
   int statusCode;
   int _radioValue = 0;
@@ -65,36 +87,47 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    dobcontroller=TextEditingController();
+    dobcontroller = TextEditingController();
+    autoValidatorTitle=false;
     autoValidatorFirstName = false;
+    autoValidatorSurname = false;
     autoValidatorLastName = false;
     autoValidatorPassword = false;
+    autoValidatorCountryState = false;
     autoValidatorDepartment = false;
     autoValidatorRole = false;
+    autoValidatorprooftype=false;
+    autoValidatoraddresstype=false;
     autoValidatorEmail = false;
+    autoValidatorEmail2 = false;
+    autoValidatorEmail3 = false;
+    autoValidatorcity = false;
+    autoValidatorDistrict = false;
+    autoValidatorPincode = false;
+    autoValidatorState = false;
+    autoValidatorDob=false;
     _isButtonTapped = false;
     _loadUserInfo();
 
     // _department = ' ';
   }
+
   _loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      mobileno=  prefs.getString('mobileno');
+      mobileno = prefs.getString('mobileno');
     });
-  
-   
   }
 
-   String _genderResult ='Male';
-  
+  String _genderResult = 'Male';
+
   void _handleRadioValueChange(int value) {
     setState(() {
       _radioValue = value;
-  
+
       switch (_radioValue) {
         case 0:
-          _genderResult ='Male';
+          _genderResult = 'Male';
           break;
         case 1:
           _genderResult = 'Female';
@@ -175,10 +208,10 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               onPressed: () {
                 Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginPage(),
-              ));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                    ));
                 formKey.currentState.reset();
               },
             ),
@@ -207,9 +240,10 @@ class _RegisterPageState extends State<RegisterPage> {
       return false;
     }
   }
-   Future sendOtp() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-   var mobilenumber= prefs.getString('mobileno');
+
+  Future sendOtp() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var mobilenumber = prefs.getString('mobileno');
     _config = _configure.serverURL();
     var apiUrl = Uri.parse(_config.postman + '/otp?mobileNo=$mobilenumber');
     var client = HttpClient();
@@ -217,7 +251,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-     // request.headers.set('x-api-key', _config.apikey);
+      // request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -227,41 +261,38 @@ class _RegisterPageState extends State<RegisterPage> {
       // 4. Handle the response
       var resStream = response.transform(Utf8Decoder());
       await for (var data in resStream) {
-       
         print('Received data: $data');
         setState(() {
-       // statusCode = response.statusCode;
-        if(statusCode==500){
-        //   loginjson=JSON.jsonDecode(data);
-        // isregisteredno= loginjson['message'];
-        }
-        if(statusCode==200){
-         // isregisteredno= data;
-        }
-      });
+          // statusCode = response.statusCode;
+          if (statusCode == 500) {
+            //   loginjson=JSON.jsonDecode(data);
+            // isregisteredno= loginjson['message'];
+          }
+          if (statusCode == 200) {
+            // isregisteredno= data;
+          }
+        });
       }
-      
     } catch (ex) {
       print('error $ex');
     }
   }
 
- void validateandsubmit() async {
+  void validateandsubmit() async {
     if (validateAndSave()) {
       FocusScope.of(context).unfocus();
       await register();
-      if(statusCode==200){
+      if (statusCode == 200) {
         await sendOtp();
-       // dialogBox.information(context, 'Self registration', 'Registration successfull');
+        // dialogBox.information(context, 'Self registration', 'Registration successfull');
         Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OtpPage(),
-              ));
-      }else{
-         dialogBox.information(context, 'Self registration', 'An error occured');
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpPage(),
+            ));
+      } else {
+        dialogBox.information(context, 'Self registration', 'An error occured');
       }
-
     }
   }
 
@@ -278,17 +309,27 @@ class _RegisterPageState extends State<RegisterPage> {
       // request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
-        "title": "Mr",
-        "firstName": "$_name",
-        "middleName": "middlename",
-        "lastName": "$_name",
-        "preferredName": "$_name",
-        "shortName": "$_name",
-        "suffix": "$_name",
+        "title": _title,
+        "firstName": _name,
+        "middleName": _surname,
+        "lastName": _surname,
+        "preferredName": _name,
+        "shortName": _surname,
+        "suffix": _surname,
         "dob": "$formattedDate",
-        "address": "$_address",
+        "addressType": _addresstype,
+        "addressLine1": _address,
+        "addressLine2": _address2,
+        "addressLine3": _address3,
+        "city": _citytownvillage,
+        "district": _district,
+        "pinCode": _pincode,
+        "state": _state,
         "gender": "$_genderResult",
-        "mobileNo": "$mobileno",
+        "mobileNo": mobileno,
+        "proofType": _idProof,
+        "proofNumber": _idproofno,
+        "proofAuthority": _countrystate,
         "photoId": "1"
       };
       request.write(JSON.jsonEncode(payload));
@@ -297,10 +338,9 @@ class _RegisterPageState extends State<RegisterPage> {
       HttpClientResponse response = await request.close();
       // 4. Handle the response
       var resStream = response.transform(Utf8Decoder());
-       setState(() {
+      setState(() {
         statusCode = response.statusCode;
-         // loginjson=JSON.jsonDecode(data);
-         
+        // loginjson=JSON.jsonDecode(data);
       });
       await for (var data in resStream) {
         print('Received data: $data');
@@ -354,6 +394,79 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    Stack(
+                      children: <Widget>[
+                        Align(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 35),
+                            child: Container(
+                              width: 340,
+                              child: DropdownButtonFormField<String>(
+                                value: _title,
+                                autovalidate:autoValidatorTitle ,
+                                decoration: InputDecoration(
+                                    filled: true, fillColor: Colors.grey[200]),
+                                hint: Text(
+                                  AppLocalizations.of(context)
+                                      .translate('prefixtitle'),
+                                ),
+                                isDense: true,
+
+                                validator: (String value) {
+                                  if (value?.isEmpty ?? true) {
+                                    return 'Title';
+                                  }
+                                },
+                                //icon: Icon(Icons.arrow_drop_down),
+                                //isExpanded: true,
+                                iconSize: 24,
+                                elevation: 16,
+                                // style: TextStyle(
+                                //     color: Colors.black, fontWeight: FontWeight.w600),
+                                // // underline: Container(
+                                //   height: 1,
+                                //   color: Colors.grey.shade400,
+                                // ),
+                                onChanged: (String newValue) {
+                                  FocusScope.of(context)
+                                      .requestFocus(new FocusNode());
+                                  setState(() {
+                                    this._title = newValue;
+                                    autoValidatorTitle=true;
+                                  });
+                                },
+                                items: [
+                                  'Mr',
+                                  'Ms',
+                                  'Mrs',
+                                  'Miss',
+                                  'Dr',
+                                  'Prof'
+                                ].map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                            child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Icon(
+                            Icons.perm_identity,
+                            color: Colors.grey,
+                          ),
+                        )),
+                      ],
+                    ),
+
+                    SizedBox(
+                      height: 40,
+                    ),
+
                     TextFormField(
                       // inputFormatters: [
                       //   WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
@@ -361,10 +474,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                      // autovalidate: autoValidatorFirstName,
+                       autovalidate: autoValidatorSurname,
                       onTap: () {
                         setState(() {
-                          autoValidatorFirstName = true;
+                          autoValidatorSurname = true;
                         });
                       },
                       decoration: new InputDecoration(
@@ -386,6 +499,39 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       height: 40,
                     ),
+
+                    TextFormField(
+                      // inputFormatters: [
+                      //   WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      // ],
+                      keyboardType: TextInputType.text,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                       autovalidate: autoValidatorFirstName,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorFirstName = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                          icon: Icon(Icons.account_circle),
+                          hintText:
+                              AppLocalizations.of(context).translate('surname'),
+                          filled: true,
+                          fillColor: Colors.grey[200]),
+                      validator: (value) {
+                        return value.isEmpty ? 'Surname is Required' : null;
+                      },
+                      onSaved: (value) {
+                        setState(() {
+                          this._surname = value;
+                        });
+                        return _surname = value;
+                      },
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
                     // Text(
                     //   'DOB',
                     // ),
@@ -394,7 +540,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                      autovalidate: autoValidatorLastName,
+                      autovalidate: autoValidatorDob,
                       onTap: () async {
                         date = DateTime(1900);
                         FocusScope.of(context).requestFocus(new FocusNode());
@@ -403,9 +549,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             initialDate: DateTime.now(),
                             firstDate: DateTime(1900),
                             lastDate: DateTime.now());
-                             dobcontroller.text =
-                             "${DateFormat("yyyy-MM-dd").format(date)}"
-                                                          .toString();
+                        dobcontroller.text =
+                            "${DateFormat("yyyy-MM-dd").format(date)}"
+                                .toString();
+                               
+                                   autoValidatorDob=true;
+                               
+                               
                       },
                       decoration: new InputDecoration(
                         filled: true,
@@ -417,16 +567,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       validator: (value) {
                         return value.isEmpty ? 'Dob is Required' : null;
                       },
-                      onChanged: (value){
+                      onChanged: (value) {
                         setState(() {
                           this._dob = value;
-                          dobcontroller.text=value;
+                          dobcontroller.text = value;
                         });
                       },
                       onSaved: (value) {
                         setState(() {
                           this._dob = value;
-                           dobcontroller.text=value;
+                          dobcontroller.text = value;
                         });
                         return _dob = value;
                       },
@@ -434,44 +584,70 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       height: 25,
                     ),
-
-                    Padding(
-                      padding: const EdgeInsets.only(right: 100),
+                     // Icon(
+                            //   Icons.supervisor_account,
+                            //   color: Colors.grey,
+                            // ),
+                            Row(children: <Widget>[
+                              Icon(
+                              Icons.supervisor_account,
+                              color: Colors.grey,
+                            ),
+                             Padding(
+                      padding: const EdgeInsets.only(left: 25),
                       child: Container(
                         child: new Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           // mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            Icon(
-                              Icons.supervisor_account,
-                              color: Colors.grey,
+                            // Icon(
+                            //   Icons.supervisor_account,
+                            //   color: Colors.grey,
+                            // ),
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                  new Radio(
+                                    value: 0,
+                                    groupValue: _radioValue,
+                                    onChanged: _handleRadioValueChange,
+                                  ),
+                                  new Text(AppLocalizations.of(context)
+                                      .translate('male')),
+                                ],
+                              ),
                             ),
-                            new Radio(
-                              value: 0,
-                              groupValue: _radioValue,
-                              onChanged:_handleRadioValueChange,
-                              
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                  new Radio(
+                                    value: 1,
+                                    groupValue: _radioValue,
+                                    onChanged: _handleRadioValueChange,
+                                  ),
+                                  new Text(AppLocalizations.of(context)
+                                      .translate('female')),
+                                ],
+                              ),
                             ),
-                            new Text(
-                                AppLocalizations.of(context).translate('male')),
-                            new Radio(
-                              value: 1,
-                              groupValue:_radioValue,
-                              onChanged:_handleRadioValueChange,
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                  new Radio(
+                                      value: 2,
+                                      groupValue: _radioValue,
+                                      onChanged: _handleRadioValueChange),
+                                  new Text(AppLocalizations.of(context)
+                                      .translate('other')),
+                                ],
+                              ),
                             ),
-                            new Text(AppLocalizations.of(context)
-                                .translate('female')),
-                            new Radio(
-                              value: 2,
-                              groupValue: _radioValue,
-                              onChanged:_handleRadioValueChange
-                            ),
-                            new Text(AppLocalizations.of(context)
-                                .translate('other')),
                           ],
                         ),
                       ),
                     ),
+                            ],),
+                   
                     SizedBox(
                       height: 25,
                     ),
@@ -507,17 +683,19 @@ class _RegisterPageState extends State<RegisterPage> {
                               //   height: 1,
                               //   color: Colors.grey.shade400,
                               // ),
+                              autovalidate: autoValidatoraddresstype,
                               onChanged: (String newValue) {
                                 FocusScope.of(context)
                                     .requestFocus(new FocusNode());
                                 setState(() {
                                   this._idProof = newValue;
+                                  autoValidatoraddresstype=true;
                                 });
                               },
                               items: [
                                 'Aadhaar',
                                 'Driving License',
-                                'PAN Card'
+                                'Passport'
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -541,12 +719,50 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       height: 40,
                     ),
+                    _idProof == 'Driving License'||_idProof=='Passport'
+                        ? Column(children: <Widget>[
+                            TextFormField(
+                              toolbarOptions: ToolbarOptions(
+                                  copy: true, cut: true, paste: true),
+                              //obscureText: true,
+                              autovalidate: autoValidatorCountryState,
+                              // obscureText: _passwordObscureText,
+                              onTap: () {
+                                setState(() {
+                                  autoValidatorCountryState = true;
+                                });
+                              },
+                              decoration: new InputDecoration(
+                                icon: Icon(Icons.assignment_ind),
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                                hintText: AppLocalizations.of(context)
+                                    .translate('Country/State'),
+                              ),
+
+                              validator: (value) {
+                                if (value?.isEmpty ?? true) {
+                                  return 'Country/State is required';
+                                }
+                              },
+                              onSaved: (value) {
+                                setState(() {
+                                  this._countrystate = value;
+                                });
+                                return _countrystate = value;
+                              },
+                            ),
+                            SizedBox(
+                              height: 40,
+                            ),
+                          ])
+                        : Container(),
                     TextFormField(
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
                       //obscureText: true,
                       autovalidate: autoValidatorPassword,
-                     // obscureText: _passwordObscureText,
+                      // obscureText: _passwordObscureText,
                       onTap: () {
                         setState(() {
                           autoValidatorPassword = true;
@@ -574,7 +790,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
 
                     SizedBox(
-                      height: 25,
+                      height: 40,
                     ),
                     // Text(
                     //   'Photo (Optional)',
@@ -589,45 +805,340 @@ class _RegisterPageState extends State<RegisterPage> {
                     // SizedBox(
                     //   height: 10,
                     // ),
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    Stack(children: <Widget>[
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 35),
+                          child: Container(
+                            width: 340,
+                            child: DropdownButtonFormField<String>(
+                              value: _addresstype,
+                              decoration: InputDecoration(
+                                  filled: true, fillColor: Colors.grey[200]),
+                              hint: Text(
+                                AppLocalizations.of(context)
+                                    .translate('Address type'),
+                              ),
+                              isDense: true,
+
+                              validator: (String value) {
+                                if (value?.isEmpty ?? true) {
+                                  return 'Select address type';
+                                }
+                              },
+                              //icon: Icon(Icons.arrow_drop_down),
+                              //isExpanded: true,
+                              iconSize: 24,
+                              elevation: 16,
+                              // style: TextStyle(
+                              //     color: Colors.black, fontWeight: FontWeight.w600),
+                              // // underline: Container(
+                              //   height: 1,
+                              //   color: Colors.grey.shade400,
+                              // ),
+                              autovalidate: autoValidatorprooftype,
+                              onChanged: (String newValue) {
+                                FocusScope.of(context)
+                                    .requestFocus(new FocusNode());
+                                setState(() {
+                                  this._addresstype = newValue;
+                                  autoValidatorprooftype=true;
+                                });
+                              },
+                              items: [
+                                'Temporary Residence',
+                                'Permanent Residence',
+                                'Work',
+                                'Other'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                          child: Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Icon(
+                          Icons.home,
+                          color: Colors.grey,
+                        ),
+                      )),
+                    ]),
                     SizedBox(
                       height: 20,
                     ),
                     // Text(
                     //   'Address',
                     // ),
-                    TextFormField(
-                      maxLines: 3,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                      autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(bottom: 35),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: AppLocalizations.of(context)
-                            .translate('user_address'),
-                      ),
-                      validator: (value) {
-                        return value.isEmpty ? 'Address is required!' : null;
-                      },
-                      onSaved: (value) {
-                        setState(() {
-                          this._address = value;
-                        });
-                        return _address = value;
-                      },
-                    ),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorEmail,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorEmail = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('Line 1'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'Address is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._address = value;
+                              });
+                              return _address = value;
+                            },
+                          )
+                        : Container(),
+                  _addresstype != null? SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorEmail2,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorEmail2 = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('Line 2'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'Address is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._address2 = value;
+                              });
+                              return _address2 = value;
+                            },
+                          )
+                        : Container(),
+                   _addresstype != null?  SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorEmail3,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorEmail3 = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('Line 3'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'Address is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._address3 = value;
+                              });
+                              return _address3 = value;
+                            },
+                          )
+                        : Container(),
                     SizedBox(
                       height: 25,
                     ),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorcity,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorcity = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('City/town/village'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'City/town/village is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._citytownvillage = value;
+                              });
+                              return _citytownvillage = value;
+                            },
+                          )
+                        : Container(),
+                     _addresstype != null?SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorDistrict,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorDistrict = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('District'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'District is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._district = value;
+                              });
+                              return _district = value;
+                            },
+                          )
+                        : Container(),
+                    _addresstype != null? SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorPincode,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorPincode = true;
+                              });
+                            },
+                            keyboardType: TextInputType.number,
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('PIN code'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'PIN code is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._pincode = value;
+                              });
+                              return _pincode = value;
+                            },
+                          )
+                        : Container(),
+                    _addresstype != null? SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorState,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorState = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('State'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'State is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._state = value;
+                              });
+                              return _state = value;
+                            },
+                          )
+                        : Container(),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -644,9 +1155,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         //     onPressed: _showPopUp1,
                         //     shape: RoundedRectangleBorder(
                         //         borderRadius: new BorderRadius.circular(80.0))),
-                        // SizedBox(
-                        //   width: 50,
-                        // ),
+                        SizedBox(
+                          height: 25,
+                        ),
                         RaisedButton(
                             elevation: 5.0,
                             child: Text(
@@ -656,7 +1167,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     fontWeight: FontWeight.bold, fontSize: 17)),
                             textColor: Colors.white,
                             //color: Colors.blue,
-                            onPressed: _isButtonTapped ? null :validateandsubmit,
+                            onPressed:
+                                _isButtonTapped ? null : validateandsubmit,
                             shape: RoundedRectangleBorder(
                                 borderRadius: new BorderRadius.circular(80.0))),
                       ],

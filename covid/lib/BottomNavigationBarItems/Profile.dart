@@ -51,11 +51,22 @@ class _ProfileState extends State<Profile>
   bool _isButtonTapped;
   int userId;
   TextEditingController namecontroller=TextEditingController();
+  TextEditingController surnamecontroller=TextEditingController();
+  TextEditingController titlecontroller=TextEditingController();
   TextEditingController dobcontroller=TextEditingController();
   TextEditingController gendercontroller=TextEditingController();
   TextEditingController proofidnocontroller=TextEditingController();
-  TextEditingController proofnocontroller=TextEditingController();
+  TextEditingController addresstypecontroller=TextEditingController();
+  TextEditingController proofcontroller=TextEditingController();
+   TextEditingController proofauthcontroller=TextEditingController();
+  TextEditingController countrystatecontroller=TextEditingController();
   TextEditingController addresscontroller=TextEditingController();
+  TextEditingController addresscontroller2=TextEditingController();
+  TextEditingController addresscontroller3=TextEditingController();
+  TextEditingController citytownvilagecontroller=TextEditingController();
+  TextEditingController districtcontroller=TextEditingController();
+  TextEditingController pincodecontroller=TextEditingController();
+  TextEditingController statecontroller=TextEditingController();
   String name;
   String dob;
   String gender;
@@ -98,12 +109,29 @@ Future<String> getJsondata() async {
     setState(() {
       profileModel = profileModelFromJson(profileresponse.body);
       namecontroller.text=profileModel.firstName;
+      titlecontroller.text=profileModel.title;
+      surnamecontroller.text=profileModel.lastName;
+      addresstypecontroller.text=profileModel.addressType;
+      proofcontroller.text=profileModel.proofType;
+      addresscontroller.text=profileModel.addressLine1;
+      addresscontroller2.text=profileModel.addressLine2;
+      addresscontroller3.text=profileModel.addressLine3;
+      citytownvilagecontroller.text=profileModel.city;
+      districtcontroller.text=profileModel.district;
+      pincodecontroller.text=profileModel.pinCode;
+      statecontroller.text=profileModel.state;
       dobcontroller.text=DateFormat.yMMMd().format(profileModel.dob);
-      proofidnocontroller.text=profileModel.idProofNo;
-      addresscontroller.text=profileModel.address;
+      proofidnocontroller.text=profileModel.proofNumber;
+      addresscontroller.text=profileModel.addressLine1;
       gendercontroller.text=profileModel.gender;
-      proofidnocontroller.text='77362 77327 32983';
-      proofnocontroller.text='Aadhaar';
+      proofidnocontroller.text=profileModel.proofNumber;
+      try{
+        proofauthcontroller.text=profileModel.proofAuthority;
+        } catch(ex){
+          proofauthcontroller.text="";
+        }
+      
+      proofcontroller.text=profileModel.proofType;
     });
     return "Success";
   }
@@ -299,6 +327,42 @@ Future<String> getJsondata() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     TextField(
+                      controller:titlecontroller ,
+                     // initialValue: '$name'??'-',
+                      readOnly: true,
+                    
+                      inputFormatters: [
+                        WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      ],
+                      keyboardType: TextInputType.text,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                      // autovalidate: autoValidatorFirstName,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorFirstName = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                          icon: Icon(Icons.account_circle),
+                          hintText: 'Title',
+
+                          filled: true,
+                          fillColor: Colors.grey[200]),
+                      // validator: (value) {
+                      //   return value.isEmpty ? 'Full Name is Required' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._firstname = value;
+                      //   });
+                      //   return _firstname = value;
+                      // },
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    TextField(
                       controller:namecontroller ,
                      // initialValue: '$name'??'-',
                       readOnly: true,
@@ -318,6 +382,42 @@ Future<String> getJsondata() async {
                       decoration: new InputDecoration(
                           icon: Icon(Icons.account_circle),
                           hintText: 'Full Name',
+
+                          filled: true,
+                          fillColor: Colors.grey[200]),
+                      // validator: (value) {
+                      //   return value.isEmpty ? 'Full Name is Required' : null;
+                      // },
+                      // onSaved: (value) {
+                      //   setState(() {
+                      //     this._firstname = value;
+                      //   });
+                      //   return _firstname = value;
+                      // },
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    TextField(
+                      controller:surnamecontroller ,
+                     // initialValue: '$name'??'-',
+                      readOnly: true,
+                    
+                      inputFormatters: [
+                        WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      ],
+                      keyboardType: TextInputType.text,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                      // autovalidate: autoValidatorFirstName,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorFirstName = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                          icon: Icon(Icons.account_circle),
+                          hintText: 'Surname',
 
                           filled: true,
                           fillColor: Colors.grey[200]),
@@ -354,15 +454,7 @@ Future<String> getJsondata() async {
                         icon: Icon(Icons.calendar_today),
                         hintText: 'DOB (DD/MM/YYYY)',
                       ),
-                      // validator: (value) {
-                      //   return value.isEmpty ? 'Last Name is Required' : null;
-                      // },
-                      // onSaved: (value) {
-                      //   setState(() {
-                      //     this._lastName = value;
-                      //   });
-                      //   return _lastName = value;
-                      // },
+                   
                     ),
                     SizedBox(
                       height: 40,
@@ -390,29 +482,19 @@ Future<String> getJsondata() async {
 
                           filled: true,
                           fillColor: Colors.grey[200]),
-                      // validator: (value) {
-                      //   return value.isEmpty ? 'Full Name is Required' : null;
-                      // },
-                      // onSaved: (value) {
-                      //   setState(() {
-                      //     this._firstname = value;
-                      //   });
-                      //   return _firstname = value;
-                      // },
+                     
                     ),
                     SizedBox(
                       height: 35,
                     ),
                     Container(
                       child: TextField(
-                    controller: proofnocontroller,
-                    // initialValue: '77362 77327 32983',
+                    controller: proofcontroller,
+                
                     readOnly: true,
                     toolbarOptions:
                     ToolbarOptions(copy: true, cut: true, paste: true),
-                    //obscureText: true,
-                     // autovalidate: autoValidatorPassword,
-                     // obscureText: _passwordObscureText,
+                    
                     onTap: () {
                     setState(() {
                     autoValidatorPassword = true;
@@ -422,46 +504,35 @@ Future<String> getJsondata() async {
                     icon: Icon(Icons.perm_identity),
                     filled: true,
                     fillColor: Colors.grey[200],
-                    hintText: 'Proof',
+                    hintText: 'Proof type',
                     ),
-
-                    // validator: (newpassword) {},
-                    // onSaved: (value) {
-                    //   setState(() {
-                    //     this._password = value;
-                    //   });
-                    //   return _password = value;
-                    // },
                     ),
-                      
-                      //  DropdownButtonFormField<String>(
-                      //   value: _idProof,
-                        
-                      //   icon:
-                      //   Icon(Icons.done),
-                      //     decoration: InputDecoration(filled: true,fillColor: Colors.grey[200]),
-                      //   hint: Text(
-                      //     'Select Identification Proof',
-                      //   ),
-                      //   isDense: true,
-                      //   iconSize: 24,
-                      //   elevation: 16,
-                      //   onChanged: (String newValue) {
-                      //     FocusScope.of(context)
-                      //         .requestFocus(new FocusNode());
-                      //     setState(() {
-                      //       this._idProof = newValue;
-                      //     });
-                      //   },
-                      //   items: ['Aadhaar', 'Driving License', 'PAN Card']
-                      //       .map<DropdownMenuItem<String>>((String value) {
-                      //     return DropdownMenuItem<String>(
-                      //       value: value,
-                      //       child: Text(value),
-                      //     );
-                      //   }).toList(),
-                      // ),
                     ),
+                    proofcontroller.text=="Driving License"||proofcontroller.text=="Passport"?SizedBox(
+                      height: 40,
+                    ):Container(),
+                   proofcontroller.text=="Driving License"||proofcontroller.text=="Passport"? Container(
+                      child: TextField(
+                    controller:proofauthcontroller ,
+                    
+                    readOnly: true,
+                    toolbarOptions:
+                    ToolbarOptions(copy: true, cut: true, paste: true),
+                   
+                    onTap: () {
+                    setState(() {
+                    autoValidatorPassword = true;
+                    });
+                    },
+                    decoration: new InputDecoration(
+                    icon: Icon(Icons.perm_identity),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintText: 'Proof type',
+                    ),
+                    ),
+                    ):Container(),
+                
 
                     SizedBox(
                       height: 40,
@@ -484,21 +555,35 @@ Future<String> getJsondata() async {
                         icon: Icon(Icons.assignment_ind),
                         filled: true,
                         fillColor: Colors.grey[200],
-                        hintText: 'Proof Id (Optional)',
-                      ),
-
-                      // validator: (newpassword) {},
-                      // onSaved: (value) {
-                      //   setState(() {
-                      //     this._password = value;
-                      //   });
-                      //   return _password = value;
-                      // },
+                        hintText: 'Proof no',
+                      )
                     ),
 
                     SizedBox(
-                      height: 25,
+                      height: 30,
                     ),
+                     TextField(
+                      controller: addresstypecontroller,
+                      // initialValue: '77362 77327 32983',
+                      readOnly: true,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                      //obscureText: true,
+                     // autovalidate: autoValidatorPassword,
+                     // obscureText: _passwordObscureText,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorPassword = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        icon: Icon(Icons.home),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        hintText: 'Address type',
+                      )
+                    ),
+                    
                     // Text(
                     //   'Photo (Optional)',
                     //  style: TextStyle(fontWeight: FontWeight.bold)
@@ -513,16 +598,13 @@ Future<String> getJsondata() async {
                     //   height: 10,
                     // ),
                     SizedBox(
-                      height: 20,
+                      height: 30,
                     ),
-                    // Text(
-                    //   'Address',
-                    // ),
+                   
                     TextField(
-                       //initialValue: '$address'??'-',
                        controller: addresscontroller,
                       readOnly: true,
-                      maxLines: 3,
+                      // maxLines: 1,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
                      // autovalidate: autoValidatorEmail,
@@ -535,53 +617,174 @@ Future<String> getJsondata() async {
                         filled: true,
                         fillColor: Colors.grey[200],
                         icon: Padding(
-                          padding: const EdgeInsets.only(bottom: 35),
+                          padding: const EdgeInsets.only(),
                           child: Icon(Icons.home),
                         ),
-                        hintText: 'Address (Optional)',
+                        hintText: 'Address Line 1',
                       ),
-                      // validator: (value) {
-                      //   // return value.isEmpty ? 'Email is required!' : null;
-                      // },
-                      // onSaved: (value) {
-                      //   setState(() {
-                      //     this._email = value;
-                      //   });
-                      //   return _email = value;
-                      // },
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    TextField(
+                       controller: addresscontroller2,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'Address Line 2',
+                      ),
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    TextField(
+                       controller: addresscontroller3,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'Address Line 3',
+                      ),
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    TextField(
+                       controller: citytownvilagecontroller,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'City/town/village',
+                      ),
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    TextField(
+                       controller: districtcontroller,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'District',
+                      ),
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),TextField(
+                       controller: pincodecontroller,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'PIN code',
+                      ),
+                     
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    TextField(
+                       controller: statecontroller,
+                      readOnly: true,
+                      // maxLines: 1,
+                      toolbarOptions:
+                          ToolbarOptions(copy: true, cut: true, paste: true),
+                     // autovalidate: autoValidatorEmail,
+                      onTap: () {
+                        setState(() {
+                          autoValidatorEmail = true;
+                        });
+                      },
+                      decoration: new InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        icon: Padding(
+                          padding: const EdgeInsets.only(),
+                          child: Icon(Icons.home),
+                        ),
+                        hintText: 'State',
+                      ),
+                     
                     ),
                     SizedBox(
                       height: 25,
                     ),
 
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: <Widget>[
-                    //     RaisedButton(
-                    //         elevation: 5.0,
-                    //         child: Text('Cancel',
-                    //             style: TextStyle(
-                    //                 fontWeight: FontWeight.bold, fontSize: 17)),
-                    //         textColor: Colors.white,
-                    //         // color: Colors.blue,
-                    //         onPressed: _showPopUp1,
-                    //         shape: RoundedRectangleBorder(
-                    //             borderRadius: new BorderRadius.circular(80.0))),
-                    //     SizedBox(
-                    //       width: 50,
-                    //     ),
-                    //     RaisedButton(
-                    //         elevation: 5.0,
-                    //         child: Text('Register',
-                    //             style: TextStyle(
-                    //                 fontWeight: FontWeight.bold, fontSize: 17)),
-                    //         textColor: Colors.white,
-                    //         //color: Colors.blue,
-                    //         onPressed: _isButtonTapped ? null : uploadCheck,
-                    //         shape: RoundedRectangleBorder(
-                    //             borderRadius: new BorderRadius.circular(80.0))),
-                    //   ],
-                    // ),
+
+                  
                   ],
                 ),
               ),

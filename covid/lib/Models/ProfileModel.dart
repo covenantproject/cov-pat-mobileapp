@@ -17,12 +17,20 @@ class ProfileModel {
     String shortName;
     String suffix;
     DateTime dob;
+    String addressType;
+    String addressLine1;
+    String addressLine2;
+    String addressLine3;
+    String city;
+    String district;
+    String pinCode;
+    String state;
     String gender;
-    dynamic idType;
-    dynamic idProofNo;
-    String address;
     int mobileNo;
-    int photoId;
+    String proofType;
+    String proofNumber;
+    String proofAuthority;
+    String photoPath;
 
     ProfileModel({
         this.title,
@@ -33,12 +41,20 @@ class ProfileModel {
         this.shortName,
         this.suffix,
         this.dob,
+        this.addressType,
+        this.addressLine1,
+        this.addressLine2,
+        this.addressLine3,
+        this.city,
+        this.district,
+        this.pinCode,
+        this.state,
         this.gender,
-        this.idType,
-        this.idProofNo,
-        this.address,
         this.mobileNo,
-        this.photoId,
+        this.proofType,
+        this.proofNumber,
+        this.proofAuthority,
+        this.photoPath,
     });
 
     factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
@@ -50,12 +66,20 @@ class ProfileModel {
         shortName: json["shortName"],
         suffix: json["suffix"],
         dob: DateTime.parse(json["dob"]),
+        addressType: json["addressType"],
+        addressLine1: json["addressLine1"],
+        addressLine2: json["addressLine2"],
+        addressLine3: json["addressLine3"],
+        city: json["city"],
+        district: json["district"],
+        pinCode: json["pinCode"],
+        state: json["state"],
         gender: json["gender"],
-        idType: json["idType"],
-        idProofNo: json["idProofNo"],
-        address: json["address"],
         mobileNo: json["mobileNo"],
-        photoId: json["photoId"],
+        proofType: json["proofType"],
+        proofNumber: json["proofNumber"],
+        proofAuthority: json["proofAuthority"],
+        photoPath: json["photoPath"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -67,11 +91,19 @@ class ProfileModel {
         "shortName": shortName,
         "suffix": suffix,
         "dob": "${dob.year.toString().padLeft(4, '0')}-${dob.month.toString().padLeft(2, '0')}-${dob.day.toString().padLeft(2, '0')}",
+        "addressType": addressType,
+        "addressLine1": addressLine1,
+        "addressLine2": addressLine2,
+        "addressLine3": addressLine3,
+        "city": city,
+        "district": district,
+        "pinCode": pinCode,
+        "state": state,
         "gender": gender,
-        "idType": idType,
-        "idProofNo": idProofNo,
-        "address": address,
         "mobileNo": mobileNo,
-        "photoId": photoId,
+        "proofType": proofType,
+        "proofNumber": proofNumber,
+        "proofAuthority": proofAuthority,
+        "photoPath": photoPath,
     };
 }

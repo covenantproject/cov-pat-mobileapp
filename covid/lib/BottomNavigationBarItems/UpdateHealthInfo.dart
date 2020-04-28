@@ -58,6 +58,10 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
       name: "Remaining same",
     ),
   ];
+
+  int selectedRadio;
+  double temperature;
+
   @override
   void initState() {
     super.initState();
@@ -65,7 +69,26 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     autoValidatorHeartrate = false;
     autoValidatorRespiratory = false;
     autoValidatorSpo2 = false;
+    selectedRadio=1;
+    temperature=0.0;
    
+  }
+
+  setSelectedRadio(int val){
+    setState(() {
+      selectedRadio=val;
+    });
+  }
+
+  convertTemperature(int val,double temperaturevalue){
+    setState(() {
+      if(val==2){
+         tempController.text = ((temperaturevalue * 9/5) + 32).toStringAsFixed(1);
+      }
+      else if(val==1){     
+        tempController.text = ((temperaturevalue - 32) * 5/9).toStringAsFixed(1);
+      }
+    });
   }
 
   bool validateAndSave() {
@@ -90,13 +113,16 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
       HttpClientRequest request = await client.postUrl(apiUrl);
       request.headers.set('x-api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
+
+      temperature = selectedRadio == 1? double.parse(tempController.text) : ((double.parse(tempController.text) - 32) * 5/9);
+
       var payload = {
         "userid": userId,
         "coughpresent": isSwitchedcough==true?false:true,
         "feverpresent": isSwitchedfever==true?false:true,
         "breathingdifficultypresent": isSwitchedbreathing==true?false:true,
         "progressstatus": "$radioItem",
-        "temperature": tempController.text,
+        "temperature": temperature.toStringAsFixed(1),
         "heartrate": heartrateController.text,
         "respiratoryrate": respiratoryrateController.text,
         "spo2": spo2Controller.text
@@ -115,6 +141,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
       print('error $ex');
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +395,47 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                           padding: const EdgeInsets.only(
                               top: 5, right: 0, bottom: 10),
                           child: Column(
-                            children: <Widget>[
+                            children: <Widget>[ 
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20),
+                                child: ButtonBar(
+                                  alignment: MainAxisAlignment.start,
+                                  children: <Widget>[ 
+                                     Radio(
+                                  value:1,
+                                  groupValue: selectedRadio,
+                                  activeColor: Colors.purple,
+                                  onChanged: (val){
+                                    setSelectedRadio(val);
+                                    if(tempController.text.length!=0){
+                                     convertTemperature(selectedRadio,double.parse(tempController.text));
+                                    }
+                                  },
+                                )
+                                ,
+                                new Text(
+                          '°C',
+                          style: new TextStyle(fontSize: 16.0),
+                        ), Radio(
+                                  value:2,
+                                  groupValue: selectedRadio,
+                                  activeColor: Colors.purple,
+                                  onChanged: (val){
+                                    setSelectedRadio(val);
+                                    if(tempController.text.length!=0){
+                                    convertTemperature(selectedRadio,double.parse(tempController.text));
+                                    }
+                                  },
+                                )
+                                ,
+                                new Text(
+                          '°F',
+                          style: new TextStyle(fontSize: 16.0),
+                        )
+                                  ]
+                                ),
+                              )
+                             ,
                               SizedBox(
                                 height: 15,
                               ),
@@ -384,11 +452,15 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                     autoValidatorTemp = true;
                                   });
                                 },
+                                // onChanged: (value){
+                                //   temp = convertTemperature(selectedRadio,double.parse(value));
+                                //   print("Temperature $value");
+                                // },
                                // autovalidate: autoValidatorTemp,
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.ac_unit),
                                     hintText: AppLocalizations.of(context)
-                                        .translate('temp'),
+                                        .translate(selectedRadio==1?'temp':'tempF'),
                                     filled: true,
                                     fillColor: Colors.grey[200]),
                                 validator: (value) {
@@ -511,12 +583,13 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                             await submit();
                             formKey.currentState.reset();
                             dialogBox.information(context, 'Update health info',
-                                'Update successfull');
+                                'Update successful');
                                 setState(() {
                                    tempController.text='';
                               heartrateController.text='';
                               respiratoryrateController.text='';
                               spo2Controller.text='';
+                              selectedRadio=1;
                                 });
                              
                             isSwitchedcough = true;

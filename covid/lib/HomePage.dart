@@ -121,6 +121,11 @@ class _HomePageState extends State<HomePage>
       updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_STOP");
     }
   }
+  void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async 
+  { print('[BackgroundGeolocation] headless task $headlessEvent');
+   Map<String, dynamic> data = <String, dynamic>{}; 
+   data['message'] = '[providerchange] - $headlessEvent';
+    }
 
   void _configureBackgroundGeolocation(orgname, username) async {
     // 1.  Listen to events (See docs for all 13 available events).
@@ -162,7 +167,7 @@ class _HomePageState extends State<HomePage>
             heartbeatInterval: 60))
         .then((bg.State state) {
       print('[ready] ${state.toMap()}');
-
+       
       if (state.schedule.isNotEmpty) {
         bg.BackgroundGeolocation.startSchedule();
       }
@@ -236,7 +241,7 @@ class _HomePageState extends State<HomePage>
             requiresDeviceIdle: false,
             requiredNetworkType: NetworkType.NONE), (String taskId) async {
       print("[BackgroundFetch] received event $taskId");
-
+       updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int count = 0;
       if (prefs.get("fetch-count") != null) {
@@ -255,7 +260,7 @@ class _HomePageState extends State<HomePage>
             stopOnTerminate: false,
             enableHeadless: true));
       }
-      updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
+     
       BackgroundFetch.finish(taskId);
     });
 
@@ -332,7 +337,7 @@ class _HomePageState extends State<HomePage>
 
   void _onHeartbeat(bg.HeartbeatEvent event) {
     print('[${bg.Event.HEARTBEAT}] - $event');
-    updatelocation(1, currentlat, currentlong, 'ON_IDLE');
+   // updatelocation(1, currentlat, currentlong, 'ON_IDLE');
     setState(() {
       events.insert(0, Event(bg.Event.HEARTBEAT, event, event.toString()));
     });
@@ -452,14 +457,16 @@ class _HomePageState extends State<HomePage>
     // if (orgname == null || username == null) {
     //   return runApp(MyApp());
     // }
+    // bg.BackgroundGeolocation.registerHeadlessTask(backgroundGeolocationHeadlessTask);
 
     _configureBackgroundGeolocation('qantler', 'username');
-    //_configureBackgroundFetch();
+    _configureBackgroundFetch();
   }
 
   @override
   void initState() {
     super.initState();
+   
    // runApp(HomePage(type: BottomNavigationDemoType.withLabels));
     _enabled = false;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
@@ -476,6 +483,7 @@ class _HomePageState extends State<HomePage>
     
     WidgetsBinding.instance.addObserver(this);
     _autoRegister();
+    initPlatformState();
     _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
     _tabController.addListener(_handleTabChange);
     _widgetOptions = <Widget>[
@@ -488,7 +496,7 @@ class _HomePageState extends State<HomePage>
     ];
     _isMoving = false;
     _odometer = '0';
-    initPlatformState();
+    
    
     Future.delayed(const Duration(seconds: 15), () {
        _enabled = true;
