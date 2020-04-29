@@ -31,9 +31,9 @@
         <meta-data android:name="com.transistorsoft.locationmanager.ENCRYPTION_PASSWORD" android:value="transistorsoft" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <meta-data
+        <!-- <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
+            android:value="2" /> -->
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>

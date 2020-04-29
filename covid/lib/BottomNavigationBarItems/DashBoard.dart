@@ -48,7 +48,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     return <Marker>[
       Marker(
           markerId: MarkerId('Home'),
-          position: LatLng(lastgeolat==null?position.latitude:lastgeolat,lastegeolong==null? position.longitude:lastegeolong),
+          position: LatLng(lastgeolat==0.0?position.latitude:lastgeolat,lastegeolong==0.0? position.longitude:lastegeolong),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: "Home"))
     ].toSet();
@@ -86,7 +86,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       markers: _createMarker(),
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
-          target: LatLng(lastgeolat==null?position.latitude:lastgeolat,lastegeolong==null? position.longitude:lastegeolong), zoom: 19.0),
+          target: LatLng(lastgeolat==0.0?lat:lastgeolat,lastegeolong==0.0? long:lastegeolong), zoom: 19.0),
       onMapCreated: (GoogleMapController controller) {
         _googleMapController = controller;
       },
