@@ -246,8 +246,8 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                           
                               
                               await submit();
-                               dialogBox.information(context, 'Raise your hand',
-                                'Raise hand Submitted');
+                               dialogBox.information(context, AppLocalizations.of(context).translate('raiseyourhandpopuptitle'),
+                                AppLocalizations.of(context).translate('raiseyouhandpopupmessage'));
                                 formKey.currentState.reset();
                             setState(() {
                               id = null;

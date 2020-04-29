@@ -32,7 +32,7 @@
   "no_button": "No",
   "home_title": "Home",
   "history_title": "History",
-  "RaiseHand_title": "Need Help",
+  "RaiseHand_title": "Raise Hand",
   "update_health_title": "Update Health",
   "profile_title": "Profile",
   "profile_name": "Patient sample name",
@@ -66,5 +66,12 @@
   "food": "Request emergency food/water/medicines",
   "your hand": "Request help",
   "comments":"Comments",
-  "submit":"Submit"
+  "submit":"Submit",
+  "setlocationpopuptitle":"Set quarantine location'",
+  "setlocationpopupmessage":"Successfully updated location",
+  "raiseyourhandpopuptitle":"Raise your hand",
+  "raiseyouhandpopupmessage":"Raise hand submitted",
+  "updateyourhealthpopuptitle":"Update health info",
+  "updateyourhealthpopupmessage":"Update successful"
+ 
 }

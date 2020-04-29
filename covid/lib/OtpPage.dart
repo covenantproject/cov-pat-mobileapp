@@ -129,7 +129,7 @@ class _OtpPageState extends State<OtpPage> {
               _isButtonTapped=false;
             });
       }else{
-        dialogBox.information(context, 'Validate otp', 'invalid otp number');
+        dialogBox.information(context, 'Validate OTP', 'Invalid OTP Number');
         setState(() {
           _isButtonTapped=false;
         });
@@ -240,7 +240,7 @@ class _OtpPageState extends State<OtpPage> {
             height: 20,
           ),
           Text(
-            'Covenant',
+            AppLocalizations.of(context).translate('title'),
             style: TextStyle(fontSize: 30),
           )
         ],

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import 'dart:async';
+import 'package:covid/App_localizations.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
@@ -615,17 +616,17 @@ class _HomePageState extends State<HomePage>
       _navigationViews = <_NavigationIconView>[
         _NavigationIconView(
           icon: const Icon(Icons.home),
-          title: 'Home',
+          title: AppLocalizations.of(context).translate('home_title'),
           vsync: this,
         ),
         _NavigationIconView(
           icon: const Icon(Icons.alarm_on),
-          title: 'Update Health',
+          title: AppLocalizations.of(context).translate('update_health_title'),
           vsync: this,
         ),
         _NavigationIconView(
           icon: const Icon(Icons.view_headline),
-          title: 'Raise Hand',
+          title:  AppLocalizations.of(context).translate('RaiseHand_title'),
           vsync: this,
         ),
         // _NavigationIconView(
@@ -635,7 +636,7 @@ class _HomePageState extends State<HomePage>
         // ),
         _NavigationIconView(
           icon: const Icon(Icons.account_box),
-          title: 'Profile',
+          title: AppLocalizations.of(context).translate('profile_title'),
           vsync: this,
         ),
       ];

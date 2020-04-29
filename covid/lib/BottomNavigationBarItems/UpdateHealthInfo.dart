@@ -354,10 +354,24 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: fList
                               .map((data) => RadioListTile(
-                                    title: Text(
-                                      "${data.name}",
-                                      style: styletext.placeholderStyle(),
-                                    ),
+                                    title: data.name ==
+                                            'Getting better'
+                                        ? Text(
+                                            AppLocalizations.of(context)
+                                                .translate(
+                                                    'better'),
+                                            style: styletext.placeholderStyle(),
+                                          )
+                                        : (data.name ==
+                                                'Getting worse')
+                                            ? Text(AppLocalizations.of(context)
+                                                .translate('worse'))
+                                            : (data.name ==
+                                                    'Remaining same')
+                                                ? Text(
+                                                    AppLocalizations.of(context)
+                                                        .translate('re-same'))
+                                                : null,
                                     //selected: true,
                                     groupValue: id,
                                     value: data.index,
@@ -582,8 +596,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                              
                             await submit();
                             formKey.currentState.reset();
-                            dialogBox.information(context, 'Update health info',
-                                'Update successful');
+                            dialogBox.information(context, AppLocalizations.of(context).translate('updateyourhealthpopuptitle'),
+                                AppLocalizations.of(context).translate('updateyourhealthpopupmessage'));
                                 setState(() {
                                    tempController.text='';
                               heartrateController.text='';

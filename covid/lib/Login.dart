@@ -262,7 +262,7 @@ class _LoginPageState extends State<LoginPage> {
             height: 20,
           ),
           Text(
-            'Covenant',
+             AppLocalizations.of(context).translate('title'),
             style: TextStyle(fontSize: 30),
           )
         ],

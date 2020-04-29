@@ -327,7 +327,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                   ListTile(
                                     leading: Icon(Icons.album),
                                     title:
-                                        Text('Your emergency contact number'),
+                                        Text( AppLocalizations.of(context)
+                                            .translate('em_contact')),
                                     subtitle: Padding(
                                       padding: const EdgeInsets.only(top: 5),
                                       child: emergencycontactno != null
@@ -390,7 +391,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         ),
                                         onPressed: ()async{
                                         await  updateGeofence();
-                                        dialogBox.information(context, 'Set quarantine location', "Successfully updated location");
+                                        dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
                                         getJsondata();
                                         },
                                         // () {
