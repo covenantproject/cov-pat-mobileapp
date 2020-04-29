@@ -398,9 +398,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: <Widget>[
                         Align(
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 35),
+                            padding: const EdgeInsets.only(left: 40),
                             child: Container(
-                              width: 340,
+                              //width: 340,
                               child: DropdownButtonFormField<String>(
                                 value: _title,
                                 autovalidate:autoValidatorTitle ,
@@ -655,9 +655,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 35),
+                          padding: const EdgeInsets.only(left: 40),
                           child: Container(
-                            width: 340,
+                            // width: 340,
                             child: DropdownButtonFormField<String>(
                               value: _idProof,
                               decoration: InputDecoration(
@@ -812,9 +812,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 35),
+                          padding: const EdgeInsets.only(left: 40),
                           child: Container(
-                            width: 340,
+                            // width: 340,
                             child: DropdownButtonFormField<String>(
                               value: _addresstype,
                               decoration: InputDecoration(
@@ -902,7 +902,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? 'Address is required!'
+                                  ? 'Flat, House no., Building, Company, Apartment is required!'
                                   : null;
                             },
                             onSaved: (value) {
@@ -937,11 +937,11 @@ class _RegisterPageState extends State<RegisterPage> {
                               hintText: AppLocalizations.of(context)
                                   .translate('Line 2'),
                             ),
-                            validator: (value) {
-                              return value.isEmpty
-                                  ? 'Address is required!'
-                                  : null;
-                            },
+                            // validator: (value) {
+                            //   return value.isEmpty
+                            //       ? 'Address is required!'
+                            //       : null;
+                            // },
                             onSaved: (value) {
                               setState(() {
                                 this._address2 = value;
@@ -974,11 +974,11 @@ class _RegisterPageState extends State<RegisterPage> {
                               hintText: AppLocalizations.of(context)
                                   .translate('Line 3'),
                             ),
-                            validator: (value) {
-                              return value.isEmpty
-                                  ? 'Address is required!'
-                                  : null;
-                            },
+                            // validator: (value) {
+                            //   return value.isEmpty
+                            //       ? 'Address is required!'
+                            //       : null;
+                            // },
                             onSaved: (value) {
                               setState(() {
                                 this._address3 = value;
@@ -1013,7 +1013,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? 'City/town/village is required!'
+                                  ? 'City/town/taluk is required!'
                                   : null;
                             },
                             onSaved: (value) {
@@ -1021,6 +1021,43 @@ class _RegisterPageState extends State<RegisterPage> {
                                 this._citytownvillage = value;
                               });
                               return _citytownvillage = value;
+                            },
+                          )
+                          : Container(),
+                    _addresstype != null? SizedBox(
+                      height: 25,
+                    ):Container(),
+                    _addresstype != null
+                        ? TextFormField(
+                            maxLines: 1,
+                            toolbarOptions: ToolbarOptions(
+                                copy: true, cut: true, paste: true),
+                            autovalidate: autoValidatorState,
+                            onTap: () {
+                              setState(() {
+                                autoValidatorState = true;
+                              });
+                            },
+                            decoration: new InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              icon: Padding(
+                                padding: const EdgeInsets.only(),
+                                child: Icon(Icons.home),
+                              ),
+                              hintText: AppLocalizations.of(context)
+                                  .translate('State'),
+                            ),
+                            validator: (value) {
+                              return value.isEmpty
+                                  ? 'State is required!'
+                                  : null;
+                            },
+                            onSaved: (value) {
+                              setState(() {
+                                this._state = value;
+                              });
+                              return _state = value;
                             },
                           )
                         : Container(),
@@ -1070,6 +1107,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             toolbarOptions: ToolbarOptions(
                                 copy: true, cut: true, paste: true),
                             autovalidate: autoValidatorPincode,
+                            inputFormatters: [
+                                  new LengthLimitingTextInputFormatter(6),
+                            ],
                             onTap: () {
                               setState(() {
                                 autoValidatorPincode = true;
@@ -1087,52 +1127,30 @@ class _RegisterPageState extends State<RegisterPage> {
                                   .translate('PIN code'),
                             ),
                             validator: (value) {
-                              return value.isEmpty
-                                  ? 'PIN code is required!'
-                                  : null;
+                                if (value.isNotEmpty) {
+                                    if(value.length==6){
+	                                     if(RegExp(r'^[0-9]+$').hasMatch(value))
+                                       {
+                                          return null;
+                                        }else{
+                                          return "PIN code should contain only numbers!";
+                                        }
+                                    }
+                                    else
+                                    {
+			                                  return 'PIN code should have 6 digits!';					
+                                    }						
+                                  }
+                                  else 
+                                  {
+                                    return "PIN code is required.(Enter 000000 if not known)!";
+                                  }	
                             },
                             onSaved: (value) {
                               setState(() {
                                 this._pincode = value;
                               });
                               return _pincode = value;
-                            },
-                          )
-                        : Container(),
-                    _addresstype != null? SizedBox(
-                      height: 25,
-                    ):Container(),
-                    _addresstype != null
-                        ? TextFormField(
-                            maxLines: 1,
-                            toolbarOptions: ToolbarOptions(
-                                copy: true, cut: true, paste: true),
-                            autovalidate: autoValidatorState,
-                            onTap: () {
-                              setState(() {
-                                autoValidatorState = true;
-                              });
-                            },
-                            decoration: new InputDecoration(
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              icon: Padding(
-                                padding: const EdgeInsets.only(),
-                                child: Icon(Icons.home),
-                              ),
-                              hintText: AppLocalizations.of(context)
-                                  .translate('State'),
-                            ),
-                            validator: (value) {
-                              return value.isEmpty
-                                  ? 'State is required!'
-                                  : null;
-                            },
-                            onSaved: (value) {
-                              setState(() {
-                                this._state = value;
-                              });
-                              return _state = value;
                             },
                           )
                         : Container(),

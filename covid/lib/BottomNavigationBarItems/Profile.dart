@@ -73,6 +73,8 @@ class _ProfileState extends State<Profile>
   String proofidno;
   String address;
   ProfileModel profileModel;
+  String addressLine2;
+  String addressLine3;
 //init
   @override
   void initState() {
@@ -131,10 +133,30 @@ Future<String> getJsondata() async {
           proofauthcontroller.text="";
         }
       
+        if(addresscontroller2.text == null || addresscontroller2.text==""){
+          addressLine2 = "";
+        }else{
+          addressLine2 = addresscontroller2.text +"," + "\n";
+        }
+
+        if(addresscontroller3.text == null || addresscontroller3.text==""){
+          addressLine3 = "";
+        }else{
+          addressLine3 = addresscontroller3.text +"," + "\n";
+        }
+
       proofcontroller.text=profileModel.proofType;
+      addresstypecontroller.text = addresstypecontroller.text + ":" +"\n"+ addresscontroller.text + "\n" +
+                                   addressLine2 + addressLine3 +
+                                  citytownvilagecontroller.text + ", " + districtcontroller.text + "\n" +
+                                  statecontroller.text +" "+pincodecontroller.text;
+
     });
     return "Success";
   }
+
+  
+
   _loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // SharedPreferences prefs2 = await SharedPreferences.getInstance();
@@ -564,6 +586,7 @@ Future<String> getJsondata() async {
                     ),
                      TextField(
                       controller: addresstypecontroller,
+                      maxLines: 8,
                       // initialValue: '77362 77327 32983',
                       readOnly: true,
                       toolbarOptions:
@@ -581,6 +604,7 @@ Future<String> getJsondata() async {
                         filled: true,
                         fillColor: Colors.grey[200],
                         hintText: 'Address type',
+                        
                       )
                     ),
                     
@@ -597,188 +621,188 @@ Future<String> getJsondata() async {
                     // SizedBox(
                     //   height: 10,
                     // ),
-                    SizedBox(
-                      height: 30,
-                    ),
+                    // SizedBox(
+                    //   height: 30,
+                    // ),
                    
-                    TextField(
-                       controller: addresscontroller,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'Address Line 1',
-                      ),
+                    // TextField(
+                    //    controller: addresscontroller,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'Address Line 1',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    TextField(
-                       controller: addresscontroller2,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'Address Line 2',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // TextField(
+                    //    controller: addresscontroller2,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'Address Line 2',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    TextField(
-                       controller: addresscontroller3,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'Address Line 3',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // TextField(
+                    //    controller: addresscontroller3,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'Address Line 3',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    TextField(
-                       controller: citytownvilagecontroller,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'City/town/village',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // TextField(
+                    //    controller: citytownvilagecontroller,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'City/town/village',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    TextField(
-                       controller: districtcontroller,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'District',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // TextField(
+                    //    controller: districtcontroller,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'District',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),TextField(
-                       controller: pincodecontroller,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'PIN code',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),TextField(
+                    //    controller: pincodecontroller,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'PIN code',
+                    //   ),
                      
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    TextField(
-                       controller: statecontroller,
-                      readOnly: true,
-                      // maxLines: 1,
-                      toolbarOptions:
-                          ToolbarOptions(copy: true, cut: true, paste: true),
-                     // autovalidate: autoValidatorEmail,
-                      onTap: () {
-                        setState(() {
-                          autoValidatorEmail = true;
-                        });
-                      },
-                      decoration: new InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        icon: Padding(
-                          padding: const EdgeInsets.only(),
-                          child: Icon(Icons.home),
-                        ),
-                        hintText: 'State',
-                      ),
+                    // ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // TextField(
+                    //    controller: statecontroller,
+                    //   readOnly: true,
+                    //   // maxLines: 1,
+                    //   toolbarOptions:
+                    //       ToolbarOptions(copy: true, cut: true, paste: true),
+                    //  // autovalidate: autoValidatorEmail,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       autoValidatorEmail = true;
+                    //     });
+                    //   },
+                    //   decoration: new InputDecoration(
+                    //     filled: true,
+                    //     fillColor: Colors.grey[200],
+                    //     icon: Padding(
+                    //       padding: const EdgeInsets.only(),
+                    //       child: Icon(Icons.home),
+                    //     ),
+                    //     hintText: 'State',
+                    //   ),
                      
-                    ),
+                    // ),
                     SizedBox(
                       height: 25,
                     ),

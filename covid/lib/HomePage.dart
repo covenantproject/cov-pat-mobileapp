@@ -22,7 +22,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:covid/Models/util/dialog.dart' as util;
 import 'package:covid/Models/config/env.dart';
-import 'package:covid/Models/util/Banner.dart';
 import 'package:covid/main.dart';
 import 'package:covid/Models/config/shared_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
