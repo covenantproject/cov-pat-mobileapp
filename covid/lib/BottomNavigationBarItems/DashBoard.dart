@@ -48,7 +48,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     return <Marker>[
       Marker(
           markerId: MarkerId('Home'),
-          position: LatLng(lastgeolat==0.0?position.latitude:lastgeolat,lastegeolong==0.0? position.longitude:lastegeolong),
+          position: LatLng(lastgeolat==0.0||lastgeolat==null?position.latitude:lastgeolat,lastegeolong==0.0||lastegeolong==null? position.longitude:lastegeolong),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: "Home"))
     ].toSet();
@@ -57,6 +57,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   void getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
+   
     
     setState(() {
       position = res;
@@ -64,11 +65,17 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       prefs.setDouble('long', position.longitude);
       lat = prefs.getDouble('lat');
       long = prefs.getDouble('long');
+      
       _map = mapWidget();
     });
+    
   }
 
-  Set<Circle> circles = Set.from([
+ 
+  
+
+  Widget mapWidget() {
+     Set<Circle> circles = Set.from([
     Circle(
       circleId: CircleId('${DateTime.now()}'),
       center:  LatLng(lastgeolat??100, lastegeolong??100),
@@ -79,14 +86,11 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       strokeWidth: 1
     ),
   ]);
-  
-
-  Widget mapWidget() {
     return GoogleMap(
       markers: _createMarker(),
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
-          target: LatLng(lastgeolat==0.0?lat:lastgeolat,lastegeolong==0.0? long:lastegeolong), zoom: 19.0),
+          target: LatLng(lastgeolat==0.0||lastgeolat==null?lat:lastgeolat,lastegeolong==0.0||lastegeolong==null?long:lastegeolong), zoom: 19.0),
       onMapCreated: (GoogleMapController controller) {
         _googleMapController = controller;
       },
@@ -111,7 +115,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      // request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
        

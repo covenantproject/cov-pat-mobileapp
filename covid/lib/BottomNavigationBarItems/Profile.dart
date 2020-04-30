@@ -103,7 +103,7 @@ Future<String> getJsondata() async {
           await http.get(Uri.encodeFull(profileurl), headers: {
         "Accept": "*/*",
         //'Authorization': 'Bearer ',
-        //'x-api-key':_config.apikey
+        'api-key':_config.apikey
       });
     } catch (ex) {
       print('error $ex');

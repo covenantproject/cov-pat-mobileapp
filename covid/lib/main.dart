@@ -21,6 +21,8 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 
  var _config;
  int userId;
+ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+ 
  Configure _configure = new Configure();
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   print('📬 --> $headlessEvent');
@@ -54,12 +56,12 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.GEOFENCE:
       bg.GeofenceEvent geofenceEvent = headlessEvent.event;
-     if(geofenceEvent.action=='ENTER'){
-       
-     }
-     else if(geofenceEvent.action=='EXIT'){
-
-     }
+    //  if(geofenceEvent.action=='ENTER'){
+    //    ongeofencecross(geofenceEvent.action);
+    //  }
+    //  else if(geofenceEvent.action=='EXIT'){
+    //    ongeofencecross(geofenceEvent.action);
+    //  }
       print(geofenceEvent);
       break;
     case bg.Event.GEOFENCESCHANGE:
@@ -98,6 +100,7 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
   }
 }
+
  void _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
@@ -188,13 +191,13 @@ void backgroundFetchHeadlessTask(String taskId) async {
   //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
   print("[BackgroundFetch] HeadlessTask: $taskId");
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int count = 0;
-  if (prefs.get("fetch-count") != null) {
-    count = prefs.getInt("fetch-count");
-  }
-  prefs.setInt("fetch-count", ++count);
-  print('[BackgroundFetch] count: $count');
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // int count = 0;
+  // if (prefs.get("fetch-count") != null) {
+  //   count = prefs.getInt("fetch-count");
+  // }
+  // prefs.setInt("fetch-count", ++count);
+  // print('[BackgroundFetch] count: $count');
 
   BackgroundFetch.finish(taskId);
 }

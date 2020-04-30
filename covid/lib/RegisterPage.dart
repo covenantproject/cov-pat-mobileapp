@@ -1125,11 +1125,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                   child: Text(value),
                                 );
                               }).toList(),
-                            onTap: () {
-                              setState(() {
-                                autoValidatorState = true;
-                              });
-                            },
+                            
+                            // onTap: () {
+                            //   setState(() {
+                            //     autoValidatorState = true;
+                            //   });
+                            // },
                             onSaved: (value) {
                               setState(() {
                                 this._state = value;

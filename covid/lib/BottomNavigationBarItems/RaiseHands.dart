@@ -77,7 +77,7 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      // request.headers.set('x-api-key', _config.apikey);
+       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "userId": userId,

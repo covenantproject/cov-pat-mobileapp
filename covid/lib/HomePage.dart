@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage>
       currentlat = position.latitude;
       currentlong = position.longitude;
     });
-    _addgeofence();
+   // _addgeofence();
   }
 
   /// Receive events from BackgroundGeolocation in Headless state.
@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage>
    data['message'] = '[providerchange] - $headlessEvent';
     }
 
-  void _configureBackgroundGeolocation(orgname, username) async {
+  Future _configureBackgroundGeolocation(orgname, username) async {
     // 1.  Listen to events (See docs for all 13 available events).
     bg.BackgroundGeolocation.onLocation(_onLocation, _onLocationError);
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
@@ -150,6 +150,7 @@ class _HomePageState extends State<HomePage>
     bg.BackgroundGeolocation.ready(bg.Config(
             // Convenience option to automatically configure the SDK to post to Transistor Demo server.
             transistorAuthorizationToken: token,
+            
             // Logging & Debug
             reset: false,
             debug: true,
@@ -202,7 +203,7 @@ class _HomePageState extends State<HomePage>
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      //request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "userId": userId,
@@ -228,10 +229,10 @@ class _HomePageState extends State<HomePage>
   }
 
   // Configure BackgroundFetch (not required by BackgroundGeolocation).
-  void _configureBackgroundFetch() async {
+  Future _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 10,
+            minimumFetchInterval: 5,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
@@ -265,13 +266,13 @@ class _HomePageState extends State<HomePage>
     });
 
     // Test scheduling a custom-task.
-    BackgroundFetch.scheduleTask(TaskConfig(
-        taskId: "com.transistorsoft.customtask",
-        delay: 10000,
-        periodic: false,
-        forceAlarmManager: true,
-        stopOnTerminate: false,
-        enableHeadless: true));
+    // BackgroundFetch.scheduleTask(TaskConfig(
+    //     taskId: "com.transistorsoft.customtask",
+    //     delay: 10000,
+    //     periodic: false,
+    //     forceAlarmManager: true,
+    //     stopOnTerminate: false,
+    //     enableHeadless: true));
   }
 
   void _onLocation(bg.Location location) {
@@ -422,7 +423,7 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  void _autoRegister() async {
+  Future _autoRegister() async {
     //Navigator.of(context).pop();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString("orgname", 'qantler');
@@ -449,26 +450,36 @@ class _HomePageState extends State<HomePage>
   // }
 
   void initPlatformState() async {
-    // SharedPreferences prefs = await _prefs;
+    
+    SharedPreferences prefs = await _prefs;
     // String orgname = prefs.getString("orgname");
     // String username = prefs.getString("username");
-
+   
     // // Sanity check orgname & username:  if invalid, go back to HomeApp to re-register device.
     // if (orgname == null || username == null) {
     //   return runApp(MyApp());
     // }
     // bg.BackgroundGeolocation.registerHeadlessTask(backgroundGeolocationHeadlessTask);
+    var flag=prefs.getString("platforminit");
+    if(flag==""||flag==null)
+    {
+    await _autoRegister();
+    await _configureBackgroundGeolocation('qantler', 'username');
+    await _configureBackgroundFetch();
+    _onClickEnable(_enabled);
+    prefs.setString('platforminit',"true");
+    _addgeofence();
+      // _onClickEnable(_enabled);
+    }
 
-    _configureBackgroundGeolocation('qantler', 'username');
-    _configureBackgroundFetch();
   }
 
   @override
   void initState() {
     super.initState();
-   
+    WidgetsBinding.instance.addObserver(this);
    // runApp(HomePage(type: BottomNavigationDemoType.withLabels));
-    _enabled = false;
+    _enabled = true;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = new IOSInitializationSettings();
@@ -477,13 +488,17 @@ class _HomePageState extends State<HomePage>
         onSelectNotification: onSelectNotification);
     //getJsondata();
     _identifier = DateTime.now().toString();
-    Future.delayed(const Duration(seconds: 10), () {
-     getCurrentLocation();
-    });
     
-    WidgetsBinding.instance.addObserver(this);
-    _autoRegister();
-    initPlatformState();
+    Future.delayed(const Duration(seconds:0), ()async {
+      try
+      {
+      await getCurrentLocation();
+      initPlatformState();
+      }catch(ex){
+         initPlatformState();
+      }
+    });
+   
     _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
     _tabController.addListener(_handleTabChange);
     _widgetOptions = <Widget>[
@@ -496,12 +511,6 @@ class _HomePageState extends State<HomePage>
     ];
     _isMoving = false;
     _odometer = '0';
-    
-   
-    Future.delayed(const Duration(seconds: 15), () {
-       _enabled = true;
-       _onClickEnable(true);
-    });
    
   }
 

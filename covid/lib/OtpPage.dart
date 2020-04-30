@@ -81,7 +81,7 @@ class _OtpPageState extends State<OtpPage> {
     var client = HttpClient(); // `new` keyword optional
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      //   request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
