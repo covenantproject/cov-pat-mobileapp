@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:covid/Models/GetGeoLocationModel.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/App_localizations.dart';
 import 'package:covid/Login.dart';
@@ -12,6 +13,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert' as JSON;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:covid/Models/GetLocationHierarchyModel.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({
@@ -83,6 +86,9 @@ class _RegisterPageState extends State<RegisterPage> {
   int statusCode;
   int _radioValue = 0;
   DateTime date;
+  LocationHierarchy getLocationHierarchy; 
+  
+
 //init
   @override
   void initState() {
@@ -108,6 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
     autoValidatorDob=false;
     _isButtonTapped = false;
     _loadUserInfo();
+    this.GetStateList();
 
     // _department = ' ';
   }
@@ -278,6 +285,38 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  List locationNameList =  List();
+  List<LocationHierarchyElement> locationHierarchy;
+
+  Future<String> GetStateList() async {
+
+    try {
+      var locationid = 105;
+      _config = _configure.serverURL();
+      final String apiUrl = _config.postman + '/getLocationHierarchy?locationID=$locationid';
+      var locationHierarchyResponse = await http.get(Uri.encodeFull(apiUrl), headers: {"Accept": "application/json","api-key":_config.apikey},
+      );
+   
+       setState(() {
+          getLocationHierarchy = locationHierarchyFromJson(locationHierarchyResponse.body);
+          
+        getLocationHierarchy.locationHierarchy.forEach((element) {
+          locationNameList.add(element.locationName);
+        });
+
+        
+        
+      });
+
+     }
+     catch (ex) {
+      print('error $ex');
+    }
+  }
+ 
+
+
+
   void validateandsubmit() async {
     if (validateAndSave()) {
       FocusScope.of(context).unfocus();
@@ -306,7 +345,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      // request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('xpi-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "title": _title,
@@ -413,9 +452,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                 isDense: true,
 
                                 validator: (String value) {
+                                  String titleValidationMessage;
                                   if (value?.isEmpty ?? true) {
-                                    return 'Title';
+                                    titleValidationMessage = AppLocalizations.of(context).translate('title_validationmessage');
                                   }
+                                  return titleValidationMessage;
                                 },
                                 //icon: Icon(Icons.arrow_drop_down),
                                 //isExpanded: true,
@@ -487,7 +528,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
-                        return value.isEmpty ? 'Full Name is Required' : null;
+                        return value.isEmpty ? 
+                        AppLocalizations.of(context).translate('givenname_validationmessage') : null;
                       },
                       onSaved: (value) {
                         setState(() {
@@ -520,7 +562,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
-                        return value.isEmpty ? 'Surname is Required' : null;
+                        return value.isEmpty ? AppLocalizations.of(context).translate('surname_validationmessage') : null;
                       },
                       onSaved: (value) {
                         setState(() {
@@ -565,7 +607,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             AppLocalizations.of(context).translate('user_dob'),
                       ),
                       validator: (value) {
-                        return value.isEmpty ? 'Dob is Required' : null;
+                        return value.isEmpty ? AppLocalizations.of(context).translate('dob_validationmessage') : null;
                       },
                       onChanged: (value) {
                         setState(() {
@@ -669,9 +711,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               isDense: true,
 
                               validator: (String value) {
+                                String documentTypeValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  return 'Select Identification Proof';
+                                  documentTypeValidationMessage = AppLocalizations.of(context)
+                                    .translate('identification_documenttype_validationmessage');
                                 }
+                                return documentTypeValidationMessage;
                               },
                               //icon: Icon(Icons.arrow_drop_down),
                               //isExpanded: true,
@@ -741,9 +786,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
 
                               validator: (value) {
+                                String countryStateValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  return 'Country/State is required';
+                                  countryStateValidationMessage = AppLocalizations.of(context)
+                                    .translate('country_state_validationmessage');
                                 }
+                                return countryStateValidationMessage;
                               },
                               onSaved: (value) {
                                 setState(() {
@@ -777,9 +825,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
 
                       validator: (value) {
+                        String identificationNumberValidationMessage;
                         if (value?.isEmpty ?? true) {
-                          return 'Proof id is required';
+                          identificationNumberValidationMessage= AppLocalizations.of(context).translate('identification_documentnumber_validationmessage');
                         }
+                        return identificationNumberValidationMessage;
                       },
                       onSaved: (value) {
                         setState(() {
@@ -826,9 +876,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               isDense: true,
 
                               validator: (String value) {
+                                String addressTypeValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  return 'Select address type';
+                                  addressTypeValidationMessage = AppLocalizations.of(context)
+                                    .translate('addresstype_validationmessage');
                                 }
+                                return addressTypeValidationMessage;
                               },
                               //icon: Icon(Icons.arrow_drop_down),
                               //isExpanded: true,
@@ -902,7 +955,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? 'Flat, House no., Building, Company, Apartment is required!'
+                                  ? AppLocalizations.of(context)
+                                  .translate('address_line1_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -1013,7 +1067,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? 'City/town/taluk is required!'
+                                  ? AppLocalizations.of(context)
+                                  .translate('city_town_taluk_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -1028,17 +1083,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 25,
                     ):Container(),
                     _addresstype != null
-                        ? TextFormField(
-                            maxLines: 1,
-                            toolbarOptions: ToolbarOptions(
-                                copy: true, cut: true, paste: true),
-                            autovalidate: autoValidatorState,
-                            onTap: () {
-                              setState(() {
-                                autoValidatorState = true;
-                              });
-                            },
-                            decoration: new InputDecoration(
+                        ? DropdownButtonFormField<String>(
+                            value:_state,
+                             decoration: new InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[200],
                               icon: Padding(
@@ -1048,10 +1095,40 @@ class _RegisterPageState extends State<RegisterPage> {
                               hintText: AppLocalizations.of(context)
                                   .translate('State'),
                             ),
-                            validator: (value) {
-                              return value.isEmpty
-                                  ? 'State is required!'
-                                  : null;
+
+                            isDense: true,
+
+                             validator: (value) {
+                             String stateValidationMessage;
+                                if (value?.isEmpty ?? true) {
+                                  stateValidationMessage = AppLocalizations.of(context)
+                                    .translate('state_validationmessage');
+                                }
+                                return stateValidationMessage;
+                            },
+
+                            iconSize: 24,
+                              elevation: 16,
+
+                            autovalidate: autoValidatorState,
+                            onChanged: (String newValue) {
+                                FocusScope.of(context)
+                                    .requestFocus(new FocusNode());
+                                setState(() {
+                                  this._state  = newValue;
+                                  autoValidatorState=true;
+                                });
+                              },
+                              items: locationNameList.map<DropdownMenuItem<String>>((value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            onTap: () {
+                              setState(() {
+                                autoValidatorState = true;
+                              });
                             },
                             onSaved: (value) {
                               setState(() {
@@ -1087,7 +1164,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? 'District is required!'
+                                  ? AppLocalizations.of(context)
+                                  .translate('district_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -1133,17 +1211,20 @@ class _RegisterPageState extends State<RegisterPage> {
                                        {
                                           return null;
                                         }else{
-                                          return "PIN code should contain only numbers!";
+                                          return AppLocalizations.of(context)
+                                  .translate('pincode_onlynumbers_validationmessage');
                                         }
                                     }
                                     else
                                     {
-			                                  return 'PIN code should have 6 digits!';					
+			                                  return AppLocalizations.of(context)
+                                  .translate('pincode_6digitsrequired_validationmessage');					
                                     }						
                                   }
                                   else 
                                   {
-                                    return "PIN code is required.(Enter 000000 if not known)!";
+                                    return AppLocalizations.of(context)
+                                  .translate('pincode_required_validationmessage');
                                   }	
                             },
                             onSaved: (value) {

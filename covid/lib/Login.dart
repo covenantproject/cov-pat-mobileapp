@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-     // request.headers.set('x-api-key', _config.apikey);
+      //request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -232,13 +232,15 @@ class _LoginPageState extends State<LoginPage> {
             ),
             labelText:  AppLocalizations.of(context).translate('login_number')),
         validator: (value) {
+          String returnValue;
            if (value.isEmpty) {
-            return 'Mobile Number is Required';
+            returnValue =AppLocalizations.of(context).translate('mobilenumberrequired');
           }
           else if(value.length<10){
-             return 'Invalid Mobile Number';
+             returnValue =AppLocalizations.of(context).translate('invalidmobilenumber');
 
           }
+          return returnValue;
           //else return'';
          
          // return value.isEmpty ? 'Email is required!' : null;

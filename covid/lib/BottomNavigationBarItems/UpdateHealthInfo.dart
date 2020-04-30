@@ -111,7 +111,7 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      request.headers.set('x-api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
 
       temperature = selectedRadio == 1? double.parse(tempController.text) : ((double.parse(tempController.text) - 32) * 5/9);
@@ -197,7 +197,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                   child: Row(
                                     children: <Widget>[
                                       Text(
-                                        'Yes',
+                                        AppLocalizations.of(context)
+                                      .translate('Yes'),
                                         style: styletext.labelfont(),
                                       ),
                                       Switch(
@@ -212,7 +213,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                         activeColor: Colors.grey[100],
                                         inactiveTrackColor: Colors.grey[400],
                                       ),
-                                      Text('No', style: styletext.labelfont()),
+                                      Text(AppLocalizations.of(context)
+                                      .translate('No'), style: styletext.labelfont()),
                                     ],
                                   ),
                                 ),
@@ -234,7 +236,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                     child: Row(
                                   children: <Widget>[
                                     Text(
-                                      'Yes',
+                                      AppLocalizations.of(context)
+                                      .translate('Yes'),
                                       style: styletext.labelfont(),
                                     ),
                                     Switch(
@@ -249,7 +252,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                       activeColor: Colors.grey[100],
                                       inactiveTrackColor: Colors.grey[400],
                                     ),
-                                    Text('No', style: styletext.labelfont()),
+                                    Text(AppLocalizations.of(context)
+                                      .translate('No'), style: styletext.labelfont()),
                                   ],
                                 )),
                               ],
@@ -305,7 +309,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                   child: Row(
                                     children: <Widget>[
                                       Text(
-                                        'Yes',
+                                        AppLocalizations.of(context)
+                                      .translate('Yes'),
                                         style: styletext.labelfont(),
                                       ),
                                       Switch(
@@ -320,7 +325,8 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                         activeColor: Colors.grey[100],
                                         inactiveTrackColor: Colors.grey[400],
                                       ),
-                                      Text('No', style: styletext.labelfont()),
+                                      Text(AppLocalizations.of(context)
+                                      .translate('No'), style: styletext.labelfont()),
                                     ],
                                   ),
                                 ),

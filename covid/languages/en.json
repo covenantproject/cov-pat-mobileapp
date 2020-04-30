@@ -72,6 +72,26 @@
   "raiseyourhandpopuptitle":"Raise your hand",
   "raiseyouhandpopupmessage":"Raise hand submitted",
   "updateyourhealthpopuptitle":"Update health info",
-  "updateyourhealthpopupmessage":"Update successful"
+  "updateyourhealthpopupmessage":"Update successful",
+  "invalidmobilenumber":"Invalid Mobile Number",
+  "mobilenumberrequired":"Mobile Number is Required",
+  "title_validationmessage":"Title is Required",
+  "givenname_validationmessage":"Full Name is Required",
+  "surname_validationmessage":"Surname is Required",
+  "dob_validationmessage":"Date of Birth is Required",
+  "identification_documenttype_validationmessage":"Identification Document Type is Required",
+  "identification_documentnumber_validationmessage":"Identification Document Number is Required",
+  "country_state_validationmessage":"Country/State is Required",
+  "addresstype_validationmessage":"Address Type is Required",
+  "address_line1_validationmessage":"Flat, House no., Building, Company, Apartment is Required",
+  "city_town_taluk_validationmessage":"City/town/taluk is Required",
+  "state_validationmessage":"State is Required",
+  "district_validationmessage":"District is Required",
+  "pincode_required_validationmessage":"PIN Code is Required.(Enter 000000 if not known)",
+  "pincode_6digitsrequired_validationmessage":"PIN Code should have 6 digits",
+  "pincode_onlynumbers_validationmessage":"PIN Code should contain only numbers",
+  "Yes":"Yes",
+  "No":"No"
+
  
 }
