@@ -205,17 +205,20 @@ class _HomePageState extends State<HomePage>
   checkinorout()async{
     await getCurrentLocation();
     await getquarantinelocationdata();
-   final result = distance(currentlat, currentlong, lastgeolat, lastgeolong, 15);
+   final result = distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
   print('${result.item1} Meters');  
   if(result.item2)
   {
     print('IN');
-   
+    ongeofencecross('ENTER');
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    
   }
   else
   {
     print('OUT');
-     ongeofencecross('EXIT');
+    ongeofencecross('EXIT');
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
   } 
 
   }
@@ -327,7 +330,7 @@ class _HomePageState extends State<HomePage>
   Future _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 5,
+            minimumFetchInterval: 10,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
@@ -852,9 +855,9 @@ class _HomePageState extends State<HomePage>
         automaticallyImplyLeading: false,
        // title: Text(_title(context)),
        title: Text(_navigationViews[_currentIndex].title),
-        actions: <Widget>[
-          Switch(value: _enabled, onChanged: null),
-        ],
+        // actions: <Widget>[
+        //   Switch(value: _enabled, onChanged: null),
+        // ],
       ),
       body: Center(
         child: 

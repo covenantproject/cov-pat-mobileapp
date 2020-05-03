@@ -33,7 +33,7 @@ import 'package:http/http.dart' as http;
  double lastgeolat;
  double lastgeolong;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
- FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+ 
  
   GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
  Future getCurrentLocation() async {
@@ -112,28 +112,37 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
  checkinorout()async{
     await getCurrentLocation();
     await getquarantinelocationdata();
-   final result = distance(currentlat, currentlong, lastgeolat, lastgeolong, 15);
+   final result = distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
   print('${result.item1} Meters');  
   if(result.item2)
   {
     print('IN');
-   
+    ongeofencecross('ENTER');
+     updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
   }
   else
   {
     print('OUT');
-     ongeofencecross('EXIT');
+    ongeofencecross('EXIT');
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
   } 
 
   }
    ongeofencecross(String event) async {
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = new IOSInitializationSettings();
+    var initSetttings = new InitializationSettings(android, iOS);
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onSelectNotification);
  // await  updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS Method ");
-    var android = new AndroidNotificationDetails(
+    var androiddetails = new AndroidNotificationDetails(
         'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
         priority: Priority.High, importance: Importance.Max);
      //   updatelocation(1, currentlat, currentlong, "Andriod Setup Completed ");
-    var iOS = new IOSNotificationDetails();
-    var platform = new NotificationDetails(android, iOS);
+    var iOSdetails = new IOSNotificationDetails();
+    var platform = new NotificationDetails(androiddetails, iOSdetails);
 //  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
  //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
     await flutterLocalNotificationsPlugin.show(0, 'Geofence',
@@ -411,6 +420,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = new IOSInitializationSettings();
