@@ -3,8 +3,12 @@
 // found in the LICENSE file.
 import 'dart:async';
 import 'package:covid/App_localizations.dart';
+import 'package:covid/Models/GetGeoLocationModel.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'package:vector_math/vector_math.dart' as math;
+import 'dart:math';
+import 'package:tuple/tuple.dart';
 import 'dart:convert' as JSON;
 import 'package:background_fetch/background_fetch.dart';
 import 'package:covid/BottomNavigationBarItems/DashBoard.dart';
@@ -26,8 +30,8 @@ import 'package:covid/Models/config/env.dart';
 import 'package:covid/main.dart';
 import 'package:covid/Models/config/shared_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//     as bg;
 
 enum BottomNavigationDemoType {
   withLabels,
@@ -53,10 +57,13 @@ class _HomePageState extends State<HomePage>
   String _identifier;
   double _radius = 15.0;
   int userId;
+  GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
   bool _notifyOnDwell = true;
   var _config;
+  double lastgeolat;
+  double lastgeolong;
   int _loiteringDelay = 10000;
   int _currentIndex = 0;
   TextStyleFormate styletext = TextStyleFormate();
@@ -86,110 +93,198 @@ class _HomePageState extends State<HomePage>
       currentlat = position.latitude;
       currentlong = position.longitude;
     });
-   // _addgeofence();
+    //_addgeofence();
   }
 
   /// Receive events from BackgroundGeolocation in Headless state.
-  void _onClickEnable(enabled) async {
-   // showNotification();
-  // runApp(MyApp());
-    bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("BUTTON_CLICK"));
-    if (enabled) {
-      dynamic callback = (bg.State state) {
-        print('[start] success: $state');
-        setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      };
-      bg.State state = await bg.BackgroundGeolocation.state;
-      if (state.trackingMode == 1) {
-        bg.BackgroundGeolocation.start().then(callback);
-        updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_START");
-      } else {
-        bg.BackgroundGeolocation.startGeofences().then(callback);
-      }
-    } else {
-      dynamic callback = (bg.State state) {
-        print('[stop] success: $state');
-        setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      };
-      bg.BackgroundGeolocation.stop().then(callback);
-      updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_STOP");
-    }
-  }
-  void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async 
-  { print('[BackgroundGeolocation] headless task $headlessEvent');
-   Map<String, dynamic> data = <String, dynamic>{}; 
-   data['message'] = '[providerchange] - $headlessEvent';
-    }
+  // void _onClickEnable(enabled) async {
+  //  // showNotification();
+  // // runApp(MyApp());
+  //   bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("BUTTON_CLICK"));
+  //   if (enabled) {
+  //     dynamic callback = (bg.State state) {
+  //       print('[start] success: $state');
+  //       setState(() {
+  //         _enabled = state.enabled;
+  //         _isMoving = state.isMoving;
+  //       });
+  //     };
+  //     bg.State state = await bg.BackgroundGeolocation.state;
+  //     if (state.trackingMode == 1) {
+  //       bg.BackgroundGeolocation.start().then(callback);
+  //       updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_START");
+  //     } else {
+  //       bg.BackgroundGeolocation.startGeofences().then(callback);
+  //     }
+  //   } else {
+  //     dynamic callback = (bg.State state) {
+  //       print('[stop] success: $state');
+  //       setState(() {
+  //         _enabled = state.enabled;
+  //         _isMoving = state.isMoving;
+  //       });
+  //     };
+  //     bg.BackgroundGeolocation.stop().then(callback);
+  //     updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_STOP");
+  //   }
+  // }
+  // void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async 
+  // { print('[BackgroundGeolocation] headless task $headlessEvent');
+  //  Map<String, dynamic> data = <String, dynamic>{}; 
+  //  data['message'] = '[providerchange] - $headlessEvent';
+  //   }
 
-  Future _configureBackgroundGeolocation(orgname, username) async {
-    // 1.  Listen to events (See docs for all 13 available events).
-    bg.BackgroundGeolocation.onLocation(_onLocation, _onLocationError);
-    bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
-    bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
-    bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
-    bg.BackgroundGeolocation.onHttp(_onHttp);
-    bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
-    bg.BackgroundGeolocation.onHeartbeat(_onHeartbeat);
-    bg.BackgroundGeolocation.onGeofence(_onGeofence);
-    bg.BackgroundGeolocation.onSchedule(_onSchedule);
-    bg.BackgroundGeolocation.onPowerSaveChange(_onPowerSaveChange);
-    bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
-    bg.BackgroundGeolocation.onNotificationAction(_onNotificationAction);
+  // Future _configureBackgroundGeolocation(orgname, username) async {
+  //   // 1.  Listen to events (See docs for all 13 available events).
+  //    updatelocation(1, currentlat, currentlong, "initialize_GEOFENCECROSS");
+  //   bg.BackgroundGeolocation.onLocation(_onLocation, _onLocationError);
+  //   bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
+  //   bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
+  //   bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
+  //   bg.BackgroundGeolocation.onHttp(_onHttp);
+  //   bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
+  //   bg.BackgroundGeolocation.onHeartbeat(_onHeartbeat);
+  //    updatelocation(1, currentlat, currentlong, "initialize_onGeofence callback start");
+  //   bg.BackgroundGeolocation.onGeofence(_onGeofence);
+  //   updatelocation(1, currentlat, currentlong, "initialize_onGeofence callback ended");
+  //   bg.BackgroundGeolocation.onSchedule(_onSchedule);
+  //   bg.BackgroundGeolocation.onPowerSaveChange(_onPowerSaveChange);
+  //   bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
+  //   bg.BackgroundGeolocation.onNotificationAction(_onNotificationAction);
 
-    bg.TransistorAuthorizationToken token =
-        await bg.TransistorAuthorizationToken.findOrCreate(
-            orgname, username, ENV.TRACKER_HOST);
+  //   bg.TransistorAuthorizationToken token =
+  //       await bg.TransistorAuthorizationToken.findOrCreate(
+  //           orgname, username, ENV.TRACKER_HOST);
 
-    // 2.  Configure the plugin
-    bg.BackgroundGeolocation.ready(bg.Config(
-            // Convenience option to automatically configure the SDK to post to Transistor Demo server.
-            transistorAuthorizationToken: token,
+  //   // 2.  Configure the plugin
+  //   bg.BackgroundGeolocation.ready(bg.Config(
+  //           // Convenience option to automatically configure the SDK to post to Transistor Demo server.
+  //           transistorAuthorizationToken: token,
             
-            // Logging & Debug
-            reset: false,
-            debug: true,
-            logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-            // Geolocation options
-            desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION,
-            distanceFilter: 10.0,
-            stopTimeout: 1,
-            // HTTP & Persistence
-            autoSync: true,
-            // Application options
-            stopOnTerminate: false,
-            startOnBoot: true,
-            enableHeadless: true,
-            heartbeatInterval: 60))
-        .then((bg.State state) {
-      print('[ready] ${state.toMap()}');
+  //           // Logging & Debug
+  //           reset: false,
+  //           debug: true,
+  //           logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+  //           // Geolocation options
+  //           desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION,
+  //           distanceFilter: 10.0,
+  //           stopTimeout: 1,
+  //           // HTTP & Persistence
+  //           autoSync: true,
+  //           // Application options
+  //           stopOnTerminate: false,
+  //           startOnBoot: true,
+  //           enableHeadless: true,
+  //           heartbeatInterval: 60))
+  //       .then((bg.State state) {
+  //     print('[ready] ${state.toMap()}');
        
-      if (state.schedule.isNotEmpty) {
-        bg.BackgroundGeolocation.startSchedule();
-      }
-      setState(() {
-        _enabled = state.enabled;
-        _isMoving = state.isMoving;
+  //     if (state.schedule.isNotEmpty) {
+  //       bg.BackgroundGeolocation.startSchedule();
+  //     }
+  //     setState(() {
+  //       _enabled = state.enabled;
+  //       _isMoving = state.isMoving;
+  //     });
+  //   }).catchError((error) {
+  //     print('[ready] ERROR: $error');
+  //   });
+
+  //   // Fetch currently selected tab.
+  //   SharedPreferences prefs = await _prefs;
+  //   int tabIndex = prefs.getInt("tabIndex");
+
+  //   // Which tab to view?  MapView || EventList.   Must wait until after build before switching tab or bad things happen.
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (tabIndex != null) {
+  //       _tabController.animateTo(tabIndex);
+  //     }
+  //   });
+  // }
+
+  checkinorout()async{
+    await getCurrentLocation();
+    await getquarantinelocationdata();
+   final result = distance(currentlat, currentlong, lastgeolat, lastgeolong, 15);
+  print('${result.item1} Meters');  
+  if(result.item2)
+  {
+    print('IN');
+   
+  }
+  else
+  {
+    print('OUT');
+     ongeofencecross('EXIT');
+  } 
+
+  }
+  Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {
+        // The math module contains a function 
+        // named radians which converts from 
+        // degrees to radians. 
+        quarantineLongitude = math.radians(quarantineLongitude); 
+        currentLongitude = math.radians(currentLongitude); 
+        quarantineLatitude = math.radians(quarantineLatitude); 
+        currentLatitude = math.radians(currentLatitude); 
+
+        // Haversine formula  
+        double dlon = currentLongitude - quarantineLongitude;  
+        double dlat = currentLatitude - quarantineLatitude; 
+        
+        double a = pow(sin(dlat / 2), 2) 
+                 + cos(quarantineLatitude) * cos(currentLatitude) 
+                 * pow(sin(dlon / 2),2); 
+              
+        double c = 2 * asin(sqrt(a)); 
+  
+        // Radius of earth in kilometers. Use 3956  
+        // for miles 
+        double r = 6371; 
+  
+        // calculate the result in meters
+        double distance = (c * r) * 1000;   
+
+        bool isIn = false;
+        if(distance <= radius)
+        {
+          isIn = true;
+        }
+
+        return new Tuple2(distance, isIn); 
+}
+
+
+   Future<String> getquarantinelocationdata() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    _config = _configure.serverURL();
+    String getgeolocationurl = _config.postman + "/getgeofence?patientId=$userId";
+   // var homedetailsresponse;
+    var getgeolocationresponse;
+    try {
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
+        "Accept": "*/*","api-key":_config.apikey
       });
-    }).catchError((error) {
-      print('[ready] ERROR: $error');
-    });
-
-    // Fetch currently selected tab.
-    SharedPreferences prefs = await _prefs;
-    int tabIndex = prefs.getInt("tabIndex");
-
-    // Which tab to view?  MapView || EventList.   Must wait until after build before switching tab or bad things happen.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (tabIndex != null) {
-        _tabController.animateTo(tabIndex);
+    } catch (ex) {
+      print('error $ex');
+    }
+    if(getgeolocationresponse.statusCode==200){
+      setState(() {
+      geoFenceLocationModel=getGeoLocationModelFromJson(getgeolocationresponse.body);
+      try{
+     // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
+      lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+      lastgeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
       }
+      catch(ex){
+     
+      }
+      
+   
     });
+    }
+    return "Success";
   }
 
   Future updatelocation(
@@ -243,6 +338,7 @@ class _HomePageState extends State<HomePage>
             requiredNetworkType: NetworkType.NONE), (String taskId) async {
       print("[BackgroundFetch] received event $taskId");
        updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
+       checkinorout();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int count = 0;
       if (prefs.get("fetch-count") != null) {
@@ -250,19 +346,31 @@ class _HomePageState extends State<HomePage>
       }
       prefs.setInt("fetch-count", ++count);
       print('[BackgroundFetch] count: $count');
-
+       
       if (taskId == 'flutter_background_fetch') {
         // Test scheduling a custom-task in fetch event.
-        BackgroundFetch.scheduleTask(TaskConfig(
-            taskId: "com.transistorsoft.customtask",
-            delay: 5000,
-            periodic: false,
-            forceAlarmManager: true,
-            stopOnTerminate: false,
-            enableHeadless: true));
+        // BackgroundFetch.scheduleTask(TaskConfig(
+        //     taskId: "com.transistorsoft.customtask",
+        //     delay: 5000,
+        //     periodic: false,
+        //     forceAlarmManager: true,
+        //     stopOnTerminate: false,
+        //     enableHeadless: true));
       }
      
       BackgroundFetch.finish(taskId);
+    }).then((int status) {
+      print('[BackgroundFetch] configure success: $status');
+      setState(() {
+       // _status = status;
+       //print('');
+      });
+    }).catchError((e) {
+      print('[BackgroundFetch] configure ERROR: $e');
+      setState(() {
+      //  _status = e;
+     // print(e);
+      });
     });
 
     // Test scheduling a custom-task.
@@ -275,186 +383,204 @@ class _HomePageState extends State<HomePage>
     //     enableHeadless: true));
   }
 
-  void _onLocation(bg.Location location) {
-    print('[${bg.Event.LOCATION}] - $location');
 
-    setState(() {
-      events.insert(0,
-          Event(bg.Event.LOCATION, location, location.toString(compact: true)));
-      _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
-    });
-  }
 
-  void _onLocationError(bg.LocationError error) {
-    print('[${bg.Event.LOCATION}] ERROR - $error');
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.LOCATION + " error", error, error.toString()));
-    });
-  }
+//   void _onLocation(bg.Location location) {
+//     print('[${bg.Event.LOCATION}] - $location');
 
-  void _onMotionChange(bg.Location location) {
-    print('[${bg.Event.MOTIONCHANGE}] - $location');
-    //updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
-    setState(() {
-      events.insert(
-          0,
-          Event(bg.Event.MOTIONCHANGE, location,
-              location.toString(compact: true)));
-      _isMoving = location.isMoving;
-    });
-  }
+//     setState(() {
+//       events.insert(0,
+//           Event(bg.Event.LOCATION, location, location.toString(compact: true)));
+//       _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
+//     });
+//   }
 
-  void _onActivityChange(bg.ActivityChangeEvent event) {
-    print('[${bg.Event.ACTIVITYCHANGE}] - $event');
-    setState(() {
-      events.insert(0, Event(bg.Event.ACTIVITYCHANGE, event, event.toString()));
-      _motionActivity = event.activity;
-    });
-  }
+//   void _onLocationError(bg.LocationError error) {
+//     print('[${bg.Event.LOCATION}] ERROR - $error');
+//     setState(() {
+//       events.insert(
+//           0, Event(bg.Event.LOCATION + " error", error, error.toString()));
+//     });
+//   }
 
-  void _onProviderChange(bg.ProviderChangeEvent event) {
-    print('[${bg.Event.PROVIDERCHANGE}] - $event');
-    setState(() {
-      events.insert(0, Event(bg.Event.PROVIDERCHANGE, event, event.toString()));
-    });
-  }
+//   void _onMotionChange(bg.Location location) {
+//     print('[${bg.Event.MOTIONCHANGE}] - $location');
+//     //updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
+//     setState(() {
+//       events.insert(
+//           0,
+//           Event(bg.Event.MOTIONCHANGE, location,
+//               location.toString(compact: true)));
+//       _isMoving = location.isMoving;
+//     });
+//   }
 
-  void _onHttp(bg.HttpEvent event) async {
-    print('[${bg.Event.HTTP}] - $event');
+//   void _onActivityChange(bg.ActivityChangeEvent event) {
+//     print('[${bg.Event.ACTIVITYCHANGE}] - $event');
+//     setState(() {
+//       events.insert(0, Event(bg.Event.ACTIVITYCHANGE, event, event.toString()));
+//       _motionActivity = event.activity;
+//     });
+//   }
 
-    setState(() {
-      events.insert(0, Event(bg.Event.HTTP, event, event.toString()));
-    });
-  }
+//   void _onProviderChange(bg.ProviderChangeEvent event) {
+//     print('[${bg.Event.PROVIDERCHANGE}] - $event');
+//     setState(() {
+//       events.insert(0, Event(bg.Event.PROVIDERCHANGE, event, event.toString()));
+//     });
+//   }
 
-  void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
-    print('[${bg.Event.CONNECTIVITYCHANGE}] - $event');
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.CONNECTIVITYCHANGE, event, event.toString()));
-    });
-  }
+//   void _onHttp(bg.HttpEvent event) async {
+//     print('[${bg.Event.HTTP}] - $event');
 
-  void _onHeartbeat(bg.HeartbeatEvent event) {
-    print('[${bg.Event.HEARTBEAT}] - $event');
-   // updatelocation(1, currentlat, currentlong, 'ON_IDLE');
-    setState(() {
-      events.insert(0, Event(bg.Event.HEARTBEAT, event, event.toString()));
-    });
-  }
+//     setState(() {
+//       events.insert(0, Event(bg.Event.HTTP, event, event.toString()));
+//     });
+//   }
 
-  void _onGeofence(bg.GeofenceEvent event) async {
-    print('[${bg.Event.GEOFENCE}] - $event');
-    if(event.action=='EXIT'){
-       ongeofencecross(event.action);
-       updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS $event");
-    } else if(event.action=='ENTER'){
-      ongeofencecross(event.action);
-      updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS $event");
-    }
-    else{
-      ongeofencecross(event.action);
-    }
-    //updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
+//   void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
+//     print('[${bg.Event.CONNECTIVITYCHANGE}] - $event');
+//     setState(() {
+//       events.insert(
+//           0, Event(bg.Event.CONNECTIVITYCHANGE, event, event.toString()));
+//     });
+//   }
+
+//   void _onHeartbeat(bg.HeartbeatEvent event) {
+//     print('[${bg.Event.HEARTBEAT}] - $event');
+//    // updatelocation(1, currentlat, currentlong, 'ON_IDLE');
+//     setState(() {
+//       events.insert(0, Event(bg.Event.HEARTBEAT, event, event.toString()));
+//     });
+//   }
+
+//   void _onGeofence(bg.GeofenceEvent event) async {
+//     updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS ${event.action}");
+//     print('[${bg.Event.GEOFENCE}] - $event');
+//     if(event.action=='EXIT'){
+//        ongeofencecross('EXIT');
+//        updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS ${event.action}");
+//     } else if(event.action=='ENTER'){
+//       ongeofencecross('ENTER');
+//       updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS ${event.action}");
+//     }
+//     else{
+//       ongeofencecross(event.action);
+//     }
+//     //updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
     
     
-    bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
-      // Execute an HTTP request to test an async operation completes.
-      String url = "${ENV.TRACKER_HOST}/api/devices";
-      bg.State state = await bg.BackgroundGeolocation.state;
-      http.read(url, headers: {
-        "Authorization": "Bearer ${state.authorization.accessToken}"
-      }).then((String result) {
-        print("[http test] success: $result");
-        bg.BackgroundGeolocation.playSound(
-            util.Dialog.getSoundId("TEST_MODE_CLICK"));
-        bg.BackgroundGeolocation.stopBackgroundTask(taskId);
-      }).catchError((dynamic error) {
-        print("[http test] failed: $error");
-        bg.BackgroundGeolocation.stopBackgroundTask(taskId);
-      });
-    });
+//     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
+//       // Execute an HTTP request to test an async operation completes.
+//       String url = "${ENV.TRACKER_HOST}/api/devices";
+//       bg.State state = await bg.BackgroundGeolocation.state;
+//       http.read(url, headers: {
+//         "Authorization": "Bearer ${state.authorization.accessToken}"
+//       }).then((String result) {
+//         print("[http test] success: $result");
+//         bg.BackgroundGeolocation.playSound(
+//             util.Dialog.getSoundId("TEST_MODE_CLICK"));
+//         bg.BackgroundGeolocation.stopBackgroundTask(taskId);
+//       }).catchError((dynamic error) {
+//         print("[http test] failed: $error");
+//         bg.BackgroundGeolocation.stopBackgroundTask(taskId);
+//       });
+//     });
 
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
-    });
-  }
+//     setState(() {
+//       events.insert(
+//           0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
+//     });
+//   }
 
-  void _onSchedule(bg.State state) {
-    print('[${bg.Event.SCHEDULE}] - $state');
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.SCHEDULE, state, "enabled: ${state.enabled}"));
-    });
-  }
+//   void _onSchedule(bg.State state) {
+//     print('[${bg.Event.SCHEDULE}] - $state');
+//     setState(() {
+//       events.insert(
+//           0, Event(bg.Event.SCHEDULE, state, "enabled: ${state.enabled}"));
+//     });
+//   }
 
-  void _onEnabledChange(bool enabled) {
-    print('[${bg.Event.ENABLEDCHANGE}] - $enabled');
-    setState(() {
-      _enabled = enabled;
-      events.clear();
-      events.insert(
-          0,
-          Event(bg.Event.ENABLEDCHANGE, enabled,
-              '[EnabledChangeEvent enabled: $enabled]'));
-    });
-  }
+//   void _onEnabledChange(bool enabled) {
+//     print('[${bg.Event.ENABLEDCHANGE}] - $enabled');
+//     setState(() {
+//       _enabled = enabled;
+//       events.clear();
+//       events.insert(
+//           0,
+//           Event(bg.Event.ENABLEDCHANGE, enabled,
+//               '[EnabledChangeEvent enabled: $enabled]'));
+//     });
+//   }
 
-  void _onNotificationAction(String action) {
-    print('[onNotificationAction] $action');
-    switch (action) {
-      case 'notificationButtonFoo':
-        bg.BackgroundGeolocation.changePace(false);
-        break;
-      case 'notificationButtonBar':
-        break;
-    }
-  }
+//   void _onNotificationAction(String action) {
+//     print('[onNotificationAction] $action');
+//     switch (action) {
+//       case 'notificationButtonFoo':
+//         bg.BackgroundGeolocation.changePace(false);
+//         break;
+//       case 'notificationButtonBar':
+//         break;
+//     }
+//   }
 
-  void _onPowerSaveChange(bool enabled) {
-    print('[${bg.Event.POWERSAVECHANGE}] - $enabled');
-    setState(() {
-      events.insert(
-          0,
-          Event(bg.Event.POWERSAVECHANGE, enabled,
-              'Power-saving enabled: $enabled'));
-    });
-  }
+//   void _onPowerSaveChange(bool enabled) {
+//     print('[${bg.Event.POWERSAVECHANGE}] - $enabled');
+//     setState(() {
+//       events.insert(
+//           0,
+//           Event(bg.Event.POWERSAVECHANGE, enabled,
+//               'Power-saving enabled: $enabled'));
+//     });
+//   }
 
-  Future _autoRegister() async {
-    //Navigator.of(context).pop();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("orgname", 'qantler');
-    await prefs.setString("username", 'username');
-// orgname=prefs.getString("orgname");
-// username=prefs.getString("username");
-    await bg.TransistorAuthorizationToken.destroy(ENV.TRACKER_HOST);
-    bg.TransistorAuthorizationToken token =
-        await bg.TransistorAuthorizationToken.findOrCreate(
-            'qantler', 'username', ENV.TRACKER_HOST);
+//   Future _autoRegister() async {
+//     //Navigator.of(context).pop();
+//     final SharedPreferences prefs = await SharedPreferences.getInstance();
+//     await prefs.setString("orgname", 'qantler');
+//     await prefs.setString("username", 'username');
+// // orgname=prefs.getString("orgname");
+// // username=prefs.getString("username");
+//     await bg.TransistorAuthorizationToken.destroy(ENV.TRACKER_HOST);
+//     bg.TransistorAuthorizationToken token =
+//         await bg.TransistorAuthorizationToken.findOrCreate(
+//             'qantler', 'username', ENV.TRACKER_HOST);
 
-    bg.BackgroundGeolocation.setConfig(
-        bg.Config(transistorAuthorizationToken: token));
-  }
+//     bg.BackgroundGeolocation.setConfig(
+//         bg.Config(transistorAuthorizationToken: token));
+//   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   print("[home_view didChangeAppLifecycleState] : $state");
-  //   if (state == AppLifecycleState.paused) {
+//   @override
+//   void didChangeAppLifecycleState(AppLifecycleState state) {
+//     print("[home_view didChangeAppLifecycleState] : $state");
+//     if (state == AppLifecycleState.paused) {
 
-  //   } else if (state == AppLifecycleState.resumed) {
+//     } else if (state == AppLifecycleState.resumed) {
 
-  //   }
-  // }
+//     }
+//   }
+//   void backgroundFetchHeadlessTask(String taskId) async {
+//   // Get current-position from BackgroundGeolocation in headless mode.
+//   //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
+//   print("[BackgroundFetch] HeadlessTask: $taskId");
+//   checkinorout();
+//   // SharedPreferences prefs = await SharedPreferences.getInstance();
+//   // int count = 0;
+//   // if (prefs.get("fetch-count") != null) {
+//   //   count = prefs.getInt("fetch-count");
+//   // }
+//   // prefs.setInt("fetch-count", ++count);
+//   // print('[BackgroundFetch] count: $count');
+
+//   BackgroundFetch.finish(taskId);
+// }
 
   void initPlatformState() async {
     
     SharedPreferences prefs = await _prefs;
     // String orgname = prefs.getString("orgname");
     // String username = prefs.getString("username");
-   
+   //BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     // // Sanity check orgname & username:  if invalid, go back to HomeApp to re-register device.
     // if (orgname == null || username == null) {
     //   return runApp(MyApp());
@@ -463,12 +589,12 @@ class _HomePageState extends State<HomePage>
     var flag=prefs.getString("platforminit");
     if(flag==""||flag==null)
     {
-    await _autoRegister();
-    await _configureBackgroundGeolocation('qantler', 'username');
+    //await _autoRegister();
+    //await _configureBackgroundGeolocation('qantler', 'username');
     await _configureBackgroundFetch();
-    _onClickEnable(_enabled);
+  //  _onClickEnable(_enabled);
     prefs.setString('platforminit',"true");
-    _addgeofence();
+    //_addgeofence();
       // _onClickEnable(_enabled);
     }
 
@@ -487,7 +613,7 @@ class _HomePageState extends State<HomePage>
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: onSelectNotification);
     //getJsondata();
-    _identifier = DateTime.now().toString();
+    _identifier = 'MYQUARANTINELOCATION';
     
     Future.delayed(const Duration(seconds:0), ()async {
       try
@@ -536,16 +662,21 @@ class _HomePageState extends State<HomePage>
         payload:
             'You need to update your health status everyday at 8 AM and 10 PM');
   }
-  ongeofencecross(event) async {
+  ongeofencecross(String event) async {
+ // await  updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS Method ");
     var android = new AndroidNotificationDetails(
         'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
         priority: Priority.High, importance: Importance.Max);
+     //   updatelocation(1, currentlat, currentlong, "Andriod Setup Completed ");
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
+//  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
+ //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
     await flutterLocalNotificationsPlugin.show(0, 'Geofence',
         'Alert! $event event on geofence', platform,
         payload:
             'Alert! $event event on geofence');
+ // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
   }
 
   // Future<String> getJsondata() async {
@@ -566,27 +697,27 @@ class _HomePageState extends State<HomePage>
   //   return "Success";
   // }
 
-  void _addgeofence() {
-    bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-        identifier: _identifier,
-        radius: ENV.RADIUS_GEOFENCE,
-        latitude: currentlat,
-        longitude: currentlong,
-        notifyOnEntry: _notifyOnEntry,
-        notifyOnExit: _notifyOnExit,
-        notifyOnDwell: _notifyOnDwell,
-        loiteringDelay: _loiteringDelay,
-        extras: {
-          'radius': _radius,
-          'center': {'latitude': currentlat, 'longitude': currentlong}
-        } // meta-data for tracker.transistorsoft.com
-        )).then((bool success) {
-      bg.BackgroundGeolocation.playSound(
-          util.Dialog.getSoundId('ADD_GEOFENCE'));
-    }).catchError((error) {
-      print('[addGeofence] ERROR: $error');
-    });
-  }
+  // void _addgeofence() {
+  //   bg.BackgroundGeolocation.addGeofence(bg.Geofence(
+  //       identifier: _identifier,
+  //       radius: ENV.RADIUS_GEOFENCE,
+  //       latitude: currentlat,
+  //       longitude: currentlong,
+  //       notifyOnEntry: _notifyOnEntry,
+  //       notifyOnExit: _notifyOnExit,
+  //       notifyOnDwell: _notifyOnDwell,
+  //       loiteringDelay: _loiteringDelay,
+  //       extras: {
+  //         'radius': _radius,
+  //         'center': {'latitude': currentlat, 'longitude': currentlong}
+  //       } // meta-data for tracker.transistorsoft.com
+  //       )).then((bool success) {
+  //     bg.BackgroundGeolocation.playSound(
+  //         util.Dialog.getSoundId('ADD_GEOFENCE'));
+  //   }).catchError((error) {
+  //     print('[addGeofence] ERROR: $error');
+  //   });
+  // }
 
   SharedEvents list;
   String _title(BuildContext context) {
@@ -722,7 +853,7 @@ class _HomePageState extends State<HomePage>
        // title: Text(_title(context)),
        title: Text(_navigationViews[_currentIndex].title),
         actions: <Widget>[
-          Switch(value: _enabled, onChanged: _onClickEnable),
+          Switch(value: _enabled, onChanged: null),
         ],
       ),
       body: Center(

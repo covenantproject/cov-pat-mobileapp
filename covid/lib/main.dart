@@ -3,6 +3,10 @@ import 'package:covid/App_localizations.dart';
 import 'package:covid/HomePage.dart';
 import 'package:covid/Landing.dart';
 import 'package:covid/Login.dart';
+import 'package:vector_math/vector_math.dart' as math;
+import 'dart:math';
+import 'package:tuple/tuple.dart';
+import 'package:covid/Models/GetGeoLocationModel.dart';
 import 'package:covid/Models/config/Configure.dart';
 import 'package:covid/Models/config/env.dart';
 import 'package:covid/Models/config/transistor_auth.dart';
@@ -11,100 +15,230 @@ import 'package:covid/RegisterPage.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+import 'package:http/http.dart' as http;
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//     as bg;
 
+ Position position = Position();
  var _config;
  int userId;
+ double currentlat;
+ double currentlong;
+ double lastgeolat;
+ double lastgeolong;
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
  
- Configure _configure = new Configure();
-void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
-  print('📬 --> $headlessEvent');
-
-  switch (headlessEvent.name) {
-    case bg.Event.TERMINATE:
-      try {
-        //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
-        print('[getCurrentPosition] Headless: $headlessEvent');
-      } catch (error) {
-        print('[getCurrentPosition] Headless ERROR: $error');
-      }
-      break;
-    case bg.Event.HEARTBEAT:
-      /* DISABLED getCurrentPosition on heartbeat
-      try {
-        bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
-        print('[getCurrentPosition] Headless: $location');
-      } catch (error) {
-        print('[getCurrentPosition] Headless ERROR: $error');
-      }
-      */
-      break;
-    case bg.Event.LOCATION:
-      bg.Location location = headlessEvent.event;
-      print(location);
-      break;
-    case bg.Event.MOTIONCHANGE:
-      bg.Location location = headlessEvent.event;
-      print(location);
-      break;
-    case bg.Event.GEOFENCE:
-      bg.GeofenceEvent geofenceEvent = headlessEvent.event;
-    //  if(geofenceEvent.action=='ENTER'){
-    //    ongeofencecross(geofenceEvent.action);
-    //  }
-    //  else if(geofenceEvent.action=='EXIT'){
-    //    ongeofencecross(geofenceEvent.action);
-    //  }
-      print(geofenceEvent);
-      break;
-    case bg.Event.GEOFENCESCHANGE:
-      bg.GeofencesChangeEvent event = headlessEvent.event;
-      print(event);
-      break;
-    case bg.Event.SCHEDULE:
-      bg.State state = headlessEvent.event;
-      print(state);
-      break;
-    case bg.Event.ACTIVITYCHANGE:
-      bg.ActivityChangeEvent event = headlessEvent.event;
-      print(event);
-      break;
-    case bg.Event.HTTP:
-      bg.HttpEvent response = headlessEvent.event;
-      print(response);
-      break;
-    case bg.Event.POWERSAVECHANGE:
-      bool enabled = headlessEvent.event;
-      print(enabled);
-      break;
-    case bg.Event.CONNECTIVITYCHANGE:
-      bg.ConnectivityChangeEvent event = headlessEvent.event;
-      print(event);
-      break;
-    case bg.Event.ENABLEDCHANGE:
-      bool enabled = headlessEvent.event;
-      print(enabled);
-      break;
-    case bg.Event.AUTHORIZATION:
-      bg.AuthorizationEvent event = headlessEvent.event;
-      print(event);
-      bg.BackgroundGeolocation.setConfig(
-          bg.Config(url: "${ENV.TRACKER_HOST}/api/locations"));
-      break;
+  GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
+ Future getCurrentLocation() async {
+    Position res = await Geolocator().getCurrentPosition();
+    SharedPreferences prefs = await _prefs;
+   
+      prefs.setDouble('lat', position.latitude);
+      prefs.setDouble('long', position.longitude);
+      position = res;
+      currentlat = position.latitude;
+      currentlong = position.longitude;
+   
+    //_addgeofence();
   }
+  Future<String> getquarantinelocationdata() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    _config = _configure.serverURL();
+    String getgeolocationurl = _config.postman + "/getgeofence?patientId=$userId";
+   // var homedetailsresponse;
+    var getgeolocationresponse;
+    try {
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
+        "Accept": "*/*","api-key":_config.apikey
+      });
+    } catch (ex) {
+      print('error $ex');
+    }
+    if(getgeolocationresponse.statusCode==200){
+     
+      geoFenceLocationModel=getGeoLocationModelFromJson(getgeolocationresponse.body);
+      try{
+     // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
+      lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+      lastgeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
+      }
+      catch(ex){
+      }
+    }
+    return "Success";
+  }
+Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {
+        // The math module contains a function 
+        // named radians which converts from 
+        // degrees to radians. 
+        quarantineLongitude = math.radians(quarantineLongitude); 
+        currentLongitude = math.radians(currentLongitude); 
+        quarantineLatitude = math.radians(quarantineLatitude); 
+        currentLatitude = math.radians(currentLatitude); 
+
+        // Haversine formula  
+        double dlon = currentLongitude - quarantineLongitude;  
+        double dlat = currentLatitude - quarantineLatitude; 
+        
+        double a = pow(sin(dlat / 2), 2) 
+                 + cos(quarantineLatitude) * cos(currentLatitude) 
+                 * pow(sin(dlon / 2),2); 
+              
+        double c = 2 * asin(sqrt(a)); 
+  
+        // Radius of earth in kilometers. Use 3956  
+        // for miles 
+        double r = 6371; 
+  
+        // calculate the result in meters
+        double distance = (c * r) * 1000;   
+
+        bool isIn = false;
+        if(distance <= radius)
+        {
+          isIn = true;
+        }
+
+        return new Tuple2(distance, isIn); 
 }
+ checkinorout()async{
+    await getCurrentLocation();
+    await getquarantinelocationdata();
+   final result = distance(currentlat, currentlong, lastgeolat, lastgeolong, 15);
+  print('${result.item1} Meters');  
+  if(result.item2)
+  {
+    print('IN');
+   
+  }
+  else
+  {
+    print('OUT');
+     ongeofencecross('EXIT');
+  } 
+
+  }
+   ongeofencecross(String event) async {
+ // await  updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS Method ");
+    var android = new AndroidNotificationDetails(
+        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
+        priority: Priority.High, importance: Importance.Max);
+     //   updatelocation(1, currentlat, currentlong, "Andriod Setup Completed ");
+    var iOS = new IOSNotificationDetails();
+    var platform = new NotificationDetails(android, iOS);
+//  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
+ //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
+    await flutterLocalNotificationsPlugin.show(0, 'Geofence',
+        'Alert! $event event on geofence', platform,
+        payload:
+            'Alert! $event event on geofence');
+ // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
+  }
+ Configure _configure = new Configure();
+ void backgroundFetchHeadlessTask(String taskId) async {
+  // Get current-position from BackgroundGeolocation in headless mode.
+  //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
+  print("[BackgroundFetch] HeadlessTask: $taskId");
+  checkinorout();
+  // SharedPreferences prefs = await SharedPreferences.getInstance();
+  // int count = 0;
+  // if (prefs.get("fetch-count") != null) {
+  //   count = prefs.getInt("fetch-count");
+  // }
+  // prefs.setInt("fetch-count", ++count);
+  // print('[BackgroundFetch] count: $count');
+
+  BackgroundFetch.finish(taskId);
+}
+// void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
+//   print('📬 --> $headlessEvent');
+
+//   switch (headlessEvent.name) {
+//     case bg.Event.TERMINATE:
+//       try {
+//         //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
+//         print('[getCurrentPosition] Headless: $headlessEvent');
+//       } catch (error) {
+//         print('[getCurrentPosition] Headless ERROR: $error');
+//       }
+//       break;
+//     case bg.Event.HEARTBEAT:
+//       /* DISABLED getCurrentPosition on heartbeat
+//       try {
+//         bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
+//         print('[getCurrentPosition] Headless: $location');
+//       } catch (error) {
+//         print('[getCurrentPosition] Headless ERROR: $error');
+//       }
+//       */
+//       break;
+//     case bg.Event.LOCATION:
+//       bg.Location location = headlessEvent.event;
+//       print(location);
+//       break;
+//     case bg.Event.MOTIONCHANGE:
+//       bg.Location location = headlessEvent.event;
+//       print(location);
+//       break;
+//     case bg.Event.GEOFENCE:
+//       bg.GeofenceEvent geofenceEvent = headlessEvent.event;
+//     //  if(geofenceEvent.action=='ENTER'){
+//     //    ongeofencecross(geofenceEvent.action);
+//     //  }
+//     //  else if(geofenceEvent.action=='EXIT'){
+//     //    ongeofencecross(geofenceEvent.action);
+//     //  }
+//       print(geofenceEvent);
+//       break;
+//     case bg.Event.GEOFENCESCHANGE:
+//       bg.GeofencesChangeEvent event = headlessEvent.event;
+//       print(event);
+//       break;
+//     case bg.Event.SCHEDULE:
+//       bg.State state = headlessEvent.event;
+//       print(state);
+//       break;
+//     case bg.Event.ACTIVITYCHANGE:
+//       bg.ActivityChangeEvent event = headlessEvent.event;
+//       print(event);
+//       break;
+//     case bg.Event.HTTP:
+//       bg.HttpEvent response = headlessEvent.event;
+//       print(response);
+//       break;
+//     case bg.Event.POWERSAVECHANGE:
+//       bool enabled = headlessEvent.event;
+//       print(enabled);
+//       break;
+//     case bg.Event.CONNECTIVITYCHANGE:
+//       bg.ConnectivityChangeEvent event = headlessEvent.event;
+//       print(event);
+//       break;
+//     case bg.Event.ENABLEDCHANGE:
+//       bool enabled = headlessEvent.event;
+//       print(enabled);
+//       break;
+//     case bg.Event.AUTHORIZATION:
+//       bg.AuthorizationEvent event = headlessEvent.event;
+//       print(event);
+//       bg.BackgroundGeolocation.setConfig(
+//           bg.Config(url: "${ENV.TRACKER_HOST}/api/locations"));
+//       break;
+//   }
+// }
 
  void _configureBackgroundFetch() async {
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-            minimumFetchInterval: 10,
+            minimumFetchInterval: 5,
             startOnBoot: true,
             stopOnTerminate: false,
             enableHeadless: true,
@@ -186,32 +320,44 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   }
 
 /// Receive events from BackgroundFetch in Headless state.
-void backgroundFetchHeadlessTask(String taskId) async {
-  // Get current-position from BackgroundGeolocation in headless mode.
-  //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
-  print("[BackgroundFetch] HeadlessTask: $taskId");
-
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // int count = 0;
-  // if (prefs.get("fetch-count") != null) {
-  //   count = prefs.getInt("fetch-count");
-  // }
-  // prefs.setInt("fetch-count", ++count);
-  // print('[BackgroundFetch] count: $count');
-
-  BackgroundFetch.finish(taskId);
-}
+ Future onSelectNotification(String payload) {
+    debugPrint("payload : $payload");
+    // showDialog(
+    //   context: context,
+    //   builder: (_) => new AlertDialog(
+    //     title: new Text('Notification'),
+    //     content: new Text('$payload'),
+    //   ),
+    // );
+  }
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
-  TransistorAuth.registerErrorHandler();
+   
+        
+ // TransistorAuth.registerErrorHandler();
   /// Register BackgroundGeolocation headless-task.
-  bg.BackgroundGeolocation.registerHeadlessTask(
-      backgroundGeolocationHeadlessTask);
+  //  bg.BackgroundGeolocation.registerHeadlessTask( backgroundGeolocationHeadlessTask);
+  // bg.BackgroundGeolocation.onLocation((bg.Location location) { 
+  //   print('[location] - $location'); 
+  //   //data['message'] = '[location] - $location';
+  //     });
+// bg.BackgroundGeolocation.ready(bg.Config( locationAuthorizationRequest: "Always", reset: false, desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION, distanceFilter: 10.0, stopOnTerminate: false, startOnBoot: true, enableHeadless: true, stopTimeout: 1, autoSync: true, debug: true, logLevel: bg.Config.LOG_LEVEL_VERBOSE, heartbeatInterval: 60, foregroundService: true)) .then((bg.State state) {
+//  //  bool isWelcomHome = SharedPreferencesHelper.getIsWelcomHomeEnabled(); 
+//    // // 3. Start the plugin. //
+//     print("Service Started");
+    
+//      bg.BackgroundGeolocation.start(); 
+//     } 
+//     );
+
+
+  // bg.BackgroundGeolocation.registerHeadlessTask(
+  //     backgroundGeolocationHeadlessTask);
   /// Register BackgroundFetch headless-task.
   BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
-  _configureBackgroundFetch();
+  //_configureBackgroundFetch();
   //localnotification
   
   
@@ -261,9 +407,18 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
+ 
 class _MyHomePageState extends State<MyHomePage> {
-  
+  @override
+  void initState() {
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = new IOSInitializationSettings();
+    var initSetttings = new InitializationSettings(android, iOS);
+    flutterLocalNotificationsPlugin.initialize(initSetttings,
+        onSelectNotification: onSelectNotification);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

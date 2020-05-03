@@ -129,7 +129,7 @@ class _OtpPageState extends State<OtpPage> {
               _isButtonTapped=false;
             });
       }else{
-        dialogBox.information(context, 'Validate OTP', 'Invalid OTP Number');
+        dialogBox.information(context, AppLocalizations.of(context).translate('validate_otp'), AppLocalizations.of(context).translate('invalid_otp_number'));
         setState(() {
           _isButtonTapped=false;
         });

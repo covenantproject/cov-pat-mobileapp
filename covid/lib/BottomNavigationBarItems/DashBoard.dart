@@ -11,10 +11,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:covid/HomePage.dart';
+import 'package:covid/Models/util/dialog.dart' as util;
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key key}) : super(key: key);
@@ -31,6 +34,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   Widget _map;
   var _config;
   int userId;
+  double _radius = 15.0;
    DialogBox dialogBox = DialogBox();
   Configure _configure = new Configure();
   HomedetailsModel homeDetails = HomedetailsModel();
@@ -41,9 +45,14 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   bool issetlocationenabled;
   GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
   static double lastgeolat;
- static double lastegeolong;
+  static double lastegeolong;
   static double lat;
   static double long;
+   bool _notifyOnEntry = true;
+  bool _notifyOnExit = true;
+  bool _notifyOnDwell = true;
+  int _loiteringDelay = 10000;
+  String _identifier;
   Set<Marker> _createMarker() {
     return <Marker>[
       Marker(
@@ -57,25 +66,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   void getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
-   
-    
-    setState(() {
-      position = res;
-      prefs.setDouble('lat', position.latitude);
-      prefs.setDouble('long', position.longitude);
-      lat = prefs.getDouble('lat');
-      long = prefs.getDouble('long');
-      
-      _map = mapWidget();
-    });
-    
-  }
-
- 
-  
-
-  Widget mapWidget() {
-     Set<Circle> circles = Set.from([
+      Set<Circle> circles = Set.from([
     Circle(
       circleId: CircleId('${DateTime.now()}'),
       center:  LatLng(lastgeolat??100, lastegeolong??100),
@@ -86,7 +77,15 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       strokeWidth: 1
     ),
   ]);
-    return GoogleMap(
+  
+    setState(() {
+      position = res;
+      prefs.setDouble('lat', position.latitude);
+      prefs.setDouble('long', position.longitude);
+      lat = prefs.getDouble('lat');
+      long = prefs.getDouble('long');
+       Widget mapWidget() {
+       return GoogleMap(
       markers: _createMarker(),
       mapType: MapType.normal,
       initialCameraPosition: CameraPosition(
@@ -97,10 +96,46 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       circles: circles,
     );
   }
+      _map = mapWidget();
+    });
+    if(lastgeolat==0.0||lastgeolat==null){
+         _addgeofence(lat,long);
+    }else{
+      _addgeofence(lastgeolat,lastegeolong);
+    }
+    
+  }
+   void _addgeofence(double geofencelat,double geofencelong) {
+    bg.BackgroundGeolocation.addGeofence(bg.Geofence(
+        identifier: _identifier,
+        radius: ENV.RADIUS_GEOFENCE,
+        latitude: geofencelat,
+        longitude: geofencelong,
+        notifyOnEntry: _notifyOnEntry,
+        notifyOnExit: _notifyOnExit,
+        notifyOnDwell: _notifyOnDwell,
+        loiteringDelay: _loiteringDelay,
+        extras: {
+          'radius': _radius,
+          'center': {'latitude': geofencelat, 'longitude': geofencelong}
+        } // meta-data for tracker.transistorsoft.com
+        )).then((bool success) {
+      bg.BackgroundGeolocation.playSound(
+          util.Dialog.getSoundId('ADD_GEOFENCE'));
+    }).catchError((error) {
+      print('[addGeofence] ERROR: $error');
+    });
+  }
+
+ 
+  
+
+ 
 
   @override
-  void initState() {
-    getJsondata();
+  void initState(){
+    _identifier = 'MYQUARANTINELOCATION';
+   getJsondata();
 
     getCurrentLocation();
     super.initState();
@@ -153,10 +188,10 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     var getgeolocationresponse;
     try {
       homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
-        "Accept": "*/*",
+        "Accept": "*/*","api-key":_config.apikey
       });
       getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
-        "Accept": "*/*",
+        "Accept": "*/*","api-key":_config.apikey
       });
     } catch (ex) {
       print('error $ex');
@@ -169,7 +204,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
       lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
       lastegeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
-      }catch(ex){
+      }
+      catch(ex){
        lastgeolat=position.latitude;
       lastegeolong=position.longitude;
       }

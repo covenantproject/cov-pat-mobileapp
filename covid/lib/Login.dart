@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      //request.headers.set('api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -145,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
            isLoading=false;
          });
         }else if(statusCode==500){
-          dialogBox.information(context, "Login", "An error occured");
+          dialogBox.information(context, AppLocalizations.of(context).translate('otp_button'), AppLocalizations.of(context).translate('error_occured'));
            setState(() {
            isLoading=false;
          });

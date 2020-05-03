@@ -258,7 +258,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      // request.headers.set('x-api-key', _config.apikey);
+       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -345,7 +345,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-      request.headers.set('xpi-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {
         "title": _title,
