@@ -16,8 +16,8 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//     as bg;
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key key}) : super(key: key);
@@ -99,33 +99,33 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       _map = mapWidget();
     });
     if(lastgeolat==0.0||lastgeolat==null){
-         _addgeofence(lat,long);
+         //_addgeofence(lat,long);
     }else{
-      _addgeofence(lastgeolat,lastegeolong);
+      //_addgeofence(lastgeolat,lastegeolong);
     }
     
   }
-   void _addgeofence(double geofencelat,double geofencelong) {
-    bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-        identifier: _identifier,
-        radius: ENV.RADIUS_GEOFENCE,
-        latitude: geofencelat,
-        longitude: geofencelong,
-        notifyOnEntry: _notifyOnEntry,
-        notifyOnExit: _notifyOnExit,
-        notifyOnDwell: _notifyOnDwell,
-        loiteringDelay: _loiteringDelay,
-        extras: {
-          'radius': _radius,
-          'center': {'latitude': geofencelat, 'longitude': geofencelong}
-        } // meta-data for tracker.transistorsoft.com
-        )).then((bool success) {
-      bg.BackgroundGeolocation.playSound(
-          util.Dialog.getSoundId('ADD_GEOFENCE'));
-    }).catchError((error) {
-      print('[addGeofence] ERROR: $error');
-    });
-  }
+  //  void _addgeofence(double geofencelat,double geofencelong) {
+  //   bg.BackgroundGeolocation.addGeofence(bg.Geofence(
+  //       identifier: _identifier,
+  //       radius: ENV.RADIUS_GEOFENCE,
+  //       latitude: geofencelat,
+  //       longitude: geofencelong,
+  //       notifyOnEntry: _notifyOnEntry,
+  //       notifyOnExit: _notifyOnExit,
+  //       notifyOnDwell: _notifyOnDwell,
+  //       loiteringDelay: _loiteringDelay,
+  //       extras: {
+  //         'radius': _radius,
+  //         'center': {'latitude': geofencelat, 'longitude': geofencelong}
+  //       } // meta-data for tracker.transistorsoft.com
+  //       )).then((bool success) {
+  //     bg.BackgroundGeolocation.playSound(
+  //         util.Dialog.getSoundId('ADD_GEOFENCE'));
+  //   }).catchError((error) {
+  //     print('[addGeofence] ERROR: $error');
+  //   });
+  // }
 
  
   
