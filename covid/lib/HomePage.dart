@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage>
   String _identifier;
   double _radius = 15.0;
   int userId;
+  int _status;
   GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
@@ -210,7 +211,7 @@ class _HomePageState extends State<HomePage>
   if(result.item2)
   {
     print('IN');
-    ongeofencecross('ENTER');
+    //ongeofencecross('ENTER');
     updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
     
   }
@@ -338,7 +339,8 @@ class _HomePageState extends State<HomePage>
             requiresBatteryNotLow: false,
             requiresCharging: false,
             requiresDeviceIdle: false,
-            requiredNetworkType: NetworkType.NONE), (String taskId) async {
+            requiredNetworkType: NetworkType.NONE
+            ), (String taskId) async {
       print("[BackgroundFetch] received event $taskId");
        updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
        checkinorout();
@@ -375,7 +377,16 @@ class _HomePageState extends State<HomePage>
      // print(e);
       });
     });
+    // Optionally query the current BackgroundFetch status.
+    int status = await BackgroundFetch.status;
+    setState(() {
+      _status = status;
+    });
 
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
     // Test scheduling a custom-task.
     // BackgroundFetch.scheduleTask(TaskConfig(
     //     taskId: "com.transistorsoft.customtask",
@@ -675,10 +686,10 @@ class _HomePageState extends State<HomePage>
     var platform = new NotificationDetails(android, iOS);
 //  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
  //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
-    await flutterLocalNotificationsPlugin.show(0, 'Geofence',
-        'Alert! $event event on geofence', platform,
+    await flutterLocalNotificationsPlugin.show(0, 'Alert',
+         event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'', platform,
         payload:
-            'Alert! $event event on geofence');
+             event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'');
  // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
   }
 

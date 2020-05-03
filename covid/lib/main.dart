@@ -33,8 +33,8 @@ import 'package:http/http.dart' as http;
  double lastgeolat;
  double lastgeolong;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
- 
- 
+  Configure _configure = new Configure();
+
   GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
  Future getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
@@ -117,7 +117,7 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
   if(result.item2)
   {
     print('IN');
-    ongeofencecross('ENTER');
+   //ongeofencecross('ENTER');
      updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
   }
   else
@@ -145,13 +145,13 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
     var platform = new NotificationDetails(androiddetails, iOSdetails);
 //  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
  //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
-    await flutterLocalNotificationsPlugin.show(0, 'Geofence',
-        'Alert! $event event on geofence', platform,
+    await flutterLocalNotificationsPlugin.show(0, 'Alert',
+       event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'', platform,
         payload:
-            'Alert! $event event on geofence');
+             event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'');
  // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
   }
- Configure _configure = new Configure();
+//  Configure _configure = new Configure();
  void backgroundFetchHeadlessTask(String taskId) async {
   // Get current-position from BackgroundGeolocation in headless mode.
   //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
