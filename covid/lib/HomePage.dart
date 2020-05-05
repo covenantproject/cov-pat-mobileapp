@@ -397,209 +397,10 @@ class _HomePageState extends State<HomePage>
     //     enableHeadless: true));
   }
 
-
-
-//   void _onLocation(bg.Location location) {
-//     print('[${bg.Event.LOCATION}] - $location');
-
-//     setState(() {
-//       events.insert(0,
-//           Event(bg.Event.LOCATION, location, location.toString(compact: true)));
-//       _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
-//     });
-//   }
-
-//   void _onLocationError(bg.LocationError error) {
-//     print('[${bg.Event.LOCATION}] ERROR - $error');
-//     setState(() {
-//       events.insert(
-//           0, Event(bg.Event.LOCATION + " error", error, error.toString()));
-//     });
-//   }
-
-//   void _onMotionChange(bg.Location location) {
-//     print('[${bg.Event.MOTIONCHANGE}] - $location');
-//     //updatelocation(1, currentlat, currentlong, "ON_LOCATION_CHANGE");
-//     setState(() {
-//       events.insert(
-//           0,
-//           Event(bg.Event.MOTIONCHANGE, location,
-//               location.toString(compact: true)));
-//       _isMoving = location.isMoving;
-//     });
-//   }
-
-//   void _onActivityChange(bg.ActivityChangeEvent event) {
-//     print('[${bg.Event.ACTIVITYCHANGE}] - $event');
-//     setState(() {
-//       events.insert(0, Event(bg.Event.ACTIVITYCHANGE, event, event.toString()));
-//       _motionActivity = event.activity;
-//     });
-//   }
-
-//   void _onProviderChange(bg.ProviderChangeEvent event) {
-//     print('[${bg.Event.PROVIDERCHANGE}] - $event');
-//     setState(() {
-//       events.insert(0, Event(bg.Event.PROVIDERCHANGE, event, event.toString()));
-//     });
-//   }
-
-//   void _onHttp(bg.HttpEvent event) async {
-//     print('[${bg.Event.HTTP}] - $event');
-
-//     setState(() {
-//       events.insert(0, Event(bg.Event.HTTP, event, event.toString()));
-//     });
-//   }
-
-//   void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
-//     print('[${bg.Event.CONNECTIVITYCHANGE}] - $event');
-//     setState(() {
-//       events.insert(
-//           0, Event(bg.Event.CONNECTIVITYCHANGE, event, event.toString()));
-//     });
-//   }
-
-//   void _onHeartbeat(bg.HeartbeatEvent event) {
-//     print('[${bg.Event.HEARTBEAT}] - $event');
-//    // updatelocation(1, currentlat, currentlong, 'ON_IDLE');
-//     setState(() {
-//       events.insert(0, Event(bg.Event.HEARTBEAT, event, event.toString()));
-//     });
-//   }
-
-//   void _onGeofence(bg.GeofenceEvent event) async {
-//     updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS ${event.action}");
-//     print('[${bg.Event.GEOFENCE}] - $event');
-//     if(event.action=='EXIT'){
-//        ongeofencecross('EXIT');
-//        updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS ${event.action}");
-//     } else if(event.action=='ENTER'){
-//       ongeofencecross('ENTER');
-//       updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS ${event.action}");
-//     }
-//     else{
-//       ongeofencecross(event.action);
-//     }
-//     //updatelocation(1, currentlat, currentlong, "ON_GEOFENCECROSS");
-    
-    
-//     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
-//       // Execute an HTTP request to test an async operation completes.
-//       String url = "${ENV.TRACKER_HOST}/api/devices";
-//       bg.State state = await bg.BackgroundGeolocation.state;
-//       http.read(url, headers: {
-//         "Authorization": "Bearer ${state.authorization.accessToken}"
-//       }).then((String result) {
-//         print("[http test] success: $result");
-//         bg.BackgroundGeolocation.playSound(
-//             util.Dialog.getSoundId("TEST_MODE_CLICK"));
-//         bg.BackgroundGeolocation.stopBackgroundTask(taskId);
-//       }).catchError((dynamic error) {
-//         print("[http test] failed: $error");
-//         bg.BackgroundGeolocation.stopBackgroundTask(taskId);
-//       });
-//     });
-
-//     setState(() {
-//       events.insert(
-//           0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
-//     });
-//   }
-
-//   void _onSchedule(bg.State state) {
-//     print('[${bg.Event.SCHEDULE}] - $state');
-//     setState(() {
-//       events.insert(
-//           0, Event(bg.Event.SCHEDULE, state, "enabled: ${state.enabled}"));
-//     });
-//   }
-
-//   void _onEnabledChange(bool enabled) {
-//     print('[${bg.Event.ENABLEDCHANGE}] - $enabled');
-//     setState(() {
-//       _enabled = enabled;
-//       events.clear();
-//       events.insert(
-//           0,
-//           Event(bg.Event.ENABLEDCHANGE, enabled,
-//               '[EnabledChangeEvent enabled: $enabled]'));
-//     });
-//   }
-
-//   void _onNotificationAction(String action) {
-//     print('[onNotificationAction] $action');
-//     switch (action) {
-//       case 'notificationButtonFoo':
-//         bg.BackgroundGeolocation.changePace(false);
-//         break;
-//       case 'notificationButtonBar':
-//         break;
-//     }
-//   }
-
-//   void _onPowerSaveChange(bool enabled) {
-//     print('[${bg.Event.POWERSAVECHANGE}] - $enabled');
-//     setState(() {
-//       events.insert(
-//           0,
-//           Event(bg.Event.POWERSAVECHANGE, enabled,
-//               'Power-saving enabled: $enabled'));
-//     });
-//   }
-
-//   Future _autoRegister() async {
-//     //Navigator.of(context).pop();
-//     final SharedPreferences prefs = await SharedPreferences.getInstance();
-//     await prefs.setString("orgname", 'qantler');
-//     await prefs.setString("username", 'username');
-// // orgname=prefs.getString("orgname");
-// // username=prefs.getString("username");
-//     await bg.TransistorAuthorizationToken.destroy(ENV.TRACKER_HOST);
-//     bg.TransistorAuthorizationToken token =
-//         await bg.TransistorAuthorizationToken.findOrCreate(
-//             'qantler', 'username', ENV.TRACKER_HOST);
-
-//     bg.BackgroundGeolocation.setConfig(
-//         bg.Config(transistorAuthorizationToken: token));
-//   }
-
-//   @override
-//   void didChangeAppLifecycleState(AppLifecycleState state) {
-//     print("[home_view didChangeAppLifecycleState] : $state");
-//     if (state == AppLifecycleState.paused) {
-
-//     } else if (state == AppLifecycleState.resumed) {
-
-//     }
-//   }
-//   void backgroundFetchHeadlessTask(String taskId) async {
-//   // Get current-position from BackgroundGeolocation in headless mode.
-//   //bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(samples: 1);
-//   print("[BackgroundFetch] HeadlessTask: $taskId");
-//   checkinorout();
-//   // SharedPreferences prefs = await SharedPreferences.getInstance();
-//   // int count = 0;
-//   // if (prefs.get("fetch-count") != null) {
-//   //   count = prefs.getInt("fetch-count");
-//   // }
-//   // prefs.setInt("fetch-count", ++count);
-//   // print('[BackgroundFetch] count: $count');
-
-//   BackgroundFetch.finish(taskId);
-// }
-
   void initPlatformState() async {
     
     SharedPreferences prefs = await _prefs;
-    // String orgname = prefs.getString("orgname");
-    // String username = prefs.getString("username");
-   //BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
-    // // Sanity check orgname & username:  if invalid, go back to HomeApp to re-register device.
-    // if (orgname == null || username == null) {
-    //   return runApp(MyApp());
-    // }
-    // bg.BackgroundGeolocation.registerHeadlessTask(backgroundGeolocationHeadlessTask);
+   
     var flag=prefs.getString("platforminit");
     if(flag==""||flag==null)
     {
@@ -687,9 +488,9 @@ class _HomePageState extends State<HomePage>
 //  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
  //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
     await flutterLocalNotificationsPlugin.show(0, 'Alert',
-         event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'', platform,
+         event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'', platform,
         payload:
-             event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'');
+             event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'');
  // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
   }
 
@@ -831,6 +632,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    
     final DateTime today = DateTime.now();
     if (today.hour == 8 &&today.second==0|| today.hour == 22&&today.second==0) {
       showNotification();
@@ -872,34 +674,19 @@ class _HomePageState extends State<HomePage>
         // ],
       ),
       body: Center(
-        child: 
-            // ? Center(
-            //     child: Container(
-            //         padding: EdgeInsets.all(0),
-            //         child: Container(
-            //             child: const CircularProgressIndicator(
-            //           strokeWidth: 3,
-            //         ))),
-            //   )
-            // : RefreshIndicator(
-            //     onRefresh: getJsondata,
-            //     child: homeDetails == null
-            //         ? ListView(
-            //             children: <Widget>[
-            //               Container(
-            //                 // color: Colors.red,
-            //                 height: MediaQuery.of(context).size.height / 1.4,
-            //                 child: Align(
-            //                   alignment: Alignment.center,
-            //                   child:
-            //                       Text('Loading', style: styletext.emptylist()),
-            //                 ),
-            //               ),
-            //             ],
-            //           )
-            //         :
-                    
-                     _widgetOptions.elementAt(_currentIndex),
+        child:
+        IndexedStack(
+            children: <Widget>[
+               DashBoard(),
+          UpdateHealthInfo(),
+      // SharedEvents(events: events, child: EventList()),
+          RaiseHands(),
+          HistoryPage(), 
+         Profile()
+            ],
+            index: _currentIndex,
+          ),
+        //_widgetOptions.elementAt(_currentIndex),
                 //_buildTransitionsStack(),
              
       ),

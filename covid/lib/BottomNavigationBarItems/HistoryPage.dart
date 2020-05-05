@@ -96,7 +96,7 @@ Future<String> getJsondata() async {
  
   @override
   Widget build(BuildContext context) {
-    
+    getJsondata();
     return Container(
         //color: Color.fromRGBO(20, 20, 20, 1.0),
         //color: Colors.white,

@@ -24,7 +24,7 @@ import 'dart:convert' as JSON;
 import 'package:http/http.dart' as http;
 // import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 //     as bg;
-
+ BuildContext c;
  Position position = Position();
  var _config;
  int userId;
@@ -117,18 +117,20 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
   if(result.item2)
   {
     print('IN');
-   //ongeofencecross('ENTER');
-     updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    ongeofencecross('ENTER',c);
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
   }
   else
   {
     print('OUT');
-    ongeofencecross('EXIT');
+    ongeofencecross('EXIT',c);
     updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
   } 
-
+  if(result.item1>=1000){
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_FAR");
   }
-   ongeofencecross(String event) async {
+  }
+   ongeofencecross(String event,BuildContext context) async {
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -146,9 +148,9 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
 //  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
  //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
     await flutterLocalNotificationsPlugin.show(0, 'Alert',
-       event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'', platform,
+       event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'', platform,
         payload:
-             event=='EXIT'? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.':'');
+             event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'');
  // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
   }
 //  Configure _configure = new Configure();

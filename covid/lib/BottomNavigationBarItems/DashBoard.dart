@@ -32,8 +32,10 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   GoogleMapController _googleMapController;
   Position position = Position();
   Widget _map;
+   bool keepAlive = false;
   var _config;
   int userId;
+  bool ismaploaded;
   double _radius = 15.0;
    DialogBox dialogBox = DialogBox();
   Configure _configure = new Configure();
@@ -48,11 +50,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   static double lastegeolong;
   static double lat;
   static double long;
-   bool _notifyOnEntry = true;
-  bool _notifyOnExit = true;
-  bool _notifyOnDwell = true;
-  int _loiteringDelay = 10000;
-  String _identifier;
+
   Set<Marker> _createMarker() {
     return <Marker>[
       Marker(
@@ -66,10 +64,16 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   void getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
-      Set<Circle> circles = Set.from([
+    setState(() {
+      position = res;
+      prefs.setDouble('lat', position.latitude);
+      prefs.setDouble('long', position.longitude);
+      lat = prefs.getDouble('lat');
+      long = prefs.getDouble('long');
+       Set<Circle> circles = Set.from([
     Circle(
       circleId: CircleId('${DateTime.now()}'),
-      center:  LatLng(lastgeolat??100, lastegeolong??100),
+      center:  LatLng(lastgeolat==0.0||lastgeolat==null?lat:lastgeolat, lastegeolong==0.0||lastegeolong==null?long:lastegeolong),
       radius: 15,
       fillColor: Colors.redAccent.withOpacity(0.4),
       visible: true,
@@ -77,34 +81,46 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
       strokeWidth: 1
     ),
   ]);
-  
-    setState(() {
-      position = res;
-      prefs.setDouble('lat', position.latitude);
-      prefs.setDouble('long', position.longitude);
-      lat = prefs.getDouble('lat');
-      long = prefs.getDouble('long');
        Widget mapWidget() {
        return GoogleMap(
       markers: _createMarker(),
       mapType: MapType.normal,
+      zoomGesturesEnabled: false,
+      scrollGesturesEnabled: false,
+      rotateGesturesEnabled: false,
       initialCameraPosition: CameraPosition(
           target: LatLng(lastgeolat==0.0||lastgeolat==null?lat:lastgeolat,lastegeolong==0.0||lastegeolong==null?long:lastegeolong), zoom: 19.0),
       onMapCreated: (GoogleMapController controller) {
         _googleMapController = controller;
+
       },
       circles: circles,
     );
   }
       _map = mapWidget();
     });
-    if(lastgeolat==0.0||lastgeolat==null){
+     setState(() {
+        ismaploaded=true;
+      });
+    if(lastgeolat!=0.0&&lastgeolat!=null){
+     
          //_addgeofence(lat,long);
     }else{
       //_addgeofence(lastgeolat,lastegeolong);
     }
     
   }
+  // Future doAsyncStuff() async {
+  //   keepAlive = true;
+  //   updateKeepAlive();
+  //   // Keeping alive...
+
+  //   await Future.delayed(Duration(seconds: 10));
+
+  //   keepAlive = false;
+  //   updateKeepAlive();
+  //   // Can be disposed whenever now.
+  // }
   //  void _addgeofence(double geofencelat,double geofencelong) {
   //   bg.BackgroundGeolocation.addGeofence(bg.Geofence(
   //       identifier: _identifier,
@@ -127,17 +143,25 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   //   });
   // }
 
- 
-  
+//  maploaded()async{
+//    if(ismaploaded!=true){
+//       getCurrentLocation();
+//    }
 
+//  }
+  
+initializeHomedetails()async{
+ await getJsondata();
+    getCurrentLocation();
+}
  
+
 
   @override
   void initState(){
-    _identifier = 'MYQUARANTINELOCATION';
-   getJsondata();
-
-    getCurrentLocation();
+    ismaploaded=false;
+ initializeHomedetails();
+    
     super.initState();
   }
   updateGeofence()async{
@@ -222,6 +246,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    getJsondata();
     return SingleChildScrollView(
         child: homeDetails == null
             ? Center(
@@ -413,8 +438,12 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         padding: const EdgeInsets.only(
                                             top: 10, right: 10),
                                         child:
-                                        lat!=null&&long!=null?    Container(height: 300, child: _map):Container()
-                                        //Image.network("https://s3.ap-southeast-1.amazonaws.com/cdn.deccanchronicle.com/sites/default/files/anna_salai_chennai_google_map.jpg"),
+                                       _map==null?   
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(child: CircularProgressIndicator(),),
+                                        ):Container(height: 300, child: _map)
+                                       
                                     ),
                                   ),
                                   ButtonBar(
@@ -432,7 +461,8 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
                                         onPressed: ()async{
                                         await  updateGeofence();
                                         dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
-                                        getJsondata();
+                                      await getJsondata();
+                                        getCurrentLocation();
                                         },
                                         // () {
                                         //   getCurrentLocation();
