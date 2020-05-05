@@ -77,6 +77,7 @@ showAlertDialog() {
         async {
          Navigator.pop(alertContext);
          await updateGeofence();
+         getCurrentLocation();
          dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
          getJsondata();
       
@@ -194,7 +195,12 @@ showAlertDialog() {
   
 initializeHomedetails()async{
  await getJsondata();
+ Future.delayed(new Duration(milliseconds: 3000), ()
+{
     getCurrentLocation();
+
+});
+   
 }
  
 
@@ -289,6 +295,7 @@ initializeHomedetails()async{
   @override
   Widget build(BuildContext context) {
     getJsondata();
+   // getCurrentLocation();
     return SingleChildScrollView(
         child: homeDetails == null
             ? Center(

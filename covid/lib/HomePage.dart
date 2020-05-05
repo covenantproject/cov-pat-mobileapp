@@ -211,16 +211,25 @@ class _HomePageState extends State<HomePage>
   if(result.item2)
   {
     print('IN');
+    if(lastgeolat!=0.0){
+      updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    }
     //ongeofencecross('ENTER');
-    updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    
     
   }
   else
   {
-    print('OUT');
+    if(lastgeolat!=0.0){
+       print('OUT');
     ongeofencecross('EXIT');
     updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
+    }
+   
   } 
+  if(result.item1>=1000){
+    updatelocation(1, currentlat, currentlong, "GEOFENCE_FAR");
+  }
 
   }
   Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {

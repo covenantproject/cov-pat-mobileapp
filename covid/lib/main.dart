@@ -117,14 +117,20 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
   if(result.item2)
   {
     print('IN');
-    ongeofencecross('ENTER',c);
-    updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    if(lastgeolat!=0.0){
+      updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    }
+    //ongeofencecross('ENTER',c);
+    
   }
   else
   {
-    print('OUT');
+    if(lastgeolat!=0.0){
+       print('OUT');
     ongeofencecross('EXIT',c);
     updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
+    }
+   
   } 
   if(result.item1>=1000){
     updatelocation(1, currentlat, currentlong, "GEOFENCE_FAR");

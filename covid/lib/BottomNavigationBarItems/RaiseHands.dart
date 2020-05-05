@@ -251,6 +251,8 @@ class _RaiseHandsState extends State<RaiseHands> with TickerProviderStateMixin {
                                 formKey.currentState.reset();
                             setState(() {
                               id = null;
+                             _comments = null;
+
                             });
                            
                            
