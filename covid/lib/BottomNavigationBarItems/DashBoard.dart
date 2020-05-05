@@ -61,6 +61,48 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     ].toSet();
   }
 
+showAlertDialog() {
+
+  var alertContext;
+  // set up the buttons
+  Widget noButton = FlatButton(
+    child: Text("No"),
+    onPressed:  () {
+      Navigator.pop(alertContext);
+    } ,
+  );
+  Widget yesButton = FlatButton(
+    child: Text("Yes"),
+    onPressed:  () 
+        async {
+         Navigator.pop(alertContext);
+         await updateGeofence();
+         dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
+         getJsondata();
+      
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Confirmation"),
+    content: Text("Are you sure want to set this location?"),
+    actions: [
+      noButton,
+      yesButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      alertContext = dialogContext;
+      return alert;
+    },
+  );
+}
+
   void getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
@@ -458,18 +500,17 @@ initializeHomedetails()async{
                                           //style: styletext.labelfont()
                                           style: styletext.labelfont(),
                                         ),
-                                        onPressed: ()async{
-                                        await  updateGeofence();
-                                        dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
-                                      await getJsondata();
-                                        getCurrentLocation();
+                                        onPressed: ()
+                                        {
+                                          showAlertDialog();
+                                          
                                         },
                                         // () {
                                         //   getCurrentLocation();
                                         //   /* ... */
                                         // },
                                       ):FlatButton(
-                                         disabledTextColor: Colors.grey,
+                                        disabledTextColor: Colors.grey,
                                        // color: Colors.grey,
                                        textColor: Colors.grey,
                                        onPressed: (){},

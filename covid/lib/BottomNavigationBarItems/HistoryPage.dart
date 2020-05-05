@@ -162,9 +162,9 @@ Future<String> getJsondata() async {
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Wrap(children: <Widget>[
                                  historylist[index].ishelpupdated==true? Text(
-                                   (DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' + AppLocalizations.of(context).translate('historyPage_RequestHealthTitle')),
+                                   (DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal())+ ': ' + AppLocalizations.of(context).translate('historyPage_RequestHealthTitle')).toString(),
                                     style: styletext.cardfont()
-                                  ):Text((DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' +AppLocalizations.of(context).translate('historyPage_HealthInfoTitle')),
+                                  ):Text((DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' +AppLocalizations.of(context).translate('historyPage_HealthInfoTitle')).toString(),
                                   style:styletext.cardfont()),
                                 ]),
                               ),
@@ -250,7 +250,9 @@ Future<String> getJsondata() async {
                                         ),
                                       ],
                                     ):Container(),
-                                    historylist[index].ishealthupdated==true? Row(
+                                    historylist[index].ishealthupdated==true &&
+                                    historylist[index].currenthealthstatus!=null &&
+                                    historylist[index].currenthealthstatus!=""? Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
                                         Text(
@@ -273,7 +275,9 @@ Future<String> getJsondata() async {
                                       ],
                                     ):Container(),
                                     historylist[index].ishealthupdated==true &&
-                                    historylist[index].temperature!=""? Row(
+                                    historylist[index].temperature!="" &&
+                                    historylist[index].temperature!="0.0"&&
+                                    historylist[index].temperature!=null? Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
                                         Text(
@@ -296,7 +300,9 @@ Future<String> getJsondata() async {
                                       ],
                                     ):Container(),
                                     historylist[index].ishealthupdated==true &&
-                                    historylist[index].heartrate!=""? Row(
+                                    historylist[index].heartrate!="" &&
+                                    historylist[index].heartrate!="0.0"&&
+                                    historylist[index].heartrate!=null? Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
                                         Text(
@@ -319,7 +325,9 @@ Future<String> getJsondata() async {
                                       ],
                                     ):Container(),
                                     historylist[index].ishealthupdated==true &&
-                                    historylist[index].respiratoryrate!=""? Row(
+                                    historylist[index].respiratoryrate!="" &&
+                                    historylist[index].respiratoryrate!="0.0"&&
+                                    historylist[index].respiratoryrate!=null? Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
                                         Text(
@@ -342,7 +350,9 @@ Future<String> getJsondata() async {
                                       ],
                                     ):Container(),
                                     historylist[index].ishealthupdated==true &&
-                                    historylist[index].spo2!=""? 
+                                    historylist[index].spo2!="" &&
+                                    historylist[index].spo2!="0.0"&&
+                                    historylist[index].spo2!=null? 
                                       Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
@@ -388,7 +398,9 @@ Future<String> getJsondata() async {
                                         ),
                                       ],
                                     ):Container(),
-                                    historylist[index].ishelpupdated==true ? 
+                                    historylist[index].ishelpupdated==true &&
+                                    historylist[index].requesttype != "" &&
+                                    historylist[index].requesttype !=null? 
                                       Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
@@ -413,7 +425,8 @@ Future<String> getJsondata() async {
                                     ):Container(),  
 
                                     historylist[index].ishelpupdated==true &&
-                                    historylist[index].comments!=""? 
+                                    historylist[index].comments!=""&&
+                                    historylist[index].comments!=null? 
                                       Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: <Widget>[
