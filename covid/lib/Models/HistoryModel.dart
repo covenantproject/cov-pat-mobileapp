@@ -26,7 +26,7 @@ class HistoryModel {
 
 class History {
     bool ishealthupdated;
-    bool israiseyourhand;
+    bool ishelpupdated;
     bool hascough;
     bool hasfever;
     bool haschills;
@@ -37,11 +37,12 @@ class History {
     String respiratoryrate;
     String spo2;
     String requesttype;
+    String comments;
     DateTime timestamp;
 
     History({
         this.ishealthupdated,
-        this.israiseyourhand,
+        this.ishelpupdated,
         this.hascough,
         this.hasfever,
         this.haschills,
@@ -52,12 +53,13 @@ class History {
         this.respiratoryrate,
         this.spo2,
         this.requesttype,
+        this.comments,
         this.timestamp,
     });
 
     factory History.fromJson(Map<String, dynamic> json) => History(
         ishealthupdated: json["ishealthupdated"],
-        israiseyourhand: json["israiseyourhand"],
+        ishelpupdated: json["ishelpupdated"],
         hascough: json["hascough"],
         hasfever: json["hasfever"],
         haschills: json["haschills"],
@@ -68,12 +70,13 @@ class History {
         respiratoryrate: json["respiratoryrate"],
         spo2: json["spo2"],
         requesttype: json["requesttype"],
+        comments: json["comments"],
         timestamp: DateTime.parse(json["timestamp"]),
     );
 
     Map<String, dynamic> toJson() => {
         "ishealthupdated": ishealthupdated,
-        "israiseyourhand": israiseyourhand,
+        "ishelpupdated": ishelpupdated,
         "hascough": hascough,
         "hasfever": hasfever,
         "haschills": haschills,
@@ -84,6 +87,7 @@ class History {
         "respiratoryrate": respiratoryrate,
         "spo2": spo2,
         "requesttype": requesttype,
+        "comments": comments,
         "timestamp": timestamp.toIso8601String(),
     };
 }

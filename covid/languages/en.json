@@ -93,7 +93,13 @@
   "pincode_6digitsrequired_validationmessage":"PIN Code should have 6 digits",
   "pincode_onlynumbers_validationmessage":"PIN Code should contain only numbers",
   "Yes":"Yes",
-  "No":"No"
-
- 
+  "No":"No",
+  "historyPage_nohistory":"No history available",
+  "historyPage_HealthInfoTitle":"Health info updated",
+  "historyPage_RequestHealthTitle":"Request help updated",
+  "currenthealthstatus":"Current Health Status",
+  "temperaturetitle": "Temperature",
+  "heart-ratetitle": "Heart/Pulse rate (per minute)",
+  "respiratorytitle": "Respiratory rate (per minute)",
+  "spo2title": "SpO2 (%)"
 }

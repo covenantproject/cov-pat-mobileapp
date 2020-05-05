@@ -646,7 +646,7 @@ class _HomePageState extends State<HomePage>
       UpdateHealthInfo(),
       // SharedEvents(events: events, child: EventList()),
       RaiseHands(),
-      //HistoryPage(),
+       HistoryPage(), 
       Profile()
     ];
     _isMoving = false;
@@ -773,6 +773,7 @@ class _HomePageState extends State<HomePage>
           title: AppLocalizations.of(context).translate('home_title'),
           vsync: this,
         ),
+       
         _NavigationIconView(
           icon: const Icon(Icons.alarm_on),
           title: AppLocalizations.of(context).translate('update_health_title'),
@@ -783,11 +784,11 @@ class _HomePageState extends State<HomePage>
           title:  AppLocalizations.of(context).translate('RaiseHand_title'),
           vsync: this,
         ),
-        // _NavigationIconView(
-        //   icon: const Icon(Icons.calendar_today),
-        //   title: 'History',
-        //   vsync: this,
-        // ),
+          _NavigationIconView(
+          icon: const Icon(Icons.calendar_today),
+          title: AppLocalizations.of(context).translate('history_title'),
+          vsync: this,
+        ),
         _NavigationIconView(
           icon: const Icon(Icons.account_box),
           title: AppLocalizations.of(context).translate('profile_title'),
