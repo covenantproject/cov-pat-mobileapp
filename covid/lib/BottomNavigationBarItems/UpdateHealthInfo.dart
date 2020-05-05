@@ -70,7 +70,7 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
     autoValidatorRespiratory = false;
     autoValidatorSpo2 = false;
     selectedRadio=1;
-    temperature=0.0;
+    
    
   }
 
@@ -114,7 +114,13 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
 
-      temperature = selectedRadio == 1? double.parse(tempController.text) : ((double.parse(tempController.text) - 32) * 5/9);
+      if(tempController.text != null && tempController.text!=""){
+          temperature = selectedRadio == 1? double.parse(tempController.text) : ((double.parse(tempController.text) - 32) * 5/9);
+      }
+      else{
+        temperature = null;
+      }
+      
 
       var payload = {
         "userid": userId,
@@ -122,7 +128,7 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
         "feverpresent": isSwitchedfever==true?false:true,
         "breathingdifficultypresent": isSwitchedbreathing==true?false:true,
         "progressstatus": "$radioItem",
-        "temperature": temperature.toStringAsFixed(1),
+        "temperature": temperature == null ? "" : temperature.toStringAsFixed(1),
         "heartrate": heartrateController.text,
         "respiratoryrate": respiratoryrateController.text,
         "spo2": spo2Controller.text
@@ -206,12 +212,14 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                         onChanged: (value) {
                                           setState(() {
                                             isSwitchedcough = value;
+                                            
                                             print(isSwitchedcough);
                                           });
                                         },
-                                        activeTrackColor: Colors.grey[400],
-                                        activeColor: Colors.grey[100],
-                                        inactiveTrackColor: Colors.grey[400],
+                                        
+                                        activeTrackColor: Colors.grey,
+                                        activeColor: Colors.white,
+                                        inactiveTrackColor: Colors.purple,
                                       ),
                                       Text(AppLocalizations.of(context)
                                       .translate('No'), style: styletext.labelfont()),
@@ -248,9 +256,9 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                           print(isSwitchedfever);
                                         });
                                       },
-                                      activeTrackColor: Colors.grey[400],
-                                      activeColor: Colors.grey[100],
-                                      inactiveTrackColor: Colors.grey[400],
+                                        activeTrackColor: Colors.grey,
+                                        activeColor: Colors.white,
+                                        inactiveTrackColor: Colors.purple,
                                     ),
                                     Text(AppLocalizations.of(context)
                                       .translate('No'), style: styletext.labelfont()),
@@ -321,9 +329,9 @@ class _UpdateHealthInfoState extends State<UpdateHealthInfo>
                                             print(isSwitchedbreathing);
                                           });
                                         },
-                                        activeTrackColor: Colors.grey[400],
-                                        activeColor: Colors.grey[100],
-                                        inactiveTrackColor: Colors.grey[400],
+                                        activeTrackColor: Colors.grey,
+                                        activeColor: Colors.white,
+                                        inactiveTrackColor: Colors.purple,
                                       ),
                                       Text(AppLocalizations.of(context)
                                       .translate('No'), style: styletext.labelfont()),

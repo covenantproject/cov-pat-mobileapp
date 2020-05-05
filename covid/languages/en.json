@@ -101,5 +101,5 @@
   "temperaturetitle": "Temperature",
   "heart-ratetitle": "Heart/Pulse rate (per minute)",
   "respiratorytitle": "Respiratory rate (per minute)",
-  "spo2title": "SpO2 (%)"
+  "spo2title": "SpO2"
 }
