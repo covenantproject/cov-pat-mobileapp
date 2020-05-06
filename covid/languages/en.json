@@ -71,7 +71,7 @@
   "submit":"Submit",
   "geofenceoutnotificationmessage":"Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.",
   "setlocationpopuptitle":"Set quarantine location",
-  "setlocationpopupmessage":"Successfully updated location",
+  "setlocationpopupmessage":"Your location has been set",
   "raiseyourhandpopuptitle":"Request Help",
   "raiseyouhandpopupmessage":"Your request has been submitted to health officers. They will contact you shortly.",
   "updateyourhealthpopuptitle":"Update health info",
@@ -104,5 +104,9 @@
   "temperaturetitle": "Temperature",
   "heart-ratetitle": "Heart/Pulse rate (per minute)",
   "respiratorytitle": "Respiratory rate (per minute)",
-  "spo2title": "SpO2"
+  "spo2title": "SpO2",
+  "setlocationconfirmationmessage":"Your current location will be set as your home quarantine or isolation location. You will not be able to change this without contacting your quarantine officer",
+  "confirmbutton":"Confirm",
+  "setlocationalertdialogTitle":"Confirmation"
+
 }
