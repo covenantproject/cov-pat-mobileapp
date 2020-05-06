@@ -59,6 +59,7 @@ class _AppLocalizationsDelegate
     print(localizations._localizedStrings);
     return localizations;
   }
+  
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

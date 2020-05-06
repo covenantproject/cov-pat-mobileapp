@@ -14,7 +14,6 @@ import 'package:background_fetch/background_fetch.dart';
 import 'package:covid/BottomNavigationBarItems/DashBoard.dart';
 import 'package:covid/BottomNavigationBarItems/HistoryPage.dart';
 import 'package:covid/BottomNavigationBarItems/RaiseHands.dart';
-import 'package:covid/BottomNavigationBarItems/event_list.dart';
 import 'package:covid/BottomNavigationBarItems/Profile.dart';
 import 'package:covid/Models/HomeDetails.dart';
 import 'package:covid/Models/TextStyle.dart';
@@ -25,9 +24,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:covid/Models/util/dialog.dart' as util;
-import 'package:covid/Models/config/env.dart';
-import 'package:covid/main.dart';
 import 'package:covid/Models/config/shared_events.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
@@ -39,7 +35,8 @@ enum BottomNavigationDemoType {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key key, @required this.type, this.navigationIndex}) : super(key: key);
+  const HomePage({Key key, @required this.type, this.navigationIndex})
+      : super(key: key);
 
   final BottomNavigationDemoType type;
   final int navigationIndex;
@@ -58,7 +55,7 @@ class _HomePageState extends State<HomePage>
   double _radius = 15.0;
   int userId;
   int _status;
-  GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
+  GetGeoLocationModel geoFenceLocationModel = GetGeoLocationModel();
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
   bool _notifyOnDwell = true;
@@ -97,205 +94,95 @@ class _HomePageState extends State<HomePage>
     //_addgeofence();
   }
 
-  /// Receive events from BackgroundGeolocation in Headless state.
-  // void _onClickEnable(enabled) async {
-  //  // showNotification();
-  // // runApp(MyApp());
-  //   bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("BUTTON_CLICK"));
-  //   if (enabled) {
-  //     dynamic callback = (bg.State state) {
-  //       print('[start] success: $state');
-  //       setState(() {
-  //         _enabled = state.enabled;
-  //         _isMoving = state.isMoving;
-  //       });
-  //     };
-  //     bg.State state = await bg.BackgroundGeolocation.state;
-  //     if (state.trackingMode == 1) {
-  //       bg.BackgroundGeolocation.start().then(callback);
-  //       updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_START");
-  //     } else {
-  //       bg.BackgroundGeolocation.startGeofences().then(callback);
-  //     }
-  //   } else {
-  //     dynamic callback = (bg.State state) {
-  //       print('[stop] success: $state');
-  //       setState(() {
-  //         _enabled = state.enabled;
-  //         _isMoving = state.isMoving;
-  //       });
-  //     };
-  //     bg.BackgroundGeolocation.stop().then(callback);
-  //     updatelocation(1, currentlat, currentlong, "LOCATION_SERVICE_STOP");
-  //   }
-  // }
-  // void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async 
-  // { print('[BackgroundGeolocation] headless task $headlessEvent');
-  //  Map<String, dynamic> data = <String, dynamic>{}; 
-  //  data['message'] = '[providerchange] - $headlessEvent';
-  //   }
-
-  // Future _configureBackgroundGeolocation(orgname, username) async {
-  //   // 1.  Listen to events (See docs for all 13 available events).
-  //    updatelocation(1, currentlat, currentlong, "initialize_GEOFENCECROSS");
-  //   bg.BackgroundGeolocation.onLocation(_onLocation, _onLocationError);
-  //   bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
-  //   bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
-  //   bg.BackgroundGeolocation.onProviderChange(_onProviderChange);
-  //   bg.BackgroundGeolocation.onHttp(_onHttp);
-  //   bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
-  //   bg.BackgroundGeolocation.onHeartbeat(_onHeartbeat);
-  //    updatelocation(1, currentlat, currentlong, "initialize_onGeofence callback start");
-  //   bg.BackgroundGeolocation.onGeofence(_onGeofence);
-  //   updatelocation(1, currentlat, currentlong, "initialize_onGeofence callback ended");
-  //   bg.BackgroundGeolocation.onSchedule(_onSchedule);
-  //   bg.BackgroundGeolocation.onPowerSaveChange(_onPowerSaveChange);
-  //   bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
-  //   bg.BackgroundGeolocation.onNotificationAction(_onNotificationAction);
-
-  //   bg.TransistorAuthorizationToken token =
-  //       await bg.TransistorAuthorizationToken.findOrCreate(
-  //           orgname, username, ENV.TRACKER_HOST);
-
-  //   // 2.  Configure the plugin
-  //   bg.BackgroundGeolocation.ready(bg.Config(
-  //           // Convenience option to automatically configure the SDK to post to Transistor Demo server.
-  //           transistorAuthorizationToken: token,
-            
-  //           // Logging & Debug
-  //           reset: false,
-  //           debug: true,
-  //           logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-  //           // Geolocation options
-  //           desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION,
-  //           distanceFilter: 10.0,
-  //           stopTimeout: 1,
-  //           // HTTP & Persistence
-  //           autoSync: true,
-  //           // Application options
-  //           stopOnTerminate: false,
-  //           startOnBoot: true,
-  //           enableHeadless: true,
-  //           heartbeatInterval: 60))
-  //       .then((bg.State state) {
-  //     print('[ready] ${state.toMap()}');
-       
-  //     if (state.schedule.isNotEmpty) {
-  //       bg.BackgroundGeolocation.startSchedule();
-  //     }
-  //     setState(() {
-  //       _enabled = state.enabled;
-  //       _isMoving = state.isMoving;
-  //     });
-  //   }).catchError((error) {
-  //     print('[ready] ERROR: $error');
-  //   });
-
-  //   // Fetch currently selected tab.
-  //   SharedPreferences prefs = await _prefs;
-  //   int tabIndex = prefs.getInt("tabIndex");
-
-  //   // Which tab to view?  MapView || EventList.   Must wait until after build before switching tab or bad things happen.
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     if (tabIndex != null) {
-  //       _tabController.animateTo(tabIndex);
-  //     }
-  //   });
-  // }
-
-  checkinorout()async{
+  checkinorout() async {
     await getCurrentLocation();
     await getquarantinelocationdata();
-   final result = distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
-  print('${result.item1} Meters');  
-  if(result.item2)
-  {
-    print('IN');
-    if(lastgeolat!=0.0){
-      updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+    final result =
+        distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
+    print('${result.item1} Meters');
+    if (result.item2) {
+      print('IN');
+      if (lastgeolat != 0.0) {
+        updatelocation(1, currentlat, currentlong, "GEOFENCE_ENTER");
+      }
+      //ongeofencecross('ENTER');
+
+    } else {
+      if (lastgeolat != 0.0) {
+        print('OUT');
+        ongeofencecross('EXIT');
+        updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
+      }
     }
-    //ongeofencecross('ENTER');
-    
-    
-  }
-  else
-  {
-    if(lastgeolat!=0.0){
-       print('OUT');
-    ongeofencecross('EXIT');
-    updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
+    if (result.item1 >= 1000) {
+      updatelocation(1, currentlat, currentlong, "GEOFENCE_FAR");
     }
-   
-  } 
-  if(result.item1>=1000){
-    updatelocation(1, currentlat, currentlong, "GEOFENCE_FAR");
   }
 
+  Tuple2<double, bool> distance(
+      double quarantineLatitude,
+      double currentLatitude,
+      double quarantineLongitude,
+      double currentLongitude,
+      int radius) {
+    // The math module contains a function
+    // named radians which converts from
+    // degrees to radians.
+    quarantineLongitude = math.radians(quarantineLongitude);
+    currentLongitude = math.radians(currentLongitude);
+    quarantineLatitude = math.radians(quarantineLatitude);
+    currentLatitude = math.radians(currentLatitude);
+
+    // Haversine formula
+    double dlon = currentLongitude - quarantineLongitude;
+    double dlat = currentLatitude - quarantineLatitude;
+
+    double a = pow(sin(dlat / 2), 2) +
+        cos(quarantineLatitude) * cos(currentLatitude) * pow(sin(dlon / 2), 2);
+
+    double c = 2 * asin(sqrt(a));
+
+    // Radius of earth in kilometers. Use 3956
+    // for miles
+    double r = 6371;
+
+    // calculate the result in meters
+    double distance = (c * r) * 1000;
+
+    bool isIn = false;
+    if (distance <= radius) {
+      isIn = true;
+    }
+
+    return new Tuple2(distance, isIn);
   }
-  Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {
-        // The math module contains a function 
-        // named radians which converts from 
-        // degrees to radians. 
-        quarantineLongitude = math.radians(quarantineLongitude); 
-        currentLongitude = math.radians(currentLongitude); 
-        quarantineLatitude = math.radians(quarantineLatitude); 
-        currentLatitude = math.radians(currentLatitude); 
 
-        // Haversine formula  
-        double dlon = currentLongitude - quarantineLongitude;  
-        double dlat = currentLatitude - quarantineLatitude; 
-        
-        double a = pow(sin(dlat / 2), 2) 
-                 + cos(quarantineLatitude) * cos(currentLatitude) 
-                 * pow(sin(dlon / 2),2); 
-              
-        double c = 2 * asin(sqrt(a)); 
-  
-        // Radius of earth in kilometers. Use 3956  
-        // for miles 
-        double r = 6371; 
-  
-        // calculate the result in meters
-        double distance = (c * r) * 1000;   
-
-        bool isIn = false;
-        if(distance <= radius)
-        {
-          isIn = true;
-        }
-
-        return new Tuple2(distance, isIn); 
-}
-
-
-   Future<String> getquarantinelocationdata() async {
+  Future<String> getquarantinelocationdata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
     _config = _configure.serverURL();
-    String getgeolocationurl = _config.postman + "/getgeofence?patientId=$userId";
-   // var homedetailsresponse;
+    String getgeolocationurl =
+        _config.postman + "/getgeofence?patientId=$userId";
+    // var homedetailsresponse;
     var getgeolocationresponse;
     try {
-      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
-        "Accept": "*/*","api-key":_config.apikey
-      });
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl),
+          headers: {"Accept": "*/*", "api-key": _config.apikey});
     } catch (ex) {
       print('error $ex');
     }
-    if(getgeolocationresponse.statusCode==200){
+    if (getgeolocationresponse.statusCode == 200) {
       setState(() {
-      geoFenceLocationModel=getGeoLocationModelFromJson(getgeolocationresponse.body);
-      try{
-     // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
-      lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
-      lastgeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
-      }
-      catch(ex){
-     
-      }
-      
-   
-    });
+        geoFenceLocationModel =
+            getGeoLocationModelFromJson(getgeolocationresponse.body);
+        try {
+          // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
+          lastgeolat =
+              geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+          lastgeolong =
+              geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
+        } catch (ex) {}
+      });
     }
     return "Success";
   }
@@ -303,7 +190,7 @@ class _HomePageState extends State<HomePage>
   Future updatelocation(
       int patientid, double lat, double long, String code) async {
     _config = _configure.serverURL();
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
     var apiUrl = Uri.parse(_config.postman + '/locationHistory');
     var client = HttpClient();
@@ -348,11 +235,10 @@ class _HomePageState extends State<HomePage>
             requiresBatteryNotLow: false,
             requiresCharging: false,
             requiresDeviceIdle: false,
-            requiredNetworkType: NetworkType.NONE
-            ), (String taskId) async {
+            requiredNetworkType: NetworkType.NONE), (String taskId) async {
       print("[BackgroundFetch] received event $taskId");
-       updatelocation(1, currentlat, currentlong, "ON_HEART_BEAT_10mins");
-       checkinorout();
+      updatelocation(1, currentlat, currentlong, "HEARTBEAT");
+      checkinorout();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int count = 0;
       if (prefs.get("fetch-count") != null) {
@@ -360,7 +246,7 @@ class _HomePageState extends State<HomePage>
       }
       prefs.setInt("fetch-count", ++count);
       print('[BackgroundFetch] count: $count');
-       
+
       if (taskId == 'flutter_background_fetch') {
         // Test scheduling a custom-task in fetch event.
         // BackgroundFetch.scheduleTask(TaskConfig(
@@ -371,19 +257,19 @@ class _HomePageState extends State<HomePage>
         //     stopOnTerminate: false,
         //     enableHeadless: true));
       }
-     
+
       BackgroundFetch.finish(taskId);
     }).then((int status) {
       print('[BackgroundFetch] configure success: $status');
       setState(() {
-       // _status = status;
-       //print('');
+        // _status = status;
+        //print('');
       });
     }).catchError((e) {
       print('[BackgroundFetch] configure ERROR: $e');
       setState(() {
-      //  _status = e;
-     // print(e);
+        //  _status = e;
+        // print(e);
       });
     });
     // Optionally query the current BackgroundFetch status.
@@ -396,39 +282,28 @@ class _HomePageState extends State<HomePage>
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
-    // Test scheduling a custom-task.
-    // BackgroundFetch.scheduleTask(TaskConfig(
-    //     taskId: "com.transistorsoft.customtask",
-    //     delay: 10000,
-    //     periodic: false,
-    //     forceAlarmManager: true,
-    //     stopOnTerminate: false,
-    //     enableHeadless: true));
   }
 
   void initPlatformState() async {
-    
     SharedPreferences prefs = await _prefs;
-   
-    var flag=prefs.getString("platforminit");
-    if(flag==""||flag==null)
-    {
-    //await _autoRegister();
-    //await _configureBackgroundGeolocation('qantler', 'username');
-    await _configureBackgroundFetch();
-  //  _onClickEnable(_enabled);
-    prefs.setString('platforminit',"true");
-    //_addgeofence();
+
+    var flag = prefs.getString("platforminit");
+    if (flag == "" || flag == null) {
+      //await _autoRegister();
+      //await _configureBackgroundGeolocation('qantler', 'username');
+      await _configureBackgroundFetch();
+      //  _onClickEnable(_enabled);
+      prefs.setString('platforminit', "true");
+      //_addgeofence();
       // _onClickEnable(_enabled);
     }
-
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-   // runApp(HomePage(type: BottomNavigationDemoType.withLabels));
+    // runApp(HomePage(type: BottomNavigationDemoType.withLabels));
     _enabled = true;
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -438,17 +313,16 @@ class _HomePageState extends State<HomePage>
         onSelectNotification: onSelectNotification);
     //getJsondata();
     _identifier = 'MYQUARANTINELOCATION';
-    
-    Future.delayed(const Duration(seconds:0), ()async {
-      try
-      {
-      await getCurrentLocation();
-      initPlatformState();
-      }catch(ex){
-         initPlatformState();
+
+    Future.delayed(const Duration(seconds: 0), () async {
+      try {
+        await getCurrentLocation();
+        initPlatformState();
+      } catch (ex) {
+        initPlatformState();
       }
     });
-   
+
     _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
     _tabController.addListener(_handleTabChange);
     _widgetOptions = <Widget>[
@@ -456,12 +330,11 @@ class _HomePageState extends State<HomePage>
       UpdateHealthInfo(),
       // SharedEvents(events: events, child: EventList()),
       RaiseHands(),
-       HistoryPage(), 
+      HistoryPage(),
       Profile()
     ];
     _isMoving = false;
     _odometer = '0';
-   
   }
 
   Future onSelectNotification(String payload) {
@@ -481,26 +354,34 @@ class _HomePageState extends State<HomePage>
         priority: Priority.High, importance: Importance.Max);
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-    await flutterLocalNotificationsPlugin.show(0, 'Update health status',
-        'Update your health status at everyday 8 AM and 10 PM', platform,
+    await flutterLocalNotificationsPlugin.show(0, AppLocalizations.of(context)
+                .translate('update_health_title'),
+        AppLocalizations.of(context)
+                .translate('update_health_status_notification'), platform,
         payload:
-            'You need to update your health status everyday at 8 AM and 10 PM');
+            AppLocalizations.of(context)
+                .translate('update_health_status_notification'));
   }
+//update_health_status_notification
   ongeofencecross(String event) async {
- // await  updatelocation(1, currentlat, currentlong, "DebugON_GEOFENCECROSS Method ");
     var android = new AndroidNotificationDetails(
         'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
         priority: Priority.High, importance: Importance.Max);
-     //   updatelocation(1, currentlat, currentlong, "Andriod Setup Completed ");
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-//  await  updatelocation(1, currentlat, currentlong, "IOS Setup Completed ");
- //  await updatelocation(1, currentlat, currentlong, "Send Notification Starts ");
-    await flutterLocalNotificationsPlugin.show(0, 'Alert',
-         event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'', platform,
-        payload:
-             event=='EXIT'? AppLocalizations.of(context).translate('geofenceoutnotificationmessage'):'');
- // await  updatelocation(1, currentlat, currentlong, "Send Notification Ends ");       
+    await flutterLocalNotificationsPlugin.show(
+        0,
+        AppLocalizations.of(context)
+                .translate('alert_title'),
+        event == 'EXIT'
+            ? AppLocalizations.of(context)
+                .translate('geofenceoutnotificationmessage')
+            : '',
+        platform,
+        payload: event == 'EXIT'
+            ? AppLocalizations.of(context)
+                .translate('geofenceoutnotificationmessage')
+            : '');
   }
 
   // Future<String> getJsondata() async {
@@ -521,28 +402,6 @@ class _HomePageState extends State<HomePage>
   //   return "Success";
   // }
 
-  // void _addgeofence() {
-  //   bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-  //       identifier: _identifier,
-  //       radius: ENV.RADIUS_GEOFENCE,
-  //       latitude: currentlat,
-  //       longitude: currentlong,
-  //       notifyOnEntry: _notifyOnEntry,
-  //       notifyOnExit: _notifyOnExit,
-  //       notifyOnDwell: _notifyOnDwell,
-  //       loiteringDelay: _loiteringDelay,
-  //       extras: {
-  //         'radius': _radius,
-  //         'center': {'latitude': currentlat, 'longitude': currentlong}
-  //       } // meta-data for tracker.transistorsoft.com
-  //       )).then((bool success) {
-  //     bg.BackgroundGeolocation.playSound(
-  //         util.Dialog.getSoundId('ADD_GEOFENCE'));
-  //   }).catchError((error) {
-  //     print('[addGeofence] ERROR: $error');
-  //   });
-  // }
-
   SharedEvents list;
   String _title(BuildContext context) {
     switch (widget.type) {
@@ -553,9 +412,6 @@ class _HomePageState extends State<HomePage>
     }
     return '';
   }
-
-
-
 
   void _handleTabChange() async {
     if (!_tabController.indexIsChanging) {
@@ -586,7 +442,6 @@ class _HomePageState extends State<HomePage>
           title: AppLocalizations.of(context).translate('home_title'),
           vsync: this,
         ),
-       
         _NavigationIconView(
           icon: const Icon(Icons.alarm_on),
           title: AppLocalizations.of(context).translate('update_health_title'),
@@ -594,10 +449,10 @@ class _HomePageState extends State<HomePage>
         ),
         _NavigationIconView(
           icon: const Icon(Icons.view_headline),
-          title:  AppLocalizations.of(context).translate('RaiseHand_title'),
+          title: AppLocalizations.of(context).translate('RaiseHand_title'),
           vsync: this,
         ),
-          _NavigationIconView(
+        _NavigationIconView(
           icon: const Icon(Icons.calendar_today),
           title: AppLocalizations.of(context).translate('history_title'),
           vsync: this,
@@ -644,9 +499,9 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    
     final DateTime today = DateTime.now();
-    if (today.hour == 8 &&today.second==0|| today.hour == 22&&today.second==0) {
+    if (today.hour == 8 && today.second == 0 ||
+        today.hour == 22 && today.second == 0) {
       showNotification();
     }
     final colorScheme = Theme.of(context).colorScheme;
@@ -660,14 +515,14 @@ class _HomePageState extends State<HomePage>
       _currentIndex =
           _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
     }
-  //  if(widget.navigationIndex==1){
-     
-  //   // _navigationViews[_currentIndex].controller.reverse();
-  //   //         _currentIndex = 1;
-  //   //         _navigationViews[_currentIndex].controller.forward();
-  //   //         _currentIndex =
-  //   //       _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
-  //  }
+    //  if(widget.navigationIndex==1){
+
+    //   // _navigationViews[_currentIndex].controller.reverse();
+    //   //         _currentIndex = 1;
+    //   //         _navigationViews[_currentIndex].controller.forward();
+    //   //         _currentIndex =
+    //   //       _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
+    //  }
     return Scaffold(
       appBar: AppBar(
         // bottom:TabBar(
@@ -679,28 +534,25 @@ class _HomePageState extends State<HomePage>
         //       ]
         //   ),
         automaticallyImplyLeading: false,
-       // title: Text(_title(context)),
-       title: Text(_navigationViews[_currentIndex].title),
+        // title: Text(_title(context)),
+        title: Text(_navigationViews[_currentIndex].title),
         // actions: <Widget>[
         //   Switch(value: _enabled, onChanged: null),
         // ],
       ),
       body: Center(
-        child:
-        IndexedStack(
-            children: <Widget>[
-               DashBoard(),
-          UpdateHealthInfo(),
-      // SharedEvents(events: events, child: EventList()),
-          RaiseHands(),
-          HistoryPage(), 
-         Profile()
-            ],
-            index: _currentIndex,
-          ),
+        child: IndexedStack(
+          children: <Widget>[
+            DashBoard(),
+            UpdateHealthInfo(),
+            RaiseHands(),
+            HistoryPage(),
+            Profile()
+          ],
+          index: _currentIndex,
+        ),
         //_widgetOptions.elementAt(_currentIndex),
-                //_buildTransitionsStack(),
-             
+        //_buildTransitionsStack(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels:

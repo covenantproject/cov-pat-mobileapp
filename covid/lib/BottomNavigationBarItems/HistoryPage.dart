@@ -1,16 +1,11 @@
-import 'package:background_fetch/background_fetch.dart';
 import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/TextStyle.dart';
 import 'package:covid/Models/HistoryModel.dart';
-import 'package:covid/Models/config/Config.dart';
 import 'package:intl/intl.dart';
 import 'package:covid/Models/config/Configure.dart';
-import 'package:covid/Models/config/env.dart';
 import 'package:covid/Models/config/shared_events.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:covid/Models/util/dialog.dart' as util;
 // import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 //     as bg;
 import 'package:google_maps_flutter/google_maps_flutter.dart';

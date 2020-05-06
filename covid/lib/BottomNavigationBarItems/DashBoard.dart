@@ -10,8 +10,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:covid/HomePage.dart';
-import 'package:covid/Models/util/dialog.dart' as util;
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:io';
