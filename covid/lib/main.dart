@@ -164,52 +164,6 @@ void backgroundFetchHeadlessTask(String taskId) async {
   BackgroundFetch.finish(taskId);
 }
 
-// void _configureBackgroundFetch() async {
-//   BackgroundFetch.configure(
-//       BackgroundFetchConfig(
-//           minimumFetchInterval: 5,
-//           startOnBoot: true,
-//           stopOnTerminate: false,
-//           enableHeadless: true,
-//           requiresStorageNotLow: false,
-//           requiresBatteryNotLow: false,
-//           requiresCharging: false,
-//           requiresDeviceIdle: false,
-//           requiredNetworkType: NetworkType.NONE), (String taskId) async {
-//     print("[BackgroundFetch] received event $taskId");
-
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     int count = 0;
-//     if (prefs.get("fetch-count") != null) {
-//       count = prefs.getInt("fetch-count");
-//     }
-//     prefs.setInt("fetch-count", ++count);
-//     print('[BackgroundFetch] count: $count');
-
-//     if (taskId == 'flutter_background_fetch') {
-//       // Test scheduling a custom-task in fetch event.
-//       BackgroundFetch.scheduleTask(TaskConfig(
-//           taskId: "com.transistorsoft.customtask",
-//           delay: 5000,
-//           periodic: false,
-//           forceAlarmManager: true,
-//           stopOnTerminate: false,
-//           enableHeadless: true));
-//     }
-//     //updatelocation(1, 0, 0, "ON_HEART_BEAT_10mins");
-//     BackgroundFetch.finish(taskId);
-//   });
-
-  // Test scheduling a custom-task.
-  // BackgroundFetch.scheduleTask(TaskConfig(
-  //     taskId: "com.transistorsoft.customtask",
-  //     delay: 10000,
-  //     periodic: false,
-  //     forceAlarmManager: true,
-  //     stopOnTerminate: false,
-  //     enableHeadless: true));
-//}
-
 Future updatelocation(
     int patientid, double lat, double long, String code) async {
   _config = _configure.serverURL();
@@ -260,8 +214,6 @@ Future onSelectNotification(String payload) {
 }
 
 void main() {
-  final GlobalKey<NavigatorState> navigatorKey =
-      new GlobalKey<NavigatorState>();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
   BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
