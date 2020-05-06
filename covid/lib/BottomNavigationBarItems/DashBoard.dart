@@ -65,14 +65,14 @@ showAlertDialog() {
 
   var alertContext;
   // set up the buttons
-  Widget noButton = FlatButton(
-    child: Text("No"),
+  Widget cancelButton = FlatButton(
+    child: Text(AppLocalizations.of(context).translate('cancel_button')),
     onPressed:  () {
       Navigator.pop(alertContext);
     } ,
   );
-  Widget yesButton = FlatButton(
-    child: Text("Yes"),
+  Widget confirmButton = FlatButton(
+    child: Text(AppLocalizations.of(context).translate('confirmbutton')),
     onPressed:  () 
         async {
          Navigator.pop(alertContext);
@@ -86,11 +86,11 @@ showAlertDialog() {
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
-    title: Text("Confirmation"),
-    content: Text("Are you sure want to set this location?"),
+    title: Text(AppLocalizations.of(context).translate('setlocationalertdialogTitle')),
+    content: Text(AppLocalizations.of(context).translate('setlocationconfirmationmessage')),
     actions: [
-      noButton,
-      yesButton,
+      cancelButton,
+      confirmButton,
     ],
   );
 
