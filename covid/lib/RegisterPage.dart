@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:covid/Models/GetLocationHierarchyModel.dart';
 
+
 class RegisterPage extends StatefulWidget {
   RegisterPage({
     Key key,
@@ -52,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String _district;
   String _pincode;
   String _state;
-   bool autoValidatorTitle;
+  bool autoValidatorTitle;
   bool autoValidatorFirstName;
   bool autoValidatorSurname;
   bool autoValidatorLastName;
@@ -86,15 +87,14 @@ class _RegisterPageState extends State<RegisterPage> {
   int statusCode;
   int _radioValue = 0;
   DateTime date;
-  LocationHierarchy getLocationHierarchy; 
-  
+  LocationHierarchy getLocationHierarchy;
 
 //init
   @override
   void initState() {
     super.initState();
     dobcontroller = TextEditingController();
-    autoValidatorTitle=false;
+    autoValidatorTitle = false;
     autoValidatorFirstName = false;
     autoValidatorSurname = false;
     autoValidatorLastName = false;
@@ -102,8 +102,8 @@ class _RegisterPageState extends State<RegisterPage> {
     autoValidatorCountryState = false;
     autoValidatorDepartment = false;
     autoValidatorRole = false;
-    autoValidatorprooftype=false;
-    autoValidatoraddresstype=false;
+    autoValidatorprooftype = false;
+    autoValidatoraddresstype = false;
     autoValidatorEmail = false;
     autoValidatorEmail2 = false;
     autoValidatorEmail3 = false;
@@ -111,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
     autoValidatorDistrict = false;
     autoValidatorPincode = false;
     autoValidatorState = false;
-    autoValidatorDob=false;
+    autoValidatorDob = false;
     _isButtonTapped = false;
     _loadUserInfo();
     this.GetStateList();
@@ -258,7 +258,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // 1. Create request
     try {
       HttpClientRequest request = await client.postUrl(apiUrl);
-       request.headers.set('api-key', _config.apikey);
+      request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
       var payload = {};
       request.write(JSON.jsonEncode(payload));
@@ -285,37 +285,32 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  List locationNameList =  List();
+  List locationNameList = List();
   List<LocationHierarchyElement> locationHierarchy;
 
   Future<String> GetStateList() async {
-
     try {
       var locationid = 105;
       _config = _configure.serverURL();
-      final String apiUrl = _config.postman + '/getLocationHierarchy?locationID=$locationid';
-      var locationHierarchyResponse = await http.get(Uri.encodeFull(apiUrl), headers: {"Accept": "application/json","api-key":_config.apikey},
+      final String apiUrl =
+          _config.postman + '/getLocationHierarchy?locationID=$locationid';
+      var locationHierarchyResponse = await http.get(
+        Uri.encodeFull(apiUrl),
+        headers: {"Accept": "application/json", "api-key": _config.apikey},
       );
-   
-       setState(() {
-          getLocationHierarchy = locationHierarchyFromJson(locationHierarchyResponse.body);
-          
+
+      setState(() {
+        getLocationHierarchy =
+            locationHierarchyFromJson(locationHierarchyResponse.body);
+
         getLocationHierarchy.locationHierarchy.forEach((element) {
           locationNameList.add(element.locationName);
         });
-
-        
-        
       });
-
-     }
-     catch (ex) {
+    } catch (ex) {
       print('error $ex');
     }
   }
- 
-
-
 
   void validateandsubmit() async {
     if (validateAndSave()) {
@@ -442,7 +437,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               //width: 340,
                               child: DropdownButtonFormField<String>(
                                 value: _title,
-                                autovalidate:autoValidatorTitle ,
+                                autovalidate: autoValidatorTitle,
                                 decoration: InputDecoration(
                                     filled: true, fillColor: Colors.grey[200]),
                                 hint: Text(
@@ -454,7 +449,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 validator: (String value) {
                                   String titleValidationMessage;
                                   if (value?.isEmpty ?? true) {
-                                    titleValidationMessage = AppLocalizations.of(context).translate('title_validationmessage');
+                                    titleValidationMessage =
+                                        AppLocalizations.of(context).translate(
+                                            'title_validationmessage');
                                   }
                                   return titleValidationMessage;
                                 },
@@ -473,7 +470,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       .requestFocus(new FocusNode());
                                   setState(() {
                                     this._title = newValue;
-                                    autoValidatorTitle=true;
+                                    autoValidatorTitle = true;
                                   });
                                 },
                                 items: [
@@ -509,13 +506,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
 
                     TextFormField(
-                      // inputFormatters: [
-                      //   WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
-                      // ],
+                      inputFormatters: [
+                        WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      ],
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                       autovalidate: autoValidatorSurname,
+                      autovalidate: autoValidatorSurname,
                       onTap: () {
                         setState(() {
                           autoValidatorSurname = true;
@@ -528,8 +525,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
-                        return value.isEmpty ? 
-                        AppLocalizations.of(context).translate('givenname_validationmessage') : null;
+                        return value.isEmpty
+                            ? AppLocalizations.of(context)
+                                .translate('givenname_validationmessage')
+                            : null;
                       },
                       onSaved: (value) {
                         setState(() {
@@ -543,13 +542,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
 
                     TextFormField(
-                      // inputFormatters: [
-                      //   WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
-                      // ],
+                      inputFormatters: [
+                        WhitelistingTextInputFormatter(RegExp("[a-zA-Z]")),
+                      ],
                       keyboardType: TextInputType.text,
                       toolbarOptions:
                           ToolbarOptions(copy: true, cut: true, paste: true),
-                       autovalidate: autoValidatorFirstName,
+                      autovalidate: autoValidatorFirstName,
                       onTap: () {
                         setState(() {
                           autoValidatorFirstName = true;
@@ -562,7 +561,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           filled: true,
                           fillColor: Colors.grey[200]),
                       validator: (value) {
-                        return value.isEmpty ? AppLocalizations.of(context).translate('surname_validationmessage') : null;
+                        return value.isEmpty
+                            ? AppLocalizations.of(context)
+                                .translate('surname_validationmessage')
+                            : null;
                       },
                       onSaved: (value) {
                         setState(() {
@@ -594,10 +596,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         dobcontroller.text =
                             "${DateFormat("yyyy-MM-dd").format(date)}"
                                 .toString();
-                               
-                                   autoValidatorDob=true;
-                               
-                               
+
+                        autoValidatorDob = true;
                       },
                       decoration: new InputDecoration(
                         filled: true,
@@ -607,7 +607,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             AppLocalizations.of(context).translate('user_dob'),
                       ),
                       validator: (value) {
-                        return value.isEmpty ? AppLocalizations.of(context).translate('dob_validationmessage') : null;
+                        return value.isEmpty
+                            ? AppLocalizations.of(context)
+                                .translate('dob_validationmessage')
+                            : null;
                       },
                       onChanged: (value) {
                         setState(() {
@@ -626,70 +629,72 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       height: 25,
                     ),
-                     // Icon(
-                            //   Icons.supervisor_account,
-                            //   color: Colors.grey,
-                            // ),
-                            Row(children: <Widget>[
-                              Icon(
-                              Icons.supervisor_account,
-                              color: Colors.grey,
-                            ),
-                             Padding(
-                      padding: const EdgeInsets.only(left: 25),
-                      child: Container(
-                        child: new Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          // mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            // Icon(
-                            //   Icons.supervisor_account,
-                            //   color: Colors.grey,
-                            // ),
-                            Container(
-                              child: Row(
-                                children: <Widget>[
-                                  new Radio(
-                                    value: 0,
-                                    groupValue: _radioValue,
-                                    onChanged: _handleRadioValueChange,
-                                  ),
-                                  new Text(AppLocalizations.of(context)
-                                      .translate('male')),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              child: Row(
-                                children: <Widget>[
-                                  new Radio(
-                                    value: 1,
-                                    groupValue: _radioValue,
-                                    onChanged: _handleRadioValueChange,
-                                  ),
-                                  new Text(AppLocalizations.of(context)
-                                      .translate('female')),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              child: Row(
-                                children: <Widget>[
-                                  new Radio(
-                                      value: 2,
-                                      groupValue: _radioValue,
-                                      onChanged: _handleRadioValueChange),
-                                  new Text(AppLocalizations.of(context)
-                                      .translate('other')),
-                                ],
-                              ),
-                            ),
-                          ],
+                    // Icon(
+                    //   Icons.supervisor_account,
+                    //   color: Colors.grey,
+                    // ),
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.supervisor_account,
+                          color: Colors.grey,
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 25),
+                          child: Container(
+                            child: new Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              // mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                // Icon(
+                                //   Icons.supervisor_account,
+                                //   color: Colors.grey,
+                                // ),
+                                Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      new Radio(
+                                        value: 0,
+                                        groupValue: _radioValue,
+                                        onChanged: _handleRadioValueChange,
+                                      ),
+                                      new Text(AppLocalizations.of(context)
+                                          .translate('male')),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      new Radio(
+                                        value: 1,
+                                        groupValue: _radioValue,
+                                        onChanged: _handleRadioValueChange,
+                                      ),
+                                      new Text(AppLocalizations.of(context)
+                                          .translate('female')),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      new Radio(
+                                          value: 2,
+                                          groupValue: _radioValue,
+                                          onChanged: _handleRadioValueChange),
+                                      new Text(AppLocalizations.of(context)
+                                          .translate('other')),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                            ],),
-                   
+
                     SizedBox(
                       height: 25,
                     ),
@@ -713,8 +718,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               validator: (String value) {
                                 String documentTypeValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  documentTypeValidationMessage = AppLocalizations.of(context)
-                                    .translate('identification_documenttype_validationmessage');
+                                  documentTypeValidationMessage =
+                                      AppLocalizations.of(context).translate(
+                                          'identification_documenttype_validationmessage');
                                 }
                                 return documentTypeValidationMessage;
                               },
@@ -734,7 +740,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     .requestFocus(new FocusNode());
                                 setState(() {
                                   this._idProof = newValue;
-                                  autoValidatoraddresstype=true;
+                                  autoValidatoraddresstype = true;
                                 });
                               },
                               items: [
@@ -764,7 +770,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       height: 40,
                     ),
-                    _idProof == 'Driving License'||_idProof=='Passport'
+                    _idProof == 'Driving License' || _idProof == 'Passport'
                         ? Column(children: <Widget>[
                             TextFormField(
                               toolbarOptions: ToolbarOptions(
@@ -788,8 +794,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               validator: (value) {
                                 String countryStateValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  countryStateValidationMessage = AppLocalizations.of(context)
-                                    .translate('country_state_validationmessage');
+                                  countryStateValidationMessage =
+                                      AppLocalizations.of(context).translate(
+                                          'country_state_validationmessage');
                                 }
                                 return countryStateValidationMessage;
                               },
@@ -827,7 +834,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       validator: (value) {
                         String identificationNumberValidationMessage;
                         if (value?.isEmpty ?? true) {
-                          identificationNumberValidationMessage= AppLocalizations.of(context).translate('identification_documentnumber_validationmessage');
+                          identificationNumberValidationMessage =
+                              AppLocalizations.of(context).translate(
+                                  'identification_documentnumber_validationmessage');
                         }
                         return identificationNumberValidationMessage;
                       },
@@ -878,8 +887,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               validator: (String value) {
                                 String addressTypeValidationMessage;
                                 if (value?.isEmpty ?? true) {
-                                  addressTypeValidationMessage = AppLocalizations.of(context)
-                                    .translate('addresstype_validationmessage');
+                                  addressTypeValidationMessage =
+                                      AppLocalizations.of(context).translate(
+                                          'addresstype_validationmessage');
                                 }
                                 return addressTypeValidationMessage;
                               },
@@ -899,7 +909,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     .requestFocus(new FocusNode());
                                 setState(() {
                                   this._addresstype = newValue;
-                                  autoValidatorprooftype=true;
+                                  autoValidatorprooftype = true;
                                 });
                               },
                               items: [
@@ -955,8 +965,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? AppLocalizations.of(context)
-                                  .translate('address_line1_validationmessage')
+                                  ? AppLocalizations.of(context).translate(
+                                      'address_line1_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -967,9 +977,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           )
                         : Container(),
-                  _addresstype != null? SizedBox(
-                      height: 25,
-                    ):Container(),
+                    _addresstype != null
+                        ? SizedBox(
+                            height: 25,
+                          )
+                        : Container(),
                     _addresstype != null
                         ? TextFormField(
                             maxLines: 1,
@@ -1004,9 +1016,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           )
                         : Container(),
-                   _addresstype != null?  SizedBox(
-                      height: 25,
-                    ):Container(),
+                    _addresstype != null
+                        ? SizedBox(
+                            height: 25,
+                          )
+                        : Container(),
                     _addresstype != null
                         ? TextFormField(
                             maxLines: 1,
@@ -1067,8 +1081,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             validator: (value) {
                               return value.isEmpty
-                                  ? AppLocalizations.of(context)
-                                  .translate('city_town_taluk_validationmessage')
+                                  ? AppLocalizations.of(context).translate(
+                                      'city_town_taluk_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -1078,14 +1092,16 @@ class _RegisterPageState extends State<RegisterPage> {
                               return _citytownvillage = value;
                             },
                           )
-                          : Container(),
-                    _addresstype != null? SizedBox(
-                      height: 25,
-                    ):Container(),
+                        : Container(),
+                    _addresstype != null
+                        ? SizedBox(
+                            height: 25,
+                          )
+                        : Container(),
                     _addresstype != null
                         ? DropdownButtonFormField<String>(
-                            value:_state,
-                             decoration: new InputDecoration(
+                            value: _state,
+                            decoration: new InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[200],
                               icon: Padding(
@@ -1098,34 +1114,36 @@ class _RegisterPageState extends State<RegisterPage> {
 
                             isDense: true,
 
-                             validator: (value) {
-                             String stateValidationMessage;
-                                if (value?.isEmpty ?? true) {
-                                  stateValidationMessage = AppLocalizations.of(context)
-                                    .translate('state_validationmessage');
-                                }
-                                return stateValidationMessage;
+                            validator: (value) {
+                              String stateValidationMessage;
+                              if (value?.isEmpty ?? true) {
+                                stateValidationMessage =
+                                    AppLocalizations.of(context)
+                                        .translate('state_validationmessage');
+                              }
+                              return stateValidationMessage;
                             },
 
                             iconSize: 24,
-                              elevation: 16,
+                            elevation: 16,
 
                             autovalidate: autoValidatorState,
                             onChanged: (String newValue) {
-                                FocusScope.of(context)
-                                    .requestFocus(new FocusNode());
-                                setState(() {
-                                  this._state  = newValue;
-                                  autoValidatorState=true;
-                                });
-                              },
-                              items: locationNameList.map<DropdownMenuItem<String>>((value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            
+                              FocusScope.of(context)
+                                  .requestFocus(new FocusNode());
+                              setState(() {
+                                this._state = newValue;
+                                autoValidatorState = true;
+                              });
+                            },
+                            items: locationNameList
+                                .map<DropdownMenuItem<String>>((value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+
                             // onTap: () {
                             //   setState(() {
                             //     autoValidatorState = true;
@@ -1139,9 +1157,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           )
                         : Container(),
-                     _addresstype != null?SizedBox(
-                      height: 25,
-                    ):Container(),
+                    _addresstype != null
+                        ? SizedBox(
+                            height: 25,
+                          )
+                        : Container(),
                     _addresstype != null
                         ? TextFormField(
                             maxLines: 1,
@@ -1166,7 +1186,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             validator: (value) {
                               return value.isEmpty
                                   ? AppLocalizations.of(context)
-                                  .translate('district_validationmessage')
+                                      .translate('district_validationmessage')
                                   : null;
                             },
                             onSaved: (value) {
@@ -1177,9 +1197,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           )
                         : Container(),
-                    _addresstype != null? SizedBox(
-                      height: 25,
-                    ):Container(),
+                    _addresstype != null
+                        ? SizedBox(
+                            height: 25,
+                          )
+                        : Container(),
                     _addresstype != null
                         ? TextFormField(
                             maxLines: 1,
@@ -1187,7 +1209,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 copy: true, cut: true, paste: true),
                             autovalidate: autoValidatorPincode,
                             inputFormatters: [
-                                  new LengthLimitingTextInputFormatter(6),
+                              new LengthLimitingTextInputFormatter(6),
                             ],
                             onTap: () {
                               setState(() {
@@ -1206,27 +1228,22 @@ class _RegisterPageState extends State<RegisterPage> {
                                   .translate('PIN code'),
                             ),
                             validator: (value) {
-                                if (value.isNotEmpty) {
-                                    if(value.length==6){
-	                                     if(RegExp(r'^[0-9]+$').hasMatch(value))
-                                       {
-                                          return null;
-                                        }else{
-                                          return AppLocalizations.of(context)
-                                  .translate('pincode_onlynumbers_validationmessage');
-                                        }
-                                    }
-                                    else
-                                    {
-			                                  return AppLocalizations.of(context)
-                                  .translate('pincode_6digitsrequired_validationmessage');					
-                                    }						
+                              if (value.isNotEmpty) {
+                                if (value.length == 6) {
+                                  if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                    return null;
+                                  } else {
+                                    return AppLocalizations.of(context).translate(
+                                        'pincode_onlynumbers_validationmessage');
                                   }
-                                  else 
-                                  {
-                                    return AppLocalizations.of(context)
-                                  .translate('pincode_required_validationmessage');
-                                  }	
+                                } else {
+                                  return AppLocalizations.of(context).translate(
+                                      'pincode_6digitsrequired_validationmessage');
+                                }
+                              } else {
+                                return AppLocalizations.of(context).translate(
+                                    'pincode_required_validationmessage');
+                              }
                             },
                             onSaved: (value) {
                               setState(() {
