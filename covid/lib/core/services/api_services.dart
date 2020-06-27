@@ -1,6 +1,8 @@
+import 'package:covid/Models/config/env.dart';
 import 'package:covid/core/services/preferences_services.dart';
 import 'package:covid/locator.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -36,19 +38,36 @@ class ApiService {
     }
   }
 
-  Future<dynamic> getGeofenceForUser() async {
+  Future<List<dynamic>> getGeofenceForUser() async {
     int userId = await preferencesService.getUserId();
     try {
       var response = await client.get('$endPoint/getgeofence', queryParameters: {'patientId': userId});
       if (response.statusCode == 200) {
-        // if (response.data['homeDetails'] != null) {
-        //   var parsed = await response.data['homeDetails'];
-        //   return parsed;
-        // }
-        return null;
+        if (response.data['geoFenceData'] != null) {
+          var parsed = await response.data['geoFenceData'];
+          return parsed;
+        }
       }
+      return null;
     } catch (e) {
       print(e.toString());
+      return null;
+    }
+  }
+
+  //var payload = {"patientId": userId, "latitude": lat, "longitude": long, "geoFenceSet": true, "radius": ENV.RADIUS_GEOFENCE, "startDate": "${DateFormat('yyyy-MM-dd').format(DateTime.now())}", "endDate": "${DateFormat('yyyy-MM-dd').format(DateTime.now())}"};
+  Future<void> updateFenceData(double lat, double lng) async {
+    int userId = await preferencesService.getUserId();
+    try {
+      var response = await client
+          .post('$endPoint/updategeofence', data: {'patientId': userId, 'latitude': lat, 'longitude': lng, 'radius': ENV.RADIUS_GEOFENCE, 'startDate': "${DateFormat('yyyy-MM-dd').format(DateTime.now())}", 'endDate': "${DateFormat('yyyy-MM-dd').format(DateTime.now())}"});
+      if (response.statusCode == 200) {
+        print(response.data.toString());
+      }
+      return null;
+    } catch (e) {
+      print(e.toString());
+      return null;
     }
   }
 }

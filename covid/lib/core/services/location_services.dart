@@ -9,6 +9,8 @@ class LocationService {
 
   StreamController<UserLocation> _locationController = StreamController<UserLocation>.broadcast();
 
+  Stream<UserLocation> get locationStream => _locationController.stream;
+
   void requestLocationPermission() {
     location.requestPermission().then((granted) {
       if (granted == PermissionStatus.granted) {
