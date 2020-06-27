@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'package:covid/App_localizations.dart';
 import 'package:covid/Models/GetGeoLocationModel.dart';
+import 'package:covid/ui/dashboard/dashboard_view.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:vector_math/vector_math.dart' as math;
@@ -35,8 +36,7 @@ enum BottomNavigationDemoType {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key key, @required this.type, this.navigationIndex})
-      : super(key: key);
+  const HomePage({Key key, @required this.type, this.navigationIndex}) : super(key: key);
 
   final BottomNavigationDemoType type;
   final int navigationIndex;
@@ -45,11 +45,7 @@ class HomePage extends StatefulWidget {
   State createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with
-        SingleTickerProviderStateMixin,
-        TickerProviderStateMixin<HomePage>,
-        WidgetsBindingObserver {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, TickerProviderStateMixin<HomePage>, WidgetsBindingObserver {
   LatLng center;
   String _identifier;
   double _radius = 15.0;
@@ -97,8 +93,7 @@ class _HomePageState extends State<HomePage>
   checkinorout() async {
     await getCurrentLocation();
     await getquarantinelocationdata();
-    final result =
-        distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
+    final result = distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
     print('${result.item1} Meters');
     if (result.item2) {
       print('IN');
@@ -119,12 +114,7 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  Tuple2<double, bool> distance(
-      double quarantineLatitude,
-      double currentLatitude,
-      double quarantineLongitude,
-      double currentLongitude,
-      int radius) {
+  Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {
     // The math module contains a function
     // named radians which converts from
     // degrees to radians.
@@ -137,8 +127,7 @@ class _HomePageState extends State<HomePage>
     double dlon = currentLongitude - quarantineLongitude;
     double dlat = currentLatitude - quarantineLatitude;
 
-    double a = pow(sin(dlat / 2), 2) +
-        cos(quarantineLatitude) * cos(currentLatitude) * pow(sin(dlon / 2), 2);
+    double a = pow(sin(dlat / 2), 2) + cos(quarantineLatitude) * cos(currentLatitude) * pow(sin(dlon / 2), 2);
 
     double c = 2 * asin(sqrt(a));
 
@@ -161,34 +150,28 @@ class _HomePageState extends State<HomePage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
     _config = _configure.serverURL();
-    String getgeolocationurl =
-        _config.postman + "/getgeofence?patientId=$userId";
+    String getgeolocationurl = _config.postman + "/getgeofence?patientId=$userId";
     // var homedetailsresponse;
     var getgeolocationresponse;
     try {
-      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl),
-          headers: {"Accept": "*/*", "api-key": _config.apikey});
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {"Accept": "*/*", "api-key": _config.apikey});
     } catch (ex) {
       print('error $ex');
     }
     if (getgeolocationresponse.statusCode == 200) {
       setState(() {
-        geoFenceLocationModel =
-            getGeoLocationModelFromJson(getgeolocationresponse.body);
+        geoFenceLocationModel = getGeoLocationModelFromJson(getgeolocationresponse.body);
         try {
           // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
-          lastgeolat =
-              geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
-          lastgeolong =
-              geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
+          lastgeolat = geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+          lastgeolong = geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
         } catch (ex) {}
       });
     }
     return "Success";
   }
 
-  Future updatelocation(
-      int patientid, double lat, double long, String code) async {
+  Future updatelocation(int patientid, double lat, double long, String code) async {
     _config = _configure.serverURL();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
@@ -200,12 +183,7 @@ class _HomePageState extends State<HomePage>
       HttpClientRequest request = await client.postUrl(apiUrl);
       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
-      var payload = {
-        "userId": userId,
-        "latitude": "$lat",
-        "longitude": "$long",
-        "code": "$code"
-      };
+      var payload = {"userId": userId, "latitude": "$lat", "longitude": "$long", "code": "$code"};
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
       // 3. Send the request
@@ -226,16 +204,8 @@ class _HomePageState extends State<HomePage>
   // Configure BackgroundFetch (not required by BackgroundGeolocation).
   Future _configureBackgroundFetch() async {
     BackgroundFetch.configure(
-        BackgroundFetchConfig(
-            minimumFetchInterval: 10,
-            startOnBoot: true,
-            stopOnTerminate: false,
-            enableHeadless: true,
-            requiresStorageNotLow: false,
-            requiresBatteryNotLow: false,
-            requiresCharging: false,
-            requiresDeviceIdle: false,
-            requiredNetworkType: NetworkType.NONE), (String taskId) async {
+        BackgroundFetchConfig(minimumFetchInterval: 10, startOnBoot: true, stopOnTerminate: false, enableHeadless: true, requiresStorageNotLow: false, requiresBatteryNotLow: false, requiresCharging: false, requiresDeviceIdle: false, requiredNetworkType: NetworkType.NONE),
+        (String taskId) async {
       print("[BackgroundFetch] received event $taskId");
       updatelocation(1, currentlat, currentlong, "HEARTBEAT");
       checkinorout();
@@ -309,8 +279,7 @@ class _HomePageState extends State<HomePage>
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = new IOSInitializationSettings();
     var initSetttings = new InitializationSettings(android, iOS);
-    flutterLocalNotificationsPlugin.initialize(initSetttings,
-        onSelectNotification: onSelectNotification);
+    flutterLocalNotificationsPlugin.initialize(initSetttings, onSelectNotification: onSelectNotification);
     //getJsondata();
     _identifier = 'MYQUARANTINELOCATION';
 
@@ -349,39 +318,20 @@ class _HomePageState extends State<HomePage>
   }
 
   showNotification() async {
-    var android = new AndroidNotificationDetails(
-        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
-        priority: Priority.High, importance: Importance.Max);
+    var android = new AndroidNotificationDetails('channel id', 'channel NAME', 'CHANNEL DESCRIPTION', priority: Priority.High, importance: Importance.Max);
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-    await flutterLocalNotificationsPlugin.show(0, AppLocalizations.of(context)
-                .translate('update_health_title'),
-        AppLocalizations.of(context)
-                .translate('update_health_status_notification'), platform,
-        payload:
-            AppLocalizations.of(context)
-                .translate('update_health_status_notification'));
+    await flutterLocalNotificationsPlugin.show(0, AppLocalizations.of(context).translate('update_health_title'), AppLocalizations.of(context).translate('update_health_status_notification'), platform,
+        payload: AppLocalizations.of(context).translate('update_health_status_notification'));
   }
+
 //update_health_status_notification
   ongeofencecross(String event) async {
-    var android = new AndroidNotificationDetails(
-        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
-        priority: Priority.High, importance: Importance.Max);
+    var android = new AndroidNotificationDetails('channel id', 'channel NAME', 'CHANNEL DESCRIPTION', priority: Priority.High, importance: Importance.Max);
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-    await flutterLocalNotificationsPlugin.show(
-        0,
-        AppLocalizations.of(context)
-                .translate('alert_title'),
-        event == 'EXIT'
-            ? AppLocalizations.of(context)
-                .translate('geofenceoutnotificationmessage')
-            : '',
-        platform,
-        payload: event == 'EXIT'
-            ? AppLocalizations.of(context)
-                .translate('geofenceoutnotificationmessage')
-            : '');
+    await flutterLocalNotificationsPlugin.show(0, AppLocalizations.of(context).translate('alert_title'), event == 'EXIT' ? AppLocalizations.of(context).translate('geofenceoutnotificationmessage') : '', platform,
+        payload: event == 'EXIT' ? AppLocalizations.of(context).translate('geofenceoutnotificationmessage') : '');
   }
 
   // Future<String> getJsondata() async {
@@ -422,8 +372,7 @@ class _HomePageState extends State<HomePage>
   }
 
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   List<Widget> _widgetOptions;
 
   void _onItemTapped(int index) {
@@ -500,20 +449,15 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
-    if (today.hour == 8 && today.second == 0 ||
-        today.hour == 22 && today.second == 0) {
+    if (today.hour == 8 && today.second == 0 || today.hour == 22 && today.second == 0) {
       showNotification();
     }
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    var bottomNavigationBarItems = _navigationViews
-        .map<BottomNavigationBarItem>((navigationView) => navigationView.item)
-        .toList();
+    var bottomNavigationBarItems = _navigationViews.map<BottomNavigationBarItem>((navigationView) => navigationView.item).toList();
     if (widget.type == BottomNavigationDemoType.withLabels) {
-      bottomNavigationBarItems =
-          bottomNavigationBarItems.sublist(0, _navigationViews.length);
-      _currentIndex =
-          _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
+      bottomNavigationBarItems = bottomNavigationBarItems.sublist(0, _navigationViews.length);
+      _currentIndex = _currentIndex.clamp(0, bottomNavigationBarItems.length - 1).toInt();
     }
     //  if(widget.navigationIndex==1){
 
@@ -542,21 +486,14 @@ class _HomePageState extends State<HomePage>
       ),
       body: Center(
         child: IndexedStack(
-          children: <Widget>[
-            DashBoard(),
-            UpdateHealthInfo(),
-            RaiseHands(),
-            HistoryPage(),
-            Profile()
-          ],
+          children: <Widget>[DashboardView(), UpdateHealthInfo(), RaiseHands(), HistoryPage(), Profile()],
           index: _currentIndex,
         ),
         //_widgetOptions.elementAt(_currentIndex),
         //_buildTransitionsStack(),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        showUnselectedLabels:
-            widget.type == BottomNavigationDemoType.withLabels,
+        showUnselectedLabels: widget.type == BottomNavigationDemoType.withLabels,
         items: bottomNavigationBarItems,
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,

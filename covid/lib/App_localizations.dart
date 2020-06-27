@@ -15,14 +15,12 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
   Map<String, String> _localizedStrings;
 
   Future<bool> load() async {
     // Load the language JSON file from the "lang" folder
-    String jsonString =
-        await rootBundle.loadString('languages/${locale.languageCode}.json');
+    String jsonString = await rootBundle.loadString('languages/en.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
 
     _localizedStrings = jsonMap.map((key, value) {
@@ -38,9 +36,7 @@ static const LocalizationsDelegate<AppLocalizations> delegate =
   }
 }
 
-
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   // This delegate instance will never change (it doesn't even have fields!)
   // It can provide a constant constructor.
   const _AppLocalizationsDelegate();
@@ -59,8 +55,7 @@ class _AppLocalizationsDelegate
     print(localizations._localizedStrings);
     return localizations;
   }
-  
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
-} 
+}

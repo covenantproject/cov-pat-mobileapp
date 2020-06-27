@@ -30,12 +30,12 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   GoogleMapController _googleMapController;
   Position position = Position();
   Widget _map;
-   bool keepAlive = false;
+  bool keepAlive = false;
   var _config;
   int userId;
   bool ismaploaded;
   double _radius = 15.0;
-   DialogBox dialogBox = DialogBox();
+  DialogBox dialogBox = DialogBox();
   Configure _configure = new Configure();
   HomedetailsModel homeDetails = HomedetailsModel();
   String healthofficer;
@@ -43,7 +43,7 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
   String emergencycontactno;
   String officerno;
   bool issetlocationenabled;
-  GetGeoLocationModel geoFenceLocationModel=GetGeoLocationModel();
+  GetGeoLocationModel geoFenceLocationModel = GetGeoLocationModel();
   static double lastgeolat;
   static double lastegeolong;
   static double lat;
@@ -53,103 +53,103 @@ class _DashBoardState extends State<DashBoard> with TickerProviderStateMixin {
     return <Marker>[
       Marker(
           markerId: MarkerId('Home'),
-          position: LatLng(lastgeolat==0.0||lastgeolat==null?position.latitude:lastgeolat,lastegeolong==0.0||lastegeolong==null? position.longitude:lastegeolong),
+          position: LatLng(lastgeolat == 0.0 || lastgeolat == null ? position.latitude : lastgeolat, lastegeolong == 0.0 || lastegeolong == null ? position.longitude : lastegeolong),
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: "Home"))
     ].toSet();
   }
 
-showAlertDialog() {
+  showAlertDialog() {
+    var alertContext;
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text(AppLocalizations.of(context).translate('cancel_button')),
+      onPressed: () {
+        Navigator.pop(alertContext);
+      },
+    );
+    Widget confirmButton = FlatButton(
+      child: Text(AppLocalizations.of(context).translate('confirmbutton')),
+      onPressed: () async {
+        Navigator.pop(alertContext);
+        await updateGeofence();
+        getCurrentLocation();
+        dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
+        getJsondata();
+      },
+    );
 
-  var alertContext;
-  // set up the buttons
-  Widget cancelButton = FlatButton(
-    child: Text(AppLocalizations.of(context).translate('cancel_button')),
-    onPressed:  () {
-      Navigator.pop(alertContext);
-    } ,
-  );
-  Widget confirmButton = FlatButton(
-    child: Text(AppLocalizations.of(context).translate('confirmbutton')),
-    onPressed:  () 
-        async {
-         Navigator.pop(alertContext);
-         await updateGeofence();
-         getCurrentLocation();
-         dialogBox.information(context, AppLocalizations.of(context).translate('setlocationpopuptitle'), AppLocalizations.of(context).translate('setlocationpopupmessage'));
-         getJsondata();
-      
-    },
-  );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(AppLocalizations.of(context).translate('setlocationalertdialogTitle')),
+      content: Text(AppLocalizations.of(context).translate('setlocationconfirmationmessage')),
+      actions: [
+        cancelButton,
+        confirmButton,
+      ],
+    );
 
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text(AppLocalizations.of(context).translate('setlocationalertdialogTitle')),
-    content: Text(AppLocalizations.of(context).translate('setlocationconfirmationmessage')),
-    actions: [
-      cancelButton,
-      confirmButton,
-    ],
-  );
-
-  // show the dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) {
-      alertContext = dialogContext;
-      return alert;
-    },
-  );
-}
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        alertContext = dialogContext;
+        return alert;
+      },
+    );
+  }
 
   void getCurrentLocation() async {
-    Position res = await Geolocator().getCurrentPosition();
+    //Position res = await Geolocator().getCurrentPosition();
     SharedPreferences prefs = await _prefs;
     setState(() {
-      position = res;
+      //position = res;
       prefs.setDouble('lat', position.latitude);
       prefs.setDouble('long', position.longitude);
       lat = prefs.getDouble('lat');
       long = prefs.getDouble('long');
-       Set<Circle> circles = Set.from([
-    Circle(
-      circleId: CircleId('${DateTime.now()}'),
-      center:  LatLng(lastgeolat==0.0||lastgeolat==null?lat:lastgeolat, lastegeolong==0.0||lastegeolong==null?long:lastegeolong),
-      radius: 15,
-      fillColor: Colors.redAccent.withOpacity(0.4),
-      visible: true,
-      //strokeColor: Colors.red,
-      strokeWidth: 1
-    ),
-  ]);
-       Widget mapWidget() {
-       return GoogleMap(
-      markers: _createMarker(),
-      mapType: MapType.normal,
-      zoomGesturesEnabled: false,
-      scrollGesturesEnabled: false,
-      rotateGesturesEnabled: false,
-      initialCameraPosition: CameraPosition(
-          target: LatLng(lastgeolat==0.0||lastgeolat==null?lat:lastgeolat,lastegeolong==0.0||lastegeolong==null?long:lastegeolong), zoom: 19.0),
-      onMapCreated: (GoogleMapController controller) {
-        _googleMapController = controller;
 
-      },
-      circles: circles,
-    );
-  }
+      // Set<Circle> circles = Set.from([
+      //   Circle(
+      //       circleId: CircleId('${DateTime.now()}'),
+      //       center: LatLng(lastgeolat == 0.0 || lastgeolat == null ? lat : lastgeolat, lastegeolong == 0.0 || lastegeolong == null ? long : lastegeolong),
+      //       radius: 15,
+      //       fillColor: Colors.redAccent.withOpacity(0.4),
+      //       visible: true,
+      //       //strokeColor: Colors.red,
+      //       strokeWidth: 1),
+      // ]);
+
+      final CameraPosition _kGooglePlex = CameraPosition(
+        target: LatLng(37.42796133580664, -122.085749655962),
+        zoom: 14.4746,
+      );
+
+      Widget mapWidget() {
+        return GoogleMap(
+          //markers: _createMarker(),
+          mapType: MapType.normal,
+          zoomGesturesEnabled: false,
+          scrollGesturesEnabled: false,
+          rotateGesturesEnabled: false,
+          initialCameraPosition: _kGooglePlex,
+          onMapCreated: (GoogleMapController controller) {
+            _googleMapController = controller;
+          },
+          //circles: circles,
+        );
+      }
+
       _map = mapWidget();
     });
-     setState(() {
-        ismaploaded=true;
-      });
-    if(lastgeolat!=0.0&&lastgeolat!=null){
-     
-         //_addgeofence(lat,long);
-    }else{
+    setState(() {
+      ismaploaded = true;
+    });
+    if (lastgeolat != 0.0 && lastgeolat != null) {
+      //_addgeofence(lat,long);
+    } else {
       //_addgeofence(lastgeolat,lastegeolong);
     }
-    
   }
   // Future doAsyncStuff() async {
   //   keepAlive = true;
@@ -190,28 +190,24 @@ showAlertDialog() {
 //    }
 
 //  }
-  
-initializeHomedetails()async{
- await getJsondata();
- Future.delayed(new Duration(milliseconds: 3000), ()
-{
-    getCurrentLocation();
 
-});
-   
-}
- 
-
+  initializeHomedetails() async {
+    await getJsondata();
+    Future.delayed(new Duration(milliseconds: 3000), () {
+      getCurrentLocation();
+    });
+  }
 
   @override
-  void initState(){
-    ismaploaded=false;
- initializeHomedetails();
-    
+  void initState() {
+    ismaploaded = false;
+    initializeHomedetails();
+
     super.initState();
   }
-  updateGeofence()async{
- SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  updateGeofence() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
     _config = _configure.serverURL();
     var apiUrl = Uri.parse(_config.postman + '/updategeofence');
@@ -222,17 +218,7 @@ initializeHomedetails()async{
       HttpClientRequest request = await client.postUrl(apiUrl);
       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
-      var payload = {
-       
-    "patientId":userId,
-    "latitude":lat,
-    "longitude":long,
-    "geoFenceSet": true,
-    "radius":ENV.RADIUS_GEOFENCE,
-    "startDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}",
-    "endDate":"${DateFormat('yyyy-MM-dd').format(DateTime.now())}"
-
-      };
+      var payload = {"patientId": userId, "latitude": lat, "longitude": long, "geoFenceSet": true, "radius": ENV.RADIUS_GEOFENCE, "startDate": "${DateFormat('yyyy-MM-dd').format(DateTime.now())}", "endDate": "${DateFormat('yyyy-MM-dd').format(DateTime.now())}"};
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
       // 3. Send the request
@@ -246,8 +232,8 @@ initializeHomedetails()async{
     } catch (ex) {
       print('error $ex');
     }
-
   }
+
   Future<String> getJsondata() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('userId');
@@ -257,35 +243,29 @@ initializeHomedetails()async{
     var homedetailsresponse;
     var getgeolocationresponse;
     try {
-      homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {
-        "Accept": "*/*","api-key":_config.apikey
-      });
-      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {
-        "Accept": "*/*","api-key":_config.apikey
-      });
+      homedetailsresponse = await http.get(Uri.encodeFull(homeurl), headers: {"Accept": "*/*", "api-key": _config.apikey});
+      getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {"Accept": "*/*", "api-key": _config.apikey});
     } catch (ex) {
       print('error $ex');
     }
-    if(homedetailsresponse.statusCode==200){
+    if (homedetailsresponse.statusCode == 200) {
       setState(() {
-      homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
-      geoFenceLocationModel=getGeoLocationModelFromJson(getgeolocationresponse.body);
-      try{
-      issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
-      lastgeolat=geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
-      lastegeolong=geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
-      }
-      catch(ex){
-       lastgeolat=position.latitude;
-      lastegeolong=position.longitude;
-      }
-      
-      healthofficer = homeDetails.homeDetails.firstname;
-      officerno = homeDetails.homeDetails.emergencycontact1;
-      healthupdate =
-     homeDetails.homeDetails.requestdatetime!=null?DateFormat('yyyy-MM-dd h:mm a').format(DateTime.parse(homeDetails.homeDetails.requestdatetime).toLocal()):null;
-      emergencycontactno = homeDetails.homeDetails.emergencycontact1;
-    });
+        //homeDetails = homedetailsModelFromJson(homedetailsresponse.body);
+        geoFenceLocationModel = getGeoLocationModelFromJson(getgeolocationresponse.body);
+        try {
+          issetlocationenabled = geoFenceLocationModel.geoFenceData.first.geoFenceSet;
+          lastgeolat = geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
+          lastegeolong = geoFenceLocationModel.geoFenceData.first.geoFenceLongitude;
+        } catch (ex) {
+          lastgeolat = position.latitude;
+          lastegeolong = position.longitude;
+        }
+
+        healthofficer = homeDetails.homeDetails.firstname;
+        officerno = homeDetails.homeDetails.emergencycontact1;
+        healthupdate = homeDetails.homeDetails.requestdatetime != null ? DateFormat('yyyy-MM-dd h:mm a').format(DateTime.parse(homeDetails.homeDetails.requestdatetime).toLocal()) : null;
+        emergencycontactno = homeDetails.homeDetails.emergencycontact1;
+      });
     }
     return "Success";
   }
@@ -293,7 +273,7 @@ initializeHomedetails()async{
   @override
   Widget build(BuildContext context) {
     getJsondata();
-   // getCurrentLocation();
+    // getCurrentLocation();
     return SingleChildScrollView(
         child: homeDetails == null
             ? Center(
@@ -314,8 +294,7 @@ initializeHomedetails()async{
                             height: MediaQuery.of(context).size.height / 1.4,
                             child: Align(
                               alignment: Alignment.center,
-                              child:
-                                  Text('Loading', style: styletext.emptylist()),
+                              child: Text('Loading', style: styletext.emptylist()),
                             ),
                           ),
                         ],
@@ -331,29 +310,24 @@ initializeHomedetails()async{
                                   ListTile(
                                     dense: true,
                                     leading: Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 0),
+                                      padding: const EdgeInsets.only(bottom: 0),
                                       child: Icon(Icons.album),
                                     ),
                                     title: Padding(
                                       padding: const EdgeInsets.only(top: 10),
                                       child: Text(
-                                        AppLocalizations.of(context)
-                                            .translate('health_officer'),
+                                        AppLocalizations.of(context).translate('health_officer'),
                                         style: styletext.placeholderStyle(),
                                       ),
                                     ),
                                     subtitle: Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 5, right: 0),
-                                      child: healthofficer != null 
+                                      padding: const EdgeInsets.only(top: 5, right: 0),
+                                      child: healthofficer != null
                                           ? Text(
                                               '$healthofficer\n$officerno',
-                                              style:
-                                                  styletext.placeholderStyle(),
+                                              style: styletext.placeholderStyle(),
                                             )
-                                          : Text('Not assigned',style: styletext
-                                                    .placeholderStyle()),
+                                          : Text('Not assigned', style: styletext.placeholderStyle()),
                                     ),
                                   ),
                                   // ButtonBar(
@@ -381,25 +355,20 @@ initializeHomedetails()async{
                                   children: <Widget>[
                                     ListTile(
                                       dense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 16.0, vertical: 0),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
                                       leading: Icon(Icons.album),
                                       title: Text(
-                                        AppLocalizations.of(context)
-                                            .translate('last_health'),
+                                        AppLocalizations.of(context).translate('last_health'),
                                         style: styletext.placeholderStyle(),
                                       ),
                                       subtitle: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 5, bottom: 0),
+                                        padding: const EdgeInsets.only(top: 5, bottom: 0),
                                         child: healthupdate != null
                                             ? Text(
                                                 '$healthupdate',
-                                                style: styletext
-                                                    .placeholderStyle(),
+                                                style: styletext.placeholderStyle(),
                                               )
-                                            : Text('No last update',style: styletext
-                                                    .placeholderStyle()),
+                                            : Text('No last update', style: styletext.placeholderStyle()),
                                       ),
                                     ),
                                     // ButtonBar(
@@ -438,15 +407,10 @@ initializeHomedetails()async{
                                 children: <Widget>[
                                   ListTile(
                                     leading: Icon(Icons.album),
-                                    title:
-                                        Text( AppLocalizations.of(context)
-                                            .translate('em_contact')),
+                                    title: Text(AppLocalizations.of(context).translate('em_contact')),
                                     subtitle: Padding(
                                       padding: const EdgeInsets.only(top: 5),
-                                      child: emergencycontactno != null
-                                          ? new Text('$emergencycontactno')
-                                          : new Text('-',style: styletext
-                                                    .placeholderStyle()),
+                                      child: emergencycontactno != null ? new Text('$emergencycontactno') : new Text('-', style: styletext.placeholderStyle()),
                                     ),
                                   ),
                                   // ButtonBar(
@@ -476,58 +440,56 @@ initializeHomedetails()async{
                                     title: Padding(
                                       padding: const EdgeInsets.only(top: 12),
                                       child: Text(
-                                        AppLocalizations.of(context)
-                                            .translate('location'),
+                                        AppLocalizations.of(context).translate('location'),
                                         style: styletext.placeholderStyle(),
                                       ),
                                     ),
                                     subtitle: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 10, right: 10),
-                                        child:
-                                       _map==null?   
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Center(child: CircularProgressIndicator(),),
-                                        ):Container(height: 300, child: _map)
-                                       
-                                    ),
+                                        padding: const EdgeInsets.only(top: 10, right: 10),
+                                        child: _map == null
+                                            ? Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Center(
+                                                  child: CircularProgressIndicator(),
+                                                ),
+                                              )
+                                            : Container(
+                                                height: 300,
+                                                child: _map,
+                                              )),
                                   ),
                                   ButtonBar(
                                     children: <Widget>[
-                                   issetlocationenabled==false?FlatButton(
-                                       // disabledTextColor: Colors.grey,
-                                        //color: Colors.grey,
-                                       // textColor: Colors.grey,
-                                        child: Text(
-                                          AppLocalizations.of(context)
-                                              .translate('location_button'),
-                                          //style: styletext.labelfont()
-                                          style: styletext.labelfont(),
-                                        ),
-                                        onPressed: ()
-                                        {
-                                          showAlertDialog();
-                                          
-                                        },
-                                        // () {
-                                        //   getCurrentLocation();
-                                        //   /* ... */
-                                        // },
-                                      ):FlatButton(
-                                        disabledTextColor: Colors.grey,
-                                       // color: Colors.grey,
-                                       textColor: Colors.grey,
-                                       onPressed: (){},
-                                       child: Text(
-                                          AppLocalizations.of(context)
-                                              .translate('location_button'),
-                                              style: TextStyle(fontSize: 17),
-                                          //style: styletext.labelfont()
-                                         // style: styletext.labelfont(),
-                                          
-                                        ),
-                                      ),
+                                      issetlocationenabled == false
+                                          ? FlatButton(
+                                              // disabledTextColor: Colors.grey,
+                                              //color: Colors.grey,
+                                              // textColor: Colors.grey,
+                                              child: Text(
+                                                AppLocalizations.of(context).translate('location_button'),
+                                                //style: styletext.labelfont()
+                                                style: styletext.labelfont(),
+                                              ),
+                                              onPressed: () {
+                                                showAlertDialog();
+                                              },
+                                              // () {
+                                              //   getCurrentLocation();
+                                              //   /* ... */
+                                              // },
+                                            )
+                                          : FlatButton(
+                                              disabledTextColor: Colors.grey,
+                                              // color: Colors.grey,
+                                              textColor: Colors.grey,
+                                              onPressed: () {},
+                                              child: Text(
+                                                AppLocalizations.of(context).translate('location_button'),
+                                                style: TextStyle(fontSize: 17),
+                                                //style: styletext.labelfont()
+                                                // style: styletext.labelfont(),
+                                              ),
+                                            ),
                                     ],
                                   ),
                                 ],

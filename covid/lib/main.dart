@@ -3,6 +3,7 @@ import 'package:covid/App_localizations.dart';
 import 'package:covid/HomePage.dart';
 import 'package:covid/Landing.dart';
 import 'package:covid/Login.dart';
+import 'package:covid/locator.dart';
 import 'package:vector_math/vector_math.dart' as math;
 import 'dart:math';
 import 'package:tuple/tuple.dart';
@@ -20,7 +21,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:convert' as JSON;
 import 'package:http/http.dart' as http;
-
 
 Position position = Position();
 var _config;
@@ -54,14 +54,12 @@ Future<String> getquarantinelocationdata() async {
   // var homedetailsresponse;
   var getgeolocationresponse;
   try {
-    getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl),
-        headers: {"Accept": "*/*", "api-key": _config.apikey});
+    getgeolocationresponse = await http.get(Uri.encodeFull(getgeolocationurl), headers: {"Accept": "*/*", "api-key": _config.apikey});
   } catch (ex) {
     print('error $ex');
   }
   if (getgeolocationresponse.statusCode == 200) {
-    geoFenceLocationModel =
-        getGeoLocationModelFromJson(getgeolocationresponse.body);
+    geoFenceLocationModel = getGeoLocationModelFromJson(getgeolocationresponse.body);
     try {
       // issetlocationenabled=geoFenceLocationModel.geoFenceData.first.geoFenceSet;
       lastgeolat = geoFenceLocationModel.geoFenceData.first.geoFenceLatitude;
@@ -71,8 +69,7 @@ Future<String> getquarantinelocationdata() async {
   return "Success";
 }
 
-Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
-    double quarantineLongitude, double currentLongitude, int radius) {
+Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude, double quarantineLongitude, double currentLongitude, int radius) {
   // The math module contains a function
   // named radians which converts from
   // degrees to radians.
@@ -85,8 +82,7 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
   double dlon = currentLongitude - quarantineLongitude;
   double dlat = currentLatitude - quarantineLatitude;
 
-  double a = pow(sin(dlat / 2), 2) +
-      cos(quarantineLatitude) * cos(currentLatitude) * pow(sin(dlon / 2), 2);
+  double a = pow(sin(dlat / 2), 2) + cos(quarantineLatitude) * cos(currentLatitude) * pow(sin(dlon / 2), 2);
 
   double c = 2 * asin(sqrt(a));
 
@@ -106,7 +102,6 @@ Tuple2<double, bool> distance(double quarantineLatitude, double currentLatitude,
 }
 
 checkinorout() async {
- 
   await getCurrentLocation();
   await getquarantinelocationdata();
   final result = distance(lastgeolat, currentlat, lastgeolong, currentlong, 15);
@@ -119,8 +114,7 @@ checkinorout() async {
   } else {
     if (lastgeolat != 0.0) {
       print('OUT');
-     
-     
+
       ongeofencecross('EXIT');
       updatelocation(1, currentlat, currentlong, "GEOFENCE_EXIT");
     }
@@ -136,36 +130,24 @@ ongeofencecross(String event) async {
   var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
   var iOS = new IOSInitializationSettings();
   var initSetttings = new InitializationSettings(android, iOS);
-  flutterLocalNotificationsPlugin.initialize(initSetttings,
-      onSelectNotification: onSelectNotification);
-  var androiddetails = new AndroidNotificationDetails(
-      'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
-      priority: Priority.High, importance: Importance.Max);
+  flutterLocalNotificationsPlugin.initialize(initSetttings, onSelectNotification: onSelectNotification);
+  var androiddetails = new AndroidNotificationDetails('channel id', 'channel NAME', 'CHANNEL DESCRIPTION', priority: Priority.High, importance: Importance.Max);
   var iOSdetails = new IOSNotificationDetails();
   var platform = new NotificationDetails(androiddetails, iOSdetails);
-  
+
   await flutterLocalNotificationsPlugin.show(
-      0,
-      'Alert',
-      event == 'EXIT'
-          ? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.'
-          : '',
-      platform,
-      payload: event == 'EXIT'
-          ? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.'
-          : '');
+      0, 'Alert', event == 'EXIT' ? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.' : '', platform,
+      payload: event == 'EXIT' ? 'Seems you are moving out of your quarantined area. Going out of the quarantined area is prohibited. If you go out of the quarantined area, necessary actions will be taken by the government officers.' : '');
 }
 
 void backgroundFetchHeadlessTask(String taskId) async {
-  
   print("[BackgroundFetch] HeadlessTask: $taskId");
   updatelocation(1, currentlat, currentlong, "HEARTBEAT");
   checkinorout();
   BackgroundFetch.finish(taskId);
 }
 
-Future updatelocation(
-    int patientid, double lat, double long, String code) async {
+Future updatelocation(int patientid, double lat, double long, String code) async {
   _config = _configure.serverURL();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   userId = prefs.getInt('userId');
@@ -180,12 +162,7 @@ Future updatelocation(
       HttpClientRequest request = await client.postUrl(apiUrl);
       request.headers.set('api-key', _config.apikey);
       request.headers.set('content-type', 'application/json; charset=utf-8');
-      var payload = {
-        "userId": userId,
-        "latitude": "$lat",
-        "longitude": "$long",
-        "code": "$code"
-      };
+      var payload = {"userId": userId, "latitude": "$lat", "longitude": "$long", "code": "$code"};
       request.write(JSON.jsonEncode(payload));
       print(JSON.jsonEncode(payload));
       // 3. Send the request
@@ -215,13 +192,14 @@ Future onSelectNotification(String payload) {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(MyApp());
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+  //BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -263,7 +241,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   void initState() {
     super.initState();
@@ -289,16 +266,17 @@ class _MyHomePageState extends State<MyHomePage> {
         GlobalWidgetsLocalizations.delegate,
       ],
       localeResolutionCallback: (locale, supportedLocales) {
+        return supportedLocales.first;
+        /*
         // Check if the current device locale is supported
         for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale.languageCode &&
-              supportedLocale.countryCode == locale.countryCode) {
+          if (supportedLocale.languageCode == locale.languageCode && supportedLocale.countryCode == locale.countryCode) {
             return supportedLocale;
           }
         }
         // If the locale of the device is not supported, use the first one
         // from the list (English, in this case).
-        return supportedLocales.first;
+        return supportedLocales.first; */
       },
       // initialRoute: '/',
       routes: {
@@ -310,12 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
         '/otp': (context) => OtpPage(),
         '/register': (context) => RegisterPage(),
       },
-      theme: new ThemeData(
-          buttonColor: Colors.purple,
-          canvasColor: Colors.white,
-          brightness: Brightness.light,
-          fontFamily: 'Schyler',
-          primarySwatch: Colors.purple),
+      theme: new ThemeData(buttonColor: Colors.purple, canvasColor: Colors.white, brightness: Brightness.light, fontFamily: 'Schyler', primarySwatch: Colors.purple),
       home: Landing(),
       // This trailing comma makes auto-formatting nicer for build methods.
     );

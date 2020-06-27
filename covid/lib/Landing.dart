@@ -1,3 +1,5 @@
+import 'package:covid/core/services/location_services.dart';
+import 'package:covid/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,7 +9,9 @@ class Landing extends StatefulWidget {
 }
 
 class _LandingState extends State<Landing> {
- String isLoggedin;
+  String isLoggedin;
+  LocationService locationService = locator<LocationService>();
+
   @override
   void initState() {
     super.initState();
@@ -15,20 +19,18 @@ class _LandingState extends State<Landing> {
   }
 
   _loadUserInfo() async {
+    locationService.requestLocationPermission();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-  isLoggedin=  prefs.getString('isloggedin');
+    isLoggedin = prefs.getString('isloggedin');
     if (isLoggedin == "true") {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/homepage', ModalRoute.withName('/homepage'));
+      Navigator.pushNamedAndRemoveUntil(context, '/homepage', ModalRoute.withName('/homepage'));
     } else {
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/login', ModalRoute.withName('/login'));
+      Navigator.pushNamedAndRemoveUntil(context, '/login', ModalRoute.withName('/login'));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        child: Scaffold(body: Center(child: CircularProgressIndicator())));
+    return Material(child: Scaffold(body: Center(child: CircularProgressIndicator())));
   }
 }

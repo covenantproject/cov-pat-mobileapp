@@ -33,7 +33,7 @@ class _HistoryState extends State<HistoryPage> with TickerProviderStateMixin {
   String _odometer;
   String orgname;
   String username;
-    int userId;
+  int userId;
   List<History> historylist;
   var _config;
   HistoryModel historyModel;
@@ -62,430 +62,417 @@ class _HistoryState extends State<HistoryPage> with TickerProviderStateMixin {
     _odometer = '0';
     //initPlatformState();
   }
-Future<String> getJsondata() async { 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-    userId=prefs.getInt('userId');
 
-  _config = _configure.serverURL();
-    String historyurl = _config.postman +
-        "/history?userId=$userId";
+  Future<String> getJsondata() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+
+    _config = _configure.serverURL();
+    String historyurl = _config.postman + "/history?userId=$userId";
 
     var historyresponse;
     try {
-      historyresponse =
-          await http.get(Uri.encodeFull(historyurl), headers: {
+      historyresponse = await http.get(Uri.encodeFull(historyurl), headers: {
         "Accept": "*/*",
         //'Authorization': 'Bearer ',
-        'api-key':_config.apikey
+        'api-key': _config.apikey
       });
     } catch (ex) {
       print('error $ex');
     }
     setState(() {
-       historyModel = historyModelFromJson(historyresponse.body);
-       historylist=historyModel.history;
+      historyModel = historyModelFromJson(historyresponse.body);
+      historylist = historyModel.history;
     });
     return "Success";
   }
 
- 
   @override
   Widget build(BuildContext context) {
-    getJsondata();
+    //getJsondata();
     return Container(
         //color: Color.fromRGBO(20, 20, 20, 1.0),
         //color: Colors.white,
         padding: EdgeInsets.all(5.0),
-        child:  historylist == null
-                                  ? Center(
-                                      child: Container(
-                                          padding: EdgeInsets.all(0),
-                                          child: Container(
-                                              child:
-                                                  const CircularProgressIndicator(
-                                            strokeWidth: 3,
-                                          ))),
-                      
-                                    )
-                                  : RefreshIndicator(
-                                      onRefresh: getJsondata,
-                                      child: historylist.length == 0
-                                          ? ListView(
+        child: historylist == null
+            ? Center(
+                child: Container(
+                    padding: EdgeInsets.all(0),
+                    child: Container(
+                        child: const CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ))),
+              )
+            : RefreshIndicator(
+                onRefresh: getJsondata,
+                child: historylist.length == 0
+                    ? ListView(
+                        children: <Widget>[
+                          Container(
+                            // color: Colors.red,
+                            height: MediaQuery.of(context).size.height / 1.4,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(AppLocalizations.of(context).translate('historyPage_nohistory'), style: styletext.emptylist()),
+                            ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        itemCount: historylist.length,
+                        itemBuilder: (BuildContext context, int index) =>
+
+                            //  InputDecorator(
+                            //     decoration: InputDecoration(
+                            //         //contentPadding: EdgeInsets.only(left: 5.0, top: 0.0, bottom: 5.0),
+                            //        // isDense: true,
+                            //        // labelStyle: TextStyle(color: Colors.blue, fontSize: 24.0, fontWeight: FontWeight.bold),
+                            //        // labelText: historylist[index].israiseyourhand==true?'Raise your hand update':'Update health',
+                            //     ),
+                            //     child:
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 0),
+                                child: Column(children: <Widget>[
+                                  Card(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        ListTile(
+                                          // dense: true,
+                                          // leading: Padding(
+                                          //   padding: const EdgeInsets.only(bottom: 30),
+                                          //   child: Icon(Icons.album),
+                                          // ),
+                                          title: Padding(
+                                            padding: const EdgeInsets.only(top: 10),
+                                            child: Wrap(children: <Widget>[
+                                              historylist[index].ishelpupdated == true
+                                                  ? Text((DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' + AppLocalizations.of(context).translate('historyPage_RequestHealthTitle')).toString(), style: styletext.cardfont())
+                                                  : Text((DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' + AppLocalizations.of(context).translate('historyPage_HealthInfoTitle')).toString(), style: styletext.cardfont()),
+                                            ]),
+                                          ),
+                                          subtitle: Padding(
+                                            padding: const EdgeInsets.only(top: 5, right: 0, bottom: 10),
+                                            child: Column(
                                               children: <Widget>[
-                                                Container(
-                                                  // color: Colors.red,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      1.4,
-                                                  child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                        AppLocalizations.of(context).translate('historyPage_nohistory'),
-                                                        style: styletext
-                                                            .emptylist()),
-                                                  ),
+                                                SizedBox(
+                                                  height: 10,
                                                 ),
+                                                historylist[index].ishealthupdated == true
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('cough'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                historylist[index].hascough == true
+                                                                    ? Text(
+                                                                        AppLocalizations.of(context).translate('Yes'),
+                                                                        style: styletext.labelfont(),
+                                                                      )
+                                                                    : Text(
+                                                                        AppLocalizations.of(context).translate('No'),
+                                                                        style: styletext.labelfont(),
+                                                                      ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('fever'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                              child: Row(
+                                                            children: <Widget>[
+                                                              historylist[index].hasfever == true
+                                                                  ? Text(
+                                                                      AppLocalizations.of(context).translate('Yes'),
+                                                                      style: styletext.labelfont(),
+                                                                    )
+                                                                  : Text(
+                                                                      AppLocalizations.of(context).translate('No'),
+                                                                      style: styletext.labelfont(),
+                                                                    ),
+                                                            ],
+                                                          )),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('breath'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                historylist[index].hasbreathingissue == true
+                                                                    ? Text(
+                                                                        AppLocalizations.of(context).translate('Yes'),
+                                                                        style: styletext.labelfont(),
+                                                                      )
+                                                                    : Text(
+                                                                        AppLocalizations.of(context).translate('No'),
+                                                                        style: styletext.labelfont(),
+                                                                      ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true && historylist[index].currenthealthstatus != null && historylist[index].currenthealthstatus != ""
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('currenthealthstatus'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].currenthealthstatus,
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true && historylist[index].temperature != "" && historylist[index].temperature != "0.0" && historylist[index].temperature != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('temperaturetitle'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].temperature + ' °C',
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true && historylist[index].heartrate != "" && historylist[index].heartrate != "0.0" && historylist[index].heartrate != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('heart-ratetitle'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].heartrate + ' BPM',
+                                                                  style: styletext.labelfont(),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true && historylist[index].respiratoryrate != "" && historylist[index].respiratoryrate != "0.0" && historylist[index].respiratoryrate != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('respiratorytitle'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].respiratoryrate + ' BPM',
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true && historylist[index].spo2 != "" && historylist[index].spo2 != "0.0" && historylist[index].spo2 != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('spo2title'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].spo2 + ' %',
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishealthupdated == true
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('timestamp'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()),
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishelpupdated == true && historylist[index].requesttype != "" && historylist[index].requesttype != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            historylist[index].requesttype,
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  AppLocalizations.of(context).translate('Yes'),
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishelpupdated == true && historylist[index].comments != "" && historylist[index].comments != null
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('comments'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  historylist[index].comments,
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container(),
+                                                historylist[index].ishelpupdated == true
+                                                    ? Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(
+                                                            AppLocalizations.of(context).translate('timestamp'),
+                                                            style: styletext.placeholderStyle(),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 30,
+                                                          ),
+                                                          Container(
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()),
+                                                                  style: styletext.labelfont(),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    : Container()
                                               ],
-                                            ):ListView.builder(
-            itemCount: historylist.length,
-            itemBuilder: (BuildContext context, int index) =>
-            
-            //  InputDecorator(
-            //     decoration: InputDecoration(
-            //         //contentPadding: EdgeInsets.only(left: 5.0, top: 0.0, bottom: 5.0),
-            //        // isDense: true,
-            //        // labelStyle: TextStyle(color: Colors.blue, fontSize: 24.0, fontWeight: FontWeight.bold),
-            //        // labelText: historylist[index].israiseyourhand==true?'Raise your hand update':'Update health',
-            //     ),
-            //     child: 
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 0),
-                    child: Column(children: <Widget>[
-                      Card(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                             // dense: true,
-                              // leading: Padding(
-                              //   padding: const EdgeInsets.only(bottom: 30),
-                              //   child: Icon(Icons.album),
-                              // ),
-                              title: Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: Wrap(children: <Widget>[
-                                 historylist[index].ishelpupdated==true? Text(
-                                   (DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal())+ ': ' + AppLocalizations.of(context).translate('historyPage_RequestHealthTitle')).toString(),
-                                    style: styletext.cardfont()
-                                  ):Text((DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()) + ': ' +AppLocalizations.of(context).translate('historyPage_HealthInfoTitle')).toString(),
-                                  style:styletext.cardfont()),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // SizedBox(height: 10,),
                                 ]),
                               ),
-                              subtitle: Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 5, right: 0, bottom: 10),
-                                child: Column(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                  historylist[index].ishealthupdated==true? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('cough'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                             historylist[index].hascough==true? Text(
-                                                AppLocalizations.of(context).translate('Yes'),
-                                                style: styletext.labelfont(),
-                                              ):Text(
-                                                AppLocalizations.of(context).translate('No'),
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                  historylist[index].ishealthupdated==true?   Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('fever'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                            child: Row(
-                                          children: <Widget>[
-                                             historylist[index].hasfever==true? Text(
-                                                AppLocalizations.of(context).translate('Yes'),
-                                                style: styletext.labelfont(),
-                                              ):Text(
-                                                AppLocalizations.of(context).translate('No'),
-                                                style: styletext.labelfont(),
-                                              ),
-                                          ],
-                                        )),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('breath'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               historylist[index].hasbreathingissue==true? Text(
-                                                AppLocalizations.of(context).translate('Yes'),
-                                                style: styletext.labelfont(),
-                                              ):Text(
-                                                AppLocalizations.of(context).translate('No'),
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true &&
-                                    historylist[index].currenthealthstatus!=null &&
-                                    historylist[index].currenthealthstatus!=""? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('currenthealthstatus'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].currenthealthstatus,
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true &&
-                                    historylist[index].temperature!="" &&
-                                    historylist[index].temperature!="0.0"&&
-                                    historylist[index].temperature!=null? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('temperaturetitle'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].temperature + ' °C',
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true &&
-                                    historylist[index].heartrate!="" &&
-                                    historylist[index].heartrate!="0.0"&&
-                                    historylist[index].heartrate!=null? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('heart-ratetitle'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].heartrate + ' BPM',
-                                                style: styletext.labelfont(),
-                                               )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true &&
-                                    historylist[index].respiratoryrate!="" &&
-                                    historylist[index].respiratoryrate!="0.0"&&
-                                    historylist[index].respiratoryrate!=null? Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('respiratorytitle'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].respiratoryrate + ' BPM',
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true &&
-                                    historylist[index].spo2!="" &&
-                                    historylist[index].spo2!="0.0"&&
-                                    historylist[index].spo2!=null? 
-                                      Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('spo2title'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].spo2 + ' %',
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishealthupdated==true?
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('timestamp'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                              Text(
-                                                DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()),
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    historylist[index].ishelpupdated==true &&
-                                    historylist[index].requesttype != "" &&
-                                    historylist[index].requesttype !=null? 
-                                      Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          historylist[index].requesttype,
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                AppLocalizations.of(context).translate('Yes'),
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),  
-
-                                    historylist[index].ishelpupdated==true &&
-                                    historylist[index].comments!=""&&
-                                    historylist[index].comments!=null? 
-                                      Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('comments'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                               Text(
-                                                historylist[index].comments,
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container(),
-                                    
-                                    historylist[index].ishelpupdated==true?
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(
-                                          AppLocalizations.of(context).translate('timestamp'),
-                                          style: styletext.placeholderStyle(),
-                                        ),
-                                        SizedBox(
-                                          height: 30,
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            children: <Widget>[
-                                              Text(
-                                                DateFormat('dd/MMM/y h:mm a').format(historylist[index].timestamp.toLocal()),
-                                                style: styletext.labelfont(),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ):Container()
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      
-                      
-
-                      // SizedBox(height: 10,),
-                    ]),
-                  ),
-                )
-            )
-        )
-    );
+                            ))));
   }
 }
 

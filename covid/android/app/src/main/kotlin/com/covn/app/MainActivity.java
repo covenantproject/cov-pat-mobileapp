@@ -1,4 +1,4 @@
-package com.example.covid;
+package com.covn.app;
 
 import java.nio.ByteBuffer;
 import android.os.Bundle; 
